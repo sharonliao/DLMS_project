@@ -4,12 +4,12 @@ public class Item {
 
     private String itemID;
     private String itemName;
-    private int quatity;
+    private int quantity;
 
     public Item(String itemId, String itemName, int quantity) {
         this.itemID = itemId;
         this.itemName = itemName;
-        this.quatity = quantity;
+        this.quantity = quantity;
 
     }
 
@@ -21,8 +21,8 @@ public class Item {
         return itemName;
     }
 
-    public int getQuatity(){
-        return quatity;
+    public int getQuantity(){
+        return quantity;
     }
 
     public void setItemId(String Id){
@@ -34,17 +34,17 @@ public class Item {
     }
 
     public void setQuatity(int quantity){
-        this.quatity = quantity;
+        this.quantity = quantity;
     }
     public void returnOneItem(){
-        this.quatity++;
+        this.quantity++;
     }
     public void lendOneItem(){
-        this.quatity--;
+        this.quantity--;
     }
 
     public String toString(){
-        String itemInfo = itemID + ", "+itemName+", "+quatity;
+        String itemInfo = itemID + ", "+itemName+", "+quantity;
         return itemInfo;
     }
 }
