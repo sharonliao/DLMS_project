@@ -1,0 +1,15 @@
+module FrontEndAPP
+{
+   interface FrontEnd
+   {
+      string addItem(in string managerID, in string itemID, in string itemName,in long quantity);
+      string removeItem(in string managerID,in  string itemID,in  long quantity);
+      string listItemAvailability(in string managerID);
+      string borrowItem(in string userID, in string itemID);
+      string findItem(in string userID, in string itemName);
+      string returnItem(in string userID, in string itemID);
+      string exchangeItem(in string userID, in string newItemID, in string oldItemID);
+    };
+    
+};
+ 
