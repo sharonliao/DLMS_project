@@ -45,7 +45,10 @@ public class Replica2 {
 			String receiveMsg = new String(packet.getData(), 0, packet.getLength());
 			log.info(" Replica_2 Server Receive Message: " + receiveMsg);
 			
-			String library=receiveMsg.split(":")[0].toLowerCase();
+			
+			String library=receiveMsg.split(",")[1].substring(0,3).toLowerCase();
+			System.out.println("====== 1. Replica_2 receive message ======"+receiveMsg+" library---"+library);
+			
 			 Thread thread = new Thread(new UdpServer(socket, packet, getLibrary(library)));
 	            thread.start();
 		}
