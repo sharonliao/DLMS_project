@@ -108,7 +108,7 @@ public class UserClient {
 						System.out.println("Please enter the old itemID: ");
 						olditemID = br.readLine().trim().toUpperCase();
 						if (isItemID(olditemID)) {
-							System.out.println(frontend.exchangeItem(userID, newitemID, olditemID));
+							System.out.println(frontend.exchange(userID, newitemID, olditemID));
 						} else {
 							System.out.println("Invalid itemID.");
 						}
