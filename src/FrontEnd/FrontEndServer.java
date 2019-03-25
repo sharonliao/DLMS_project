@@ -33,10 +33,10 @@ public class FrontEndServer {
 	      org.omg.CORBA.Object objRef =  orb.resolve_initial_references("NameService");
 	      NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 	 
-	      NameComponent path[] = ncRef.to_name( "FE" );
+	      NameComponent path[] = ncRef.to_name( "FrontEnd" );
 	      ncRef.rebind(path, href);
 	 
-	      System.out.println("FE Server ready and waiting ...");
+	      System.out.println("FrontEnd Server ready and waiting ...");
 	 
 	      // wait for invocations from clients
 	      for (;;){
