@@ -1,6 +1,6 @@
 package ReplicaHost2;
 
-public class DLMSImpl {
+public class DLMSImp {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
