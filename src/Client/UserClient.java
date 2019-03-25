@@ -42,7 +42,6 @@ public class UserClient {
 
 	private static void Menu(FrontEnd frontend) throws IOException {
 		String itemID,userID,newitemID,olditemID,itemName;
-		int quantity;
 		String choice;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {

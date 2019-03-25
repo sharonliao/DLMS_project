@@ -57,7 +57,7 @@ public class ManagerClient {
 				if (isManager(managerID)) {
 					System.out.println("Please enter the itemID: ");
 					itemID = br.readLine().trim().toUpperCase();
-					if (isItemID(itemID)) {
+					if (isItemID(itemID)&&itemID.substring(0, 3).equalsIgnoreCase(managerID.substring(0, 3))) {
 						System.out.println("Please enter the itemName: ");
 						itemName = br.readLine().trim();
 						System.out.println("Please enter the quantity: ");
@@ -76,7 +76,7 @@ public class ManagerClient {
 				if (isManager(managerID)) {
 					System.out.println("Please enter the itemID: ");
 					itemID = br.readLine().trim().toUpperCase();
-					if (isItemID(itemID)) {
+					if (isItemID(itemID)&&itemID.substring(0, 3).equalsIgnoreCase(managerID.substring(0, 3))) {
 						System.out.println("Please enter the quantity: ");
 						quantity = Integer.parseInt(br.readLine().trim());
 						System.out.println(frontend.removeItem(managerID, itemID, quantity));
