@@ -25,11 +25,6 @@ public class Replica2 {
 		this.monServer = monServer;
 	}
 
-	private static void startUdpServer(int udpPort, DLMSImp library) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void startReplica(int replica2_Port) throws IOException {
 		DatagramSocket socket = new DatagramSocket(replica2_Port);
 		DatagramPacket packet = null;
