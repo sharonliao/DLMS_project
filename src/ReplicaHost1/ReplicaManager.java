@@ -7,6 +7,7 @@ import Model.ReplicaPort;
 import FrontEnd.Timer;
 import java.io.IOException;
 import java.net.*;
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +18,8 @@ public class ReplicaManager {
 	int failureTimes = 0;
 	int latestFailureId = 0;
 	int seqNum;
-	Queue<Message> holdBackQueue;
+	HashMap<Integer,Message> holdBackQueue;
+	//Queue<Message> holdBackQueue;
 	Queue<Message> deliveryQueue;
 	Queue<Message> historyQueue;
 
@@ -52,8 +54,7 @@ public class ReplicaManager {
 					             break;
 				case "recoverFromCrash": recoverFromCrash(message); // from FE
 					             break;
-				default: Message msg = splitMessge(message);
-					     moveToHoldBackQueue(msg); //from Sequencer, normal operation message
+				default: moveToHoldBackQueue(message); //from Sequencer, normal operation message
 					     break;
 			}
 		}
@@ -64,18 +65,19 @@ public class ReplicaManager {
 		logger.info("Replica "+ replicaId + " has failure");
 		//检查是否连续出错三次
 		int msgId = 0;//注意修改 取到真正的msgId来比较是否连续错了三次
-		if(checkIfFailureThreeTimes(msgId)){
+		if(checkIfFailThreeTimes(msgId)){
 			// inform replica to reply correct meaasge
 			InetAddress address = InetAddress.getByName("localhost");
 			byte[] data = "Failure".getBytes();
-			//可不可以不发送UDP，直接调动function恢复正确的程序
+
+
 			DatagramPacket apacket = new DatagramPacket(data,data.length,address, RMPort.RM_PORT.rmPort1_failure);
 			DatagramSocket asocket = new DatagramSocket();
 			asocket.send(apacket);
 		}
 	}
 
-	public boolean checkIfFailureThreeTimes(int msgId){
+	public boolean checkIfFailThreeTimes(int msgId){
 		boolean rtn = false;
 		if (msgId+1 == latestFailureId){
 			failureTimes ++;
@@ -130,9 +132,11 @@ public class ReplicaManager {
 	 * @param msg
 	 * @throws IOException
 	 */
-	private void moveToHoldBackQueue(Message msg) throws IOException {
-		if (!holdBackQueue.contains(msg)) {
-			holdBackQueue.offer(msg);
+	private void moveToHoldBackQueue(String msg) throws IOException {
+		int id = Integer.parseInt(msg.split(":")[0]);
+		if (!holdBackQueue.containsKey(id)) {
+			Message message = splitMessge(msg);
+			holdBackQueue.put(id,message);
 		}
 		moveToDeliveryQueue();
 	}
@@ -142,15 +146,17 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void moveToDeliveryQueue() throws IOException {
-		Message message = this.holdBackQueue.peek();
-		if(message == null) {
-			return;
-		} else if (message.seqId == this.seqNum && !this.deliveryQueue.contains(message) ){ // total order
-			message = this.holdBackQueue.poll();
-			this.deliveryQueue.offer(message);
-			this.seqNum ++;
-			checkAndExecuteMessage();
-			moveToDeliveryQueue();
+		if(holdBackQueue.size() != 0){
+			if(holdBackQueue.containsKey(this.seqNum)){
+				Message message = holdBackQueue.get(this.seqNum);
+				if( !this.deliveryQueue.contains(message)){
+					this.deliveryQueue.offer(message);
+					this.holdBackQueue.remove(this.seqNum);
+					this.seqNum ++;
+					checkAndExecuteMessage();
+					moveToDeliveryQueue();
+				}
+			}
 		}
 	}
 
