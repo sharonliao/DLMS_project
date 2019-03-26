@@ -48,7 +48,7 @@ public class DLMSImp {
 
 
 
-    public String addItem(String itemId, String itemName, int quantity,String managerId) {
+    public String addItem(String managerId, String itemId, String itemName, int quantity) {
         String returnMsg = "";
         String waitingInfos = "";
         if(bookList.containsKey(itemId)){ //simply increase quantity
@@ -149,7 +149,6 @@ public class DLMSImp {
         }
         return listOfBook;
     }
-
 
 
 

@@ -8,7 +8,8 @@ import java.rmi.RemoteException;
 
 public class UdpServer implements Runnable{
 
-    DatagramSocket socket = new DatagramSocket();
+
+    DatagramSocket socket ;
     DatagramPacket packet = null;
     DLMSImp dlms;
 
@@ -38,11 +39,11 @@ public class UdpServer implements Runnable{
                 switch (operation[0]){
 
                     case ("addItem"):
-                        String addResult=dlms.addItem(operation[1], operation[2], operation[3], operation[4]);
+                        String addResult=dlms.addItem(operation[1], operation[2], operation[3], Integer.parseInt(operation[4]));
                         replyMsg=addResult.getBytes();
                         break;
                     case ("removeItem"):
-                        String removeResult=dlms.removeItem(operation[1], operation[2], operation[3]);
+                        String removeResult=dlms.removeItem(operation[1], operation[2], Integer.parseInt(operation[3]));
                         replyMsg=removeResult.getBytes();
                         break;
                     case ("listItem"):
@@ -54,7 +55,7 @@ public class UdpServer implements Runnable{
                         replyMsg=borrowResult.getBytes();
                         break;
                     case (" addToWaitlist"):
-                        String addToWaitlistResult=dlms.addWaitList(operation[1],operation[2]);
+                        String addToWaitlistResult=dlms.putInWaiting(operation[1],operation[2]);
                         replyMsg=addToWaitlistResult.getBytes();
                         break;
                     case ("findItem"):
@@ -66,11 +67,11 @@ public class UdpServer implements Runnable{
                         replyMsg=returnResult.getBytes();
                         break;
                     case ("exchangeItem"):
-                        String exchangeResult=dlms.exchangeItem(operation[1],operation[2]);
+                        String exchangeResult=dlms.exchangeItem(operation[1],operation[2],operation[3]);
                         replyMsg=exchangeResult.getBytes();
                         break;
                     case ("addToWaitlistforExchagne"):
-                        String newexchangeResult=dlms.newExchangeItem(operation[1],operation[2]);
+                        String newexchangeResult=dlms.ex_putInWaiting(operation[1],operation[2],operation[3]);
                         replyMsg=newexchangeResult.getBytes();
                         break;
                     default:
@@ -91,8 +92,5 @@ public class UdpServer implements Runnable{
             e.printStackTrace();
         }
     }
-
-
-
 }
-}
+
