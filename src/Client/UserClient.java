@@ -41,13 +41,15 @@ public class UserClient {
 	}
 
 	private static void Menu(FrontEnd frontend) throws IOException {
-		String itemID,userID,newitemID,olditemID,itemName;
+		String itemID, userID, newitemID, olditemID, itemName;
 		String choice;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			System.out.println("Welcome to DLMS System. Please Input Your Operation:");
 			System.out.println("1. Borrow Item\n2. Find Item\n3. Return Item\n4. Exchange Item\n5. Exit");
 			choice = br.readLine().trim();
+			String reply;
+			String answer = null;
 
 			switch (choice) {
 			case "1":
@@ -57,7 +59,19 @@ public class UserClient {
 					System.out.println("Please enter the itemID: ");
 					itemID = br.readLine().trim().toUpperCase();
 					if (isItemID(itemID)) {
-						System.out.println(frontend.borrowItem(userID, itemID));						
+						reply = frontend.borrowItem(userID, itemID);
+						System.out.println(reply);
+						if (reply.equals("This item is unavailable, do you want to add to waiting list?")) {
+
+							answer = br.readLine().trim().toUpperCase();
+							if (answer.equals("YES"))
+								System.out.println(frontend.addToWaitlist(userID, itemID));
+							else if (answer.equals("NO"))
+								break;
+							else
+								System.out.println("Invalid input.");
+						} else
+							break;
 					} else {
 						System.out.println("Invalid itemID.");
 					}
@@ -65,7 +79,7 @@ public class UserClient {
 					System.out.println("Invalid userID.");
 				}
 				break;
-				
+
 			case "2":
 				System.out.println("Please enter your userID: ");
 				userID = br.readLine().trim().toUpperCase();
@@ -81,7 +95,7 @@ public class UserClient {
 					System.out.println("Invalid userID.");
 				}
 				break;
-				
+
 			case "3":
 				System.out.println("Please enter your userID: ");
 				userID = br.readLine().trim().toUpperCase();
@@ -97,7 +111,7 @@ public class UserClient {
 					System.out.println("Invalid userID.");
 				}
 				break;
-				
+
 			case "4":
 				System.out.println("Please enter your userID: ");
 				userID = br.readLine().trim().toUpperCase();
@@ -108,7 +122,21 @@ public class UserClient {
 						System.out.println("Please enter the old itemID: ");
 						olditemID = br.readLine().trim().toUpperCase();
 						if (isItemID(olditemID)) {
-							System.out.println(frontend.exchange(userID, newitemID, olditemID));
+							if (!newitemID.equals(olditemID)) {
+								reply = frontend.exchange(userID, newitemID, olditemID);
+								System.out.println(reply);
+								if (reply.equals("This item is unavailable, do you want to add to waiting list?")) {
+									answer = br.readLine().trim().toUpperCase();
+									if (answer.equals("YES"))
+										System.out.println(frontend.addToWaitlistforExchange(userID, newitemID, olditemID));
+									else if (answer.equals("NO"))
+										break;
+									else
+										System.out.println("Invalid input.");
+								} else
+									break;
+							} else
+								System.out.println("You can't exchange the same item.");
 						} else {
 							System.out.println("Invalid itemID.");
 						}
@@ -119,7 +147,7 @@ public class UserClient {
 					System.out.println("Invalid userID.");
 				}
 				break;
-				
+
 			case "5":
 				System.out.println("Exited");
 				System.exit(1);
@@ -165,4 +193,3 @@ public class UserClient {
 		return answer;
 	}
 }
-

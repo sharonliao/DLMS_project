@@ -39,21 +39,23 @@ public class Replica2 {
 
 			String receiveMsg = new String(packet.getData(), 0, packet.getLength());
 			log.info(" Replica_2 Server Receive Message: " + receiveMsg);
-			
-			String library=receiveMsg.split(":")[0].toLowerCase();
-			 Thread thread = new Thread(new UdpServer(socket, packet, getLibrary(library)));
-	            thread.start();
+
+			String library = receiveMsg.split(",")[1].substring(0, 3).toLowerCase();
+			System.out.println("====== 1. Replica_2 receive message ======" + receiveMsg + " library---" + library);
+
+			Thread thread = new Thread(new UdpServer(socket, packet, getLibrary(library)));
+			thread.start();
 		}
 
 	}
-	
+
 	private DLMSImp getLibrary(String library) {
 		if (library.equalsIgnoreCase("con"))
-            return this.conServer;
-        else if(library.equalsIgnoreCase("mcg"))
-            return this.mcgServer;
-        else 
-            return this.monServer;		
+			return this.conServer;
+		else if (library.equalsIgnoreCase("mcg"))
+			return this.mcgServer;
+		else
+			return this.monServer;
 	}
 
 	private static void createLogger(String log_name, Logger logger) throws IOException {
@@ -75,11 +77,6 @@ public class Replica2 {
 
 		Replica2 replica2 = new Replica2(replica2_log, conServer, mcgServer, monServer);
 
-		/*
-		 * Runnable r1 = () -> { replica2.startUdpServer(1112, conServer); }; Runnable
-		 * r2 = () -> { replica2.startUdpServer(2223, mcgServer); }; Runnable r3 = () ->
-		 * { replica2.startUdpServer(3334, monServer); };
-		 */
 		Runnable r4 = () -> {
 			try {
 				replica2.startReplica(ReplicaPort.REPLICA_PORT.replica2);
@@ -89,14 +86,7 @@ public class Replica2 {
 			}
 		};
 
-		/*
-		 * Thread Thread1 = new Thread(r1); Thread Thread2 = new Thread(r2); Thread
-		 * Thread3 = new Thread(r3);
-		 */
 		Thread Thread4 = new Thread(r4);
-		/*
-		 * Thread1.start(); Thread2.start(); Thread3.start();
-		 */
 		Thread4.start();
 
 	}

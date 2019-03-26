@@ -7,19 +7,19 @@ public class ResultMsg {
     /**
      * Add
      */
-    static String Ad0 = "Successfully add.";
-    static String Ad1 = "Unsuccessfully add.";
-    static String Ad2 = "Automatically lend the item to the user in waitlist.";
+    public static String Ad0 = "Successfully add.";
+    public static String Ad1 = "Unsuccessfully add.";
+    public static String Ad2 = "Automatically lend the item to the user in waitlist.";
 
 
     /**
      *Remove
      */
-    static String Re0 = "Successfully remove.";
-    static String Re1 = "Successfully decrease.";
-    static String Re2 = "Unsuccessfully remove.";
-    static String Re3 = "Such item does not exist.";
-    static String Re4 = "Invalid operation. Please try again.";
+    public static String Re0 = "Successfully remove.";
+    public static String Re1 = "Successfully decrease.";
+    public static String Re2 = "Unsuccessfully remove.";
+    public static String Re3 = "Such item does not exist.";
+    public static String Re4 = "Invalid operation. Please try again.";
 
 
     /**
