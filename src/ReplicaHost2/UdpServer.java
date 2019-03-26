@@ -37,11 +37,10 @@ public class UdpServer implements Runnable {
 				switch (operation[0]) {
 
 				case ("addItem"):
-					reply = dlms.addItem(operation[1], operation[2], operation[3],
-							Integer.parseInt(operation[4]));
+					reply = dlms.addItem(operation[1], operation[2], operation[3], Integer.parseInt(operation[4]));
 					break;
 				case ("removeItem"):
-					reply = dlms.removeItem(operation[1], operation[2], Integer.parseInt(operation[3]));					
+					reply = dlms.removeItem(operation[1], operation[2], Integer.parseInt(operation[3]));
 					break;
 				case ("listItem"):
 					reply = dlms.listItemAvailability(operation[1]);
@@ -69,7 +68,7 @@ public class UdpServer implements Runnable {
 					break;
 
 				}
-				replyMsg=reply.getBytes();
+				replyMsg = reply.getBytes();
 				DatagramPacket replyPacket = new DatagramPacket(replyMsg, 0, replyMsg.length, address, port);
 				socket.send(replyPacket);
 			}

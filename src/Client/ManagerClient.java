@@ -57,12 +57,15 @@ public class ManagerClient {
 				if (isManager(managerID)) {
 					System.out.println("Please enter the itemID: ");
 					itemID = br.readLine().trim().toUpperCase();
-					if (isItemID(itemID)&&itemID.substring(0, 3).equalsIgnoreCase(managerID.substring(0, 3))) {
+					if (isItemID(itemID) && itemID.substring(0, 3).equalsIgnoreCase(managerID.substring(0, 3))) {
 						System.out.println("Please enter the itemName: ");
 						itemName = br.readLine().trim();
 						System.out.println("Please enter the quantity: ");
 						quantity = Integer.parseInt(br.readLine().trim());
-						System.out.println(frontend.addItem(managerID, itemID, itemName, quantity));
+						if (quantity >= 0)
+							System.out.println(frontend.addItem(managerID, itemID, itemName, quantity));
+						else
+							System.out.println("\nInvalid quantity.");
 					} else {
 						System.out.println("\nInvalid itemID.");
 					}
@@ -76,7 +79,7 @@ public class ManagerClient {
 				if (isManager(managerID)) {
 					System.out.println("Please enter the itemID: ");
 					itemID = br.readLine().trim().toUpperCase();
-					if (isItemID(itemID)&&itemID.substring(0, 3).equalsIgnoreCase(managerID.substring(0, 3))) {
+					if (isItemID(itemID) && itemID.substring(0, 3).equalsIgnoreCase(managerID.substring(0, 3))) {
 						System.out.println("Please enter the quantity: ");
 						quantity = Integer.parseInt(br.readLine().trim());
 						System.out.println(frontend.removeItem(managerID, itemID, quantity));
