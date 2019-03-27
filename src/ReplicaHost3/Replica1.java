@@ -1,4 +1,4 @@
-package ReplicaHost1;
+package ReplicaHost3;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;
@@ -11,9 +11,9 @@ import java.util.Queue;
 public class Replica1 {
 
 	public Logger log;
-	public DLMSImp conServer;
-	public DLMSImp mcgServer;
-	public DLMSImp monServer;
+	public LibraryObj conServer;
+	public LibraryObj mcgServer;
+	public LibraryObj monServer;
 	public Boolean bugFree = true;
 	public Queue<Message> historyQueue;
 	//public static Replica1 replica1_Instance;
@@ -25,7 +25,7 @@ public class Replica1 {
 		final int MON_PORT = 9999;
 	}
 
-	public Replica1(Logger log, DLMSImp conServer, DLMSImp mcgServer, DLMSImp monServer) {
+	public Replica1(Logger log, LibraryObj conServer, LibraryObj mcgServer, LibraryObj monServer) {
 		super();
 		this.log = log;
 		this.conServer = conServer;
@@ -45,11 +45,11 @@ public class Replica1 {
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-		conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT);
-		mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT);
-		monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT);
+		conServer = new LibraryObj("CON",DLMS_Port.PORT.CON_PORT);
+		mcgServer = new LibraryObj("MCG",DLMS_Port.PORT.MCG_PORT);
+		monServer = new LibraryObj("MON",DLMS_Port.PORT.MON_PORT);
 
-		startServers();
+		//startServers();
 	}
 
 
@@ -57,8 +57,7 @@ public class Replica1 {
 		System.out.println("executeMsg");
 		String result = "";
 		String operation[] = msg.operationMsg.split(",");
-		DLMSImp dlms = getLibrary(msg.libCode);
-		System.out.println("msg.libCode ---"+msg.libCode);
+		LibraryObj dlms = getLibrary(msg.libCode);
 		switch (operation[0]){
 			case ("addItem"):
 				result=dlms.addItem(operation[1], operation[2], operation[3], Integer.parseInt(operation[4]));
@@ -73,7 +72,7 @@ public class Replica1 {
 				result=dlms.borrowItem(operation[1],operation[2]);
 				break;
 			case (" addToWaitlist"):
-				result=dlms.putInWaiting(operation[1],operation[2]);
+				result=dlms.addToWaitlist(operation[1],operation[2]);
 				break;
 			case ("findItem"):
 				result=dlms.findItem(operation[1],operation[2]);
@@ -82,10 +81,10 @@ public class Replica1 {
 				result=dlms.returnItem(operation[1],operation[2]);
 				break;
 			case ("exchangeItem"):
-				result=dlms.exchangeItem(operation[1],operation[2],operation[3]);
+				result=dlms.exchange(operation[1],operation[2],operation[3]);
 				break;
 			case ("addToWaitlistforExchagne"):
-				result=dlms.ex_putInWaiting(operation[1],operation[2],operation[3]);
+				result=dlms.addToWaitlistforExchange(operation[1],operation[2],operation[3]);
 				break;
 			default:
 				System.out.println("\nERROR: Invalid input please try again.");
@@ -101,7 +100,7 @@ public class Replica1 {
 		monServer.bugFree = true;
 	}
 
-	private DLMSImp getLibrary(String library) {
+	private LibraryObj getLibrary(String library) {
 		if (library.equalsIgnoreCase("con"))
 			return this.conServer;
 		else if(library.equalsIgnoreCase("mcg"))
@@ -128,7 +127,7 @@ public class Replica1 {
 	public void startServers(){
 		Runnable start_CON_UDP = () -> {
 			try{
-				conServer.udpServer();
+				conServer.receive(DLMS_Port.PORT.CON_PORT - 1);
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -137,7 +136,7 @@ public class Replica1 {
 
 		Runnable start_MCG_UDP = () -> {
 			try{
-				mcgServer.udpServer();
+				mcgServer.receive(DLMS_Port.PORT.MCG_PORT - 1);
 
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -147,7 +146,7 @@ public class Replica1 {
 
 		Runnable start_MON_UDP = () -> {
 			try{
-				monServer.udpServer();
+				monServer.receive(DLMS_Port.PORT.MON_PORT - 1);
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -251,6 +250,5 @@ public class Replica1 {
 //		replica1.recoverRplicaData();
 //		info = conServer.listItemAvailability("CONM0001");
 	}
-
 }
 

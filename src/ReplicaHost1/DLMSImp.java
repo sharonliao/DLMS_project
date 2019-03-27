@@ -80,6 +80,7 @@ public class DLMSImp {
 
 
     public String removeItem(String managerId,String itemId,int quantity){
+        System.out.println("removeItem - booklist:" + bookList);
         String rtn = "";
         String logInfo ="";
         if(bookList.containsKey(itemId)){
