@@ -120,7 +120,7 @@ public class ReplicaManager {
 		System.gc();
 
 		replica1 = new Replica1();
-		replica1.historyQueue = this.historyQueue;
+		replica1.historyQueue=this.historyQueue;
 		replica1.recoverRplicaData();
 	}
 

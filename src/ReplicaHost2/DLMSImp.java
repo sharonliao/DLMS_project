@@ -24,10 +24,15 @@ public class DLMSImp {
 	public String library;
 
 	String answer = "";
+	int LocalPort;
+	String localFlag;
+	public boolean bugFree = false;
 
-	public DLMSImp(String library, Logger log) {
-		this.library = library;
-		this.log = log;
+	public DLMSImp(String local, int localPort) {
+		// this.library = library;
+		// this.log = log;
+		this.LocalPort = localPort;
+		this.localFlag = local;
 		map = new HashMap<>();
 		temp = new HashMap<>();
 		UserBorrow = new HashMap<>();
@@ -50,17 +55,17 @@ public class DLMSImp {
 		thread2.start();
 		thread3.start();
 
-		if (library.equals("CON")) {
+		if (localFlag.equals("CON")) {
 			map.put("CON1111", new Item("CON1111", "Test for Concordia", 3));
 			map.put("CON2222", new Item("CON2222", "Math", 5));
 			map.put("CON3333", new Item("CON3333", "French", 1));
 
-		} else if (library.equals("MCG")) {
+		} else if (localFlag.equals("MCG")) {
 			map.put("MCG1111", new Item("MCG1111", "Test for Mcgill", 8));
 			map.put("MCG2222", new Item("MCG2222", "Math", 1));
 			map.put("MCG3333", new Item("MCG3333", "French", 1));
 
-		} else if (library.equals("MON")) {
+		} else if (localFlag.equals("MON")) {
 			map.put("MON1111", new Item("MON1111", "Test for Mcgill", 5));
 			map.put("MON2222", new Item("MON2222", "Math", 2));
 			map.put("MON3333", new Item("MON3333", "French", 1));
@@ -186,7 +191,7 @@ public class DLMSImp {
 
 	public String listItemAvailability(String managerID) {
 		synchronized (this) {
-			answer=listItemUdp();
+			answer = listItemUdp();
 			if (managerID.substring(0, 3).equalsIgnoreCase("con")) {
 				answer += sendMessage(3334, "List item:" + "&") + sendMessage(2223, "List item:" + "&");
 			} else if (managerID.substring(0, 3).equalsIgnoreCase("mcg")) {
@@ -499,7 +504,8 @@ public class DLMSImp {
 						if (userID.substring(0, 3).equalsIgnoreCase(oldItemID.substring(0, 3))) {
 							replyreturn = returnOldItemUdp(userID, oldItemID);
 						} else {
-							replyreturn = sendToUdpServer(oldItemID, "Return old item:" + "&" + userID + "&" + oldItemID);
+							replyreturn = sendToUdpServer(oldItemID,
+									"Return old item:" + "&" + userID + "&" + oldItemID);
 						}
 						if (replyreturn.equals("Successfully return.")) {
 							answer = "Successfully exchange.";
@@ -553,7 +559,8 @@ public class DLMSImp {
 						if (userID.substring(0, 3).equalsIgnoreCase(oldItemID.substring(0, 3))) {
 							replyreturn = returnOldItemUdp(userID, oldItemID);
 						} else {
-							replyreturn = sendToUdpServer(oldItemID, "Return old item:" + "&" + userID + "&" + oldItemID);
+							replyreturn = sendToUdpServer(oldItemID,
+									"Return old item:" + "&" + userID + "&" + oldItemID);
 						}
 						if (replyreturn.equals("Successfully return.")) {
 							answer = "Successfully exchange.";
@@ -580,7 +587,8 @@ public class DLMSImp {
 						if (userID.substring(0, 3).equalsIgnoreCase(oldItemID.substring(0, 3))) {
 							replyreturn = returnOldItemUdp(userID, oldItemID);
 						} else {
-							replyreturn = sendToUdpServer(oldItemID, "Return old item:" + "&" + userID + "&" + oldItemID);
+							replyreturn = sendToUdpServer(oldItemID,
+									"Return old item:" + "&" + userID + "&" + oldItemID);
 						}
 						if (replyreturn.equals("Successfully return.")) {
 							answer = "Successfully exchange.";
@@ -686,7 +694,7 @@ public class DLMSImp {
 						if (list.size() == 0) {
 							it.remove();
 						}
-						answer = "Successfully Return. ";						
+						answer = "Successfully Return. ";
 					}
 				}
 			} else {
@@ -797,4 +805,6 @@ public class DLMSImp {
 		}
 		return "";
 	}
+
+
 }
