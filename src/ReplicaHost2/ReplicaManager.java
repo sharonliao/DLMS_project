@@ -26,7 +26,7 @@ public class ReplicaManager {
 	ReplicaManager(Logger logger){
 
 		this.logger = logger;
-		replicaId = 1;
+		replicaId = 2;
 		failureTimes = 0;
 		latestFailureId = 0;
 		holdBackQueue = new HashMap<>();
@@ -42,10 +42,13 @@ public class ReplicaManager {
 	 * @throws Exception
 	 */
 	public void startRMListener(int RMPort) throws Exception {
-		DatagramSocket asocket = new DatagramSocket(RMPort);
+//		DatagramSocket asocket = new DatagramSocket(RMPort);
 		DatagramPacket apocket = null;
 		byte[] buf = null;
 		logger.info("RM is listenning ");
+
+		MulticastSocket asocket = new MulticastSocket(RMPort);
+		asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
 		
 
 		while (true){
@@ -115,6 +118,9 @@ public class ReplicaManager {
 	private void restartReplica() throws IOException{
 		//Replica1.main(null);
 		//restart 之前要把replica1的端口全都关掉，不然udp会报错
+		replica2 = null;
+		System.gc();
+
 		replica2 = new Replica2();
 		replica2.historyQueue = this.historyQueue;
 		replica2.recoverRplicaData();
@@ -216,7 +222,7 @@ public class ReplicaManager {
 
 		Runnable TaskListener = () ->{
 			try{
-				rm.startRMListener(RMPort.RM_PORT.rmPort2);
+				rm.startRMListener(RMPort.RM_PORT.rmPort1);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -226,13 +232,11 @@ public class ReplicaManager {
 		Thread2.start();
 
 		try{
-			Thread.sleep(20000);
+			Thread.sleep(3000);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 
-		rm.replica2 = null;
-		rm.recoverFromCrash("1:1");
 	}
 
 }

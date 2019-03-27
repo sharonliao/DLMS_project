@@ -17,7 +17,7 @@ public class ReplicaManager {
 	int failureTimes ;
 	int latestFailureId ;
 	int seqNum;
-	Replica1 replica1;
+	Replica3 replica3;
 	HashMap<Integer,Message> holdBackQueue;
 	//Queue<Message> holdBackQueue;
 	Queue<Message> deliveryQueue;
@@ -28,14 +28,14 @@ public class ReplicaManager {
 	ReplicaManager(Logger logger){
 
 		this.logger = logger;
-		replicaId = 1;
+		replicaId = 3;
 		failureTimes = 0;
 		latestFailureId = 0;
 		holdBackQueue = new HashMap<>();
 		deliveryQueue = new LinkedList<>();
 		historyQueue = new LinkedList<>();
-		replica1 = new Replica1(); //蹇呴』鍚姩replica1
-		System.out.println(replica1.getClass());
+		replica3 = new Replica3(); //蹇呴』鍚姩replica1
+		System.out.println(replica3.getClass());
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class ReplicaManager {
 		//妫�鏌ユ槸鍚﹁繛缁嚭閿欎笁娆�
 		int msgId = 0;//娉ㄦ剰淇敼 鍙栧埌鐪熸鐨刴sgId鏉ユ瘮杈冩槸鍚﹁繛缁敊浜嗕笁娆�
 		if(checkIfFailThreeTimes(msgId)){
-			replica1.fixBug();
+			replica3.fixBug();
 		}
 	}
 
@@ -126,12 +126,12 @@ public class ReplicaManager {
 	private void restartReplica() throws IOException{
 		//Replica1.main(null);
 		//restart 涔嬪墠瑕佹妸replica1鐨勭鍙ｅ叏閮藉叧鎺夛紝涓嶇劧udp浼氭姤閿�
-		replica1 = null;
+		replica3 = null;
 		System.gc();
 
-		replica1 = new Replica1();
-		replica1.historyQueue = this.historyQueue;
-		replica1.recoverRplicaData();
+		replica3 = new Replica3();
+		replica3.historyQueue = this.historyQueue;
+		replica3.recoverRplicaData();
 	}
 
 
@@ -204,7 +204,7 @@ public class ReplicaManager {
 	 */
 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
 		System.out.println("sendToReplicaAndGetReply");
-		String reply = replica1.executeMsg(msg);
+		String reply = replica3.executeMsg(msg);
 		System.out.println("reply:"+reply);
 		sendToFE(aSocket,reply);
 
@@ -240,12 +240,10 @@ public class ReplicaManager {
 		Thread2.start();
 
 		try{
-			Thread.sleep(80000);
+			Thread.sleep(3000);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 
-		rm.replica1 = null;
-		rm.recoverFromCrash("1:1");
 	}
 }

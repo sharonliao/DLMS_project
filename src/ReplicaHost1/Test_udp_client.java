@@ -2,6 +2,7 @@ package ReplicaHost1;
 
 import Model.FEPort;
 import Model.RMPort;
+import Model.SequencerPort;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
  * Created by liaoxiaoyun on 2019-03-27.
  */
 public class Test_udp_client {
+
     public String udpClient(String msg,int sPort) {
         DatagramSocket aSocket = null;
         String returnMsg ="";
@@ -22,7 +24,7 @@ public class Test_udp_client {
             aSocket = new DatagramSocket();
             byte [] message = msg.getBytes();
 
-            InetAddress aHost = InetAddress.getByName("224.0.0.1");
+            InetAddress aHost = InetAddress.getByName("localhost");
             int serverPort = sPort;
             DatagramPacket request = new DatagramPacket(message,message.length, aHost, serverPort);
             aSocket.send(request);
@@ -44,9 +46,10 @@ public class Test_udp_client {
         DatagramSocket aSocket = null;
         try {
             aSocket = new DatagramSocket(FEPort.FE_PORT.FEPort);
-            byte[] buffer = new byte[1000];
+
             System.out.println("Server Started............");
             while (true) {
+                byte[] buffer = new byte[1000];
                 String rtnMsg = "";
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(request);// request received
@@ -68,9 +71,9 @@ public class Test_udp_client {
         Test_udp_client testClient = new Test_udp_client();
 
         ArrayList<String> messages = new ArrayList<>();
-        messages.add("0:localhost:addItem,CONM0001,CON9999,distributed,4");
-        messages.add("1:localhost:removeItem,CONM0001,CON1111,-1");
-        messages.add("2:localhost:listItem,CONM0001");
+        messages.add("addItem,CONM0001,CON9999,distributed,4");
+        messages.add("removeItem,CONM0001,CON1111,-1");
+        messages.add("listItem,CONM0001");
         Runnable TaskListener = () ->{
             try{
                 testClient.udpServer();
@@ -85,31 +88,22 @@ public class Test_udp_client {
         Thread2.start();
 
         for(String message : messages){
-            testClient.udpClient(message, RMPort.RM_PORT.rmPort1);
+            testClient.udpClient(message, SequencerPort.SEQUENCER_PORT.sequencerPort);
         }
 
         try{
-            Thread.sleep(100000);
+            Thread.sleep(5000);
         }catch (Exception e){
             e.printStackTrace();
         }
 
-<<<<<<< Updated upstream
-        String message3 = "3:localhost:borrowItem,CONU0001,MON1111";
-        testClient.udpClient(message3, RMPort.RM_PORT.rmPort1);
+
+        String message3 = "borrowItem,CONU0001,MON1111";
+        testClient.udpClient(message3, SequencerPort.SEQUENCER_PORT.sequencerPort);
         
         
-        String message4 = "4:localhost:exchangeItem,CONU0001,MON2222,MON1111";
-        testClient.udpClient(message4, RMPort.RM_PORT.rmPort1);
-=======
-        String message = "4:localhost:listItem,CONM0001";
-        testClient.udpClient(message, RMPort.RM_PORT.rmPort1);
->>>>>>> Stashed changes
-
-
-
-
-
+        String message4 = "exchangeItem,CONU0001,MON2222,MON1111";
+        testClient.udpClient(message4, SequencerPort.SEQUENCER_PORT.sequencerPort);
 
     }
 

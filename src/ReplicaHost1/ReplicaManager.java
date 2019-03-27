@@ -108,6 +108,8 @@ public class ReplicaManager {
 				restartReplica();
 			}else {
 				//check if replica is alive
+
+				return;
 			}
 		}catch (IOException e){
 			e.printStackTrace();
@@ -232,7 +234,7 @@ public class ReplicaManager {
 		Thread2.start();
 
 		try{
-			Thread.sleep(80000);
+			Thread.sleep(8000);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
