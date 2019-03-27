@@ -43,10 +43,13 @@ public class ReplicaManager {
 	 * @throws Exception
 	 */
 	public void startRMListener(int RMPort) throws Exception {
-		DatagramSocket asocket = new DatagramSocket(RMPort);
+//		DatagramSocket asocket = new DatagramSocket(RMPort);
 		DatagramPacket apocket = null;
 		byte[] buf = null;
 		logger.info("RM is listenning ");
+
+		MulticastSocket asocket = new MulticastSocket(RMPort);
+		asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
 
 		while (true){
 			buf = new byte[2000];
@@ -167,7 +170,7 @@ public class ReplicaManager {
 		msg.seqId = Integer.parseInt(msgArry[0]);
 		msg.feHostAddr = msgArry[1];
 		msg.operationMsg = msgArry[2];
-		msg.libCode = msg.operationMsg.split(",")[1].substring(0,4);
+		msg.libCode = msg.operationMsg.split(",")[1].substring(0,3);
 		return msg;
 	}
 
@@ -229,7 +232,7 @@ public class ReplicaManager {
 		Thread2.start();
 
 		try{
-			Thread.sleep(20000);
+			Thread.sleep(80000);
 		}catch (Exception e){
 			e.printStackTrace();
 		}

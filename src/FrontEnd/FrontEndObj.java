@@ -43,7 +43,7 @@ public class FrontEndObj extends FrontEndPOA {
 	private static Map<String, Integer> softwareFailCounter;
 	String FEID;
 	static int portNum;
-	int portSeq;
+	static int portSeq;
 	String logpath;
 	String logmessage;
 
@@ -121,21 +121,10 @@ public class FrontEndObj extends FrontEndPOA {
 		orb = orb_val;
 	}
 
-	public FrontEndObj(String ID, int portNumber) {
+	public FrontEndObj(int portNum) {
 		super();
-		softwareFailCounter = new HashMap<String, Integer>();
-		softwareFailCounter.put("1", 0);
-		softwareFailCounter.put("2", 0);
-		softwareFailCounter.put("3", 0);
-		this.FEID = ID;
-		this.portNum = portNumber;
-		Runnable r1 = () -> {
-			receive(portNumber);
-		};
-		logpath = "C:/Users/Peachy/Projects/library_corba/server/" + FEID + "Server.log";
-		Thread udpServerThread = new Thread(r1);
-		udpServerThread.start();
-
+		this.portNum = portNum;
+		logpath = "E:/dlms/DLMS_project/server/" + FEID + "Server.log";
 	}
 
 	public void sendMessage(String message) throws Exception {
@@ -164,14 +153,14 @@ public class FrontEndObj extends FrontEndPOA {
 
 	}
 
-	public static String sendMessage(byte[] message, int serverPort) {
+	public static String sendMessage(byte[] message) {
 		DatagramPacket reply = null;
 		DatagramSocket aSocket = null;
 		try {
 			aSocket = new DatagramSocket();
 			aSocket.setSoTimeout(TIMEOUT);
 			InetAddress aHost = InetAddress.getByName("localhost");
-			DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
+			DatagramPacket request = new DatagramPacket(message, message.length, aHost, portSeq);
 			int send_count = 0;
 			boolean revResponse = false;
 			DatagramSocket socket = null;
@@ -181,7 +170,7 @@ public class FrontEndObj extends FrontEndPOA {
 				try {
 					socket = new DatagramSocket(portNum);
 					aSocket.send(request);
-					System.out.println("Request message sent from the client to server with port number " + serverPort
+					System.out.println("Request message sent from the client to server with port number " + portSeq
 							+ " is: " + new String(request.getData()));
 					byte[] buffer = new byte[1000];
 					reply = new DatagramPacket(buffer, buffer.length);
@@ -291,17 +280,11 @@ public class FrontEndObj extends FrontEndPOA {
 		String[] m = x.split(",");
 		if (m[1].equals("Ad0")) {
 			return itemID + " " + itemName + " " + q + ": Add Successful";
-		} else if (m[1].equals("Ad1")) {
-			return itemID + " " + itemName + " " + q + ": Add Failed! The quantity is not available ";
-		} else if (m[1].equals("Ad2")) {
+		} else{
 			return itemID + " " + itemName + " " + q + ": The itemID and itemName don't match";
-		} else if (m[1].equals("Ad3")) {
-			return itemID + ": You can only add book whose prefix is same as the library you belonged";
-		} else {
-			return itemID + ": The itemID does not meet the requirement.";
 		}
-
 	}
+
 
 	@Override
 	public String removeItem(String managerID, String itemID, int quantity) {
@@ -336,10 +319,8 @@ public class FrontEndObj extends FrontEndPOA {
 			return itemID + " " + quantity + ": Decrease Successfully";
 		} else if (m[1].equals("Re2")) {
 			return itemID + " " + quantity + ": Remove Failed. The quantity is unvailable.";
-		} else if (m[1].equals("Re3")) {
-			return itemID + " " + quantity + ": Remove Failed: The itemID does not exist";
 		} else {
-			return itemID + " " + quantity + ": Remove Failed: Invalid operation. Please try again.";
+			return itemID + " " + quantity + ": Remove Failed: The itemID does not exist";
 		}
 	}
 
@@ -402,14 +383,12 @@ public class FrontEndObj extends FrontEndPOA {
 		if (m[1].equals("Br0")) {
 			return itemID + ": Borrow Successfully";
 		} else if (m[1].equals("Br1")) {
-			return itemID + ": Borrow Failed: The itemID does not meet the requirement.";
-		} else if (m[1].equals("Br2")) {
 			return itemID + ": Remove Failed. The item does not exist";
-		} else if (m[1].equals("Br3")) {
+		} else if (m[1].equals("Br2")) {
 			return itemID + ": Remove Failed. The book is not available now. Do you want to be added to waitlist? Y/N";
-		} else if (m[1].equals("Br4")) {
+		} else if (m[1].equals("Br3")) {
 			return itemID + ": Remove Failed: You have borrowed this item and not returned yet";
-		} else if (m[1].equals("Br5")) {
+		} else if (m[1].equals("Br4")) {
 			return itemID + ": Remove Failed: You already borrowed another book in that library and not returned yet";
 		} else {
 			return itemID + ": Remove Failed: You are already in a waitlist of that library";
@@ -474,8 +453,6 @@ public class FrontEndObj extends FrontEndPOA {
 		if (m[1].equals("Rtn0")) {
 			return itemID + ": Return Successfully";
 		} else if (m[1].equals("Rtn1")) {
-			return itemID + ": Return Failed. The itemID does not meet the requirement.";
-		} else if (m[1].equals("Rtn2")) {
 			return itemID + ": Return Failed. The item does not exist";
 		} else {
 			return itemID + ": Return Failed. You haven't borrowed this item";
@@ -485,7 +462,7 @@ public class FrontEndObj extends FrontEndPOA {
 	@Override
 	public String checkBorrowList(String userID) {
 		byte[] message = ("checkBorrow" + "," + userID).getBytes();
-		String x = sendMessage(message, portSeq);
+		String x = sendMessage(message);
 		String[] m = x.split(",");
 		return m[1];
 	}
@@ -493,7 +470,7 @@ public class FrontEndObj extends FrontEndPOA {
 	@Override
 	public String checkWaitList(String itemID) {
 		byte[] message = ("checkWaitList" + "," + itemID).getBytes();
-		String x = sendMessage(message, portSeq);
+		String x = sendMessage(message);
 		String[] m = x.split(",");
 		return m[1];
 	}
@@ -581,16 +558,8 @@ public class FrontEndObj extends FrontEndPOA {
 		} else if (m[1].equals("Ex8")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You are already in a waitlist in that library";
-		} else if (m[1].equals("Ex9")) {
-			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You can not exchange the same item";
-		} else if (m[1].equals("Ex10")) {
-			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You haven't borrowed the old item";
-		} else if (m[1].equals("Ex11")) {
-			return "New: " + newItemID + " Old: " + oldItemID
-					+ ": Exchange failed. The old itemID does not meet the requirement";
 		} else {
-			return "New: " + newItemID + " Old: " + oldItemID
-					+ ": Exchange failed. The new itemID does not meet the requirement";
+			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You haven't borrowed the old item";
 		}
 	}
 
@@ -644,16 +613,8 @@ public class FrontEndObj extends FrontEndPOA {
 		} else if (m[1].equals("Ex8")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You are already in a waitlist in that library";
-		} else if (m[1].equals("Ex9")) {
-			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You can not exchange the same item";
-		} else if (m[1].equals("Ex10")) {
-			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You haven't borrowed the old item";
-		} else if (m[1].equals("Ex11")) {
-			return "New: " + newItemID + " Old: " + oldItemID
-					+ ": Exchange failed. The old itemID does not meet the requirement";
 		} else {
-			return "New: " + newItemID + " Old: " + oldItemID
-					+ ": Exchange failed. The new itemID does not meet the requirement";
+			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You haven't borrowed the old item";
 		}
 	}
 
@@ -784,7 +745,7 @@ public class FrontEndObj extends FrontEndPOA {
 	}
 
 	private static void findSoftwareFailforHash(HashMap<String, Integer> candidate, Integer vote,
-			Map<String, HashMap<String, Integer>> resultSet) {
+												Map<String, HashMap<String, Integer>> resultSet) {
 		if (vote == 3)
 			return;
 		String failServerNum = null;

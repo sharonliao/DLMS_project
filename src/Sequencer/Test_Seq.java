@@ -79,21 +79,17 @@ public class Test_Seq {
 		socket.send(sendPacket3);
 	}
 
-	private static void sendMessage(int serverPort){
+	private static void sendMessage(int serverPort,String msg){
 		DatagramSocket aSocket=null;
 		try {
 			System.out.println("client started......");
 			aSocket = new DatagramSocket();
-			byte[] message="0:listItem,CONM1111".getBytes();
+			byte[] message=msg.getBytes();
 			InetAddress aHost=InetAddress.getByName("localhost");
 			DatagramPacket request=new DatagramPacket(message,message.length,aHost,serverPort);
 			aSocket.send(request);
 			System.out.println("request message sent from the udpserver1 to server with port number" + serverPort +  "is: " + new String(request.getData()));
-			
-			byte[] buffer= new byte[1000];
-			DatagramPacket reply=new DatagramPacket(buffer,buffer.length);
-			aSocket.receive(reply);
-			System.out.println("reply reveived from the server with port number " + serverPort  + " is: " +new String(reply.getData()));
+
 		}catch(SocketException e) {
 			System.out.println("Socket;"+e.getMessage());
 			
@@ -116,6 +112,7 @@ public class Test_Seq {
 		
 		Test_Seq sequencer = new Test_Seq(log);
 		//sequencer.receiveMessage(SequencerPort.SEQUENCER_PORT.sequencerPort);
-		sequencer.sendMessage(RMPort.RM_PORT.rmPort1);
+		String msg = "3:localhost:addItem,CONM0001,CON8888,APP,6";
+		sequencer.sendMessage(RMPort.RM_PORT.rmPort1,msg);
 	}
 }

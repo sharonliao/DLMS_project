@@ -1,4 +1,4 @@
-package ReplicaHost1;
+package ReplicaHost3;
 
 import Model.FEPort;
 import Model.RMPort;
@@ -78,7 +78,6 @@ public class Test_udp_client {
                 e.printStackTrace();
             }
         };
-        
 
 
         Thread Thread2 = new Thread(TaskListener);
@@ -94,17 +93,8 @@ public class Test_udp_client {
             e.printStackTrace();
         }
 
-<<<<<<< Updated upstream
-        String message3 = "3:localhost:borrowItem,CONU0001,MON1111";
-        testClient.udpClient(message3, RMPort.RM_PORT.rmPort1);
-        
-        
-        String message4 = "4:localhost:exchangeItem,CONU0001,MON2222,MON1111";
-        testClient.udpClient(message4, RMPort.RM_PORT.rmPort1);
-=======
-        String message = "4:localhost:listItem,CONM0001";
+        String message = "3:localhost:listItem,CONM0001";
         testClient.udpClient(message, RMPort.RM_PORT.rmPort1);
->>>>>>> Stashed changes
 
 
 
