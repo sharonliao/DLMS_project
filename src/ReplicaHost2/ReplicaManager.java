@@ -196,7 +196,7 @@ public class ReplicaManager {
 	 */
 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
 		System.out.println("sendToReplicaAndGetReply");
-		String reply = msg.seqId+":"+replica2.executeMsg(msg);
+		String reply = msg.seqId+":"+ this.replicaId + ":" + replica2.executeMsg(msg);
 		System.out.println("reply:"+reply);
 		sendToFE(aSocket,reply);
 
@@ -206,8 +206,7 @@ public class ReplicaManager {
 	private void sendToFE(DatagramSocket aSocket, String msgFromReplica) throws IOException{
 		System.out.println("sendToFE");
 		InetAddress address = InetAddress.getByName("localhost");
-		String msg = this.replicaId + ":" + msgFromReplica;
-		byte[] data = msg.getBytes();
+		byte[] data = msgFromReplica.getBytes();
 		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.FEPort);
 		aSocket.send(aPacket);
 		//aSocket.close();//如果不colse会怎么样
