@@ -31,6 +31,7 @@ public class DLMSImp {
         portMap.put("CON",7777);
         portMap.put("MCG",8888);
         portMap.put("MON",9999);
+        initContent();
     }
 
 
@@ -72,6 +73,7 @@ public class DLMSImp {
             bookList.put(itemId,newItem);
             returnMsg =  "Ad0";
         }
+        System.out.println("add book - book list：" + bookList);
 
         return returnMsg;
     }
@@ -134,10 +136,14 @@ public class DLMSImp {
         }
 
         String msg = fomatString("availableInLocal,"+managerID);
+
         for(int port : portMap.values()){
-            String info = udpClient(msg,port);
-            listOfBook = listOfBook + info;
+            if(port != LocalPort){
+                String info = udpClient(msg,port);
+                listOfBook = listOfBook + info +"\n";
+            }
         }
+        System.out.println("3--"+listOfBook);
         return listOfBook;
     }
 
@@ -155,7 +161,7 @@ public class DLMSImp {
     public String borrowItem(String userId, String itemId)  {
         String rtn = "";
         String userAndItemID = userId + "-" + itemId;
-        String message = "borrow-" + userId + "-" + itemId  ;
+        String message = "borrow," + userId + "," + itemId  ;
         System.out.println(message);
 
         //check if the item is in local library
@@ -183,7 +189,7 @@ public class DLMSImp {
             returnInfo = returnInLocal(userId,itemId);
 
         } else { // if the book is not belong to local library
-            String message = "return-"+ userId + "-" + itemId;
+            String message = "return,"+ userId + "," + itemId;
 
             returnInfo = udpCommunication(itemId,message);
 
@@ -224,7 +230,7 @@ public class DLMSImp {
                 listOfBook = listOfBook + item.toString() + "\n";
             }
         }
-        String msg = fomatString("findInLocal-"+userId+"-"+itemName);
+        String msg = fomatString("findInLocal,"+userId+","+itemName);
 
         for(int port : portMap.values()){
             String info = udpClient(msg,port);
@@ -268,7 +274,7 @@ public class DLMSImp {
                 System.out.println("Request received from client: " + requestMsg);
 
                 //格式 1、function 2、之后都是参数
-                String[] params = requestMsg.split("-");
+                String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
                         rtnMsg = borrowItemInLocal(params[1], params[2]);break;
@@ -408,7 +414,7 @@ public class DLMSImp {
             returnInfo = checkIfRtnAvailLocal(userId, itemId);
         }else {
             // if the book is not belong to local library
-            String message = "checkIfRtnAvailLocal-"+ userId + "-" + itemId;
+            String message = "checkIfRtnAvailLocal,"+ userId + "," + itemId;
             returnInfo = udpCommunication(itemId,message);
         }
         System.out.print("checkIfReturnAvailable1 returnInfo --- " + returnInfo);
@@ -439,7 +445,7 @@ public class DLMSImp {
         String rtn = "";
         String info = "";
         String userAndItemID = userId + "-" + newItemId;
-        String message = "checkAndBorrowInlocal-" + userId + "-" + odlItemId + "-" + newItemId ;
+        String message = "checkAndBorrowInlocal," + userId + "," + odlItemId + "," + newItemId ;
         // check if the book is in local library first
 
         if (isLocalBook(newItemId)) {
@@ -524,7 +530,7 @@ public class DLMSImp {
             rtnMsg = "User (" + userId + ") is in the waiting List of the item (" + itemId + ")";
 
         } else {
-            String message = "putInWaiting-"+userId+"-"+itemId;
+            String message = "putInWaiting,"+userId+","+itemId;
             rtnMsg = udpCommunication(itemId,message);
         }
         return rtnMsg;
@@ -546,7 +552,7 @@ public class DLMSImp {
             returnItem(userId,oldItem);
 
         } else {
-            String message = "ex_putInWaiting-"+userId+"-"+newItemId+"-"+oldItem;
+            String message = "ex_putInWaiting,"+userId+","+newItemId+","+oldItem;
             rtnMsg = udpCommunication(newItemId,message);
         }
         return rtnMsg;

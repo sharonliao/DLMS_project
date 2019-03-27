@@ -44,7 +44,7 @@ public class Sequencer {
 			log.info("Sequencer receive message: "+receiveMessage);
 			
 			synchronized (this.sequenceNumber) {
-				String sendMessage = this.sequenceNumber.toString() + "," + FEHostAddress + "," + receiveMessage;
+				String sendMessage = this.sequenceNumber.toString() + ":" + FEHostAddress + ":" + receiveMessage;
 				this.sequenceNumber++;
 				multicastMessage(sendMessage, socket);
 				

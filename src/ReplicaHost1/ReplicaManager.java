@@ -7,17 +7,17 @@ import Model.ReplicaPort;
 import FrontEnd.Timer;
 import java.io.IOException;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Queue;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ReplicaManager {
 	Logger logger;
-	int replicaId = 1;
-	int failureTimes = 0;
-	int latestFailureId = 0;
+	int replicaId;
+	int failureTimes ;
+	int latestFailureId ;
 	int seqNum;
+	Replica1 replica1;
 	HashMap<Integer,Message> holdBackQueue;
 	//Queue<Message> holdBackQueue;
 	Queue<Message> deliveryQueue;
@@ -26,7 +26,16 @@ public class ReplicaManager {
 
 
 	ReplicaManager(Logger logger){
+
 		this.logger = logger;
+		replicaId = 1;
+		failureTimes = 0;
+		latestFailureId = 0;
+		holdBackQueue = new HashMap<>();
+		deliveryQueue = new LinkedList<>();
+		historyQueue = new LinkedList<>();
+		replica1 = new Replica1(); //必须启动replica1
+		System.out.println(replica1.getClass());
 	}
 
 	/**
@@ -47,14 +56,15 @@ public class ReplicaManager {
 			String message = new String(apocket.getData()).trim();
 			System.out.println("UDP receive : " + message);
 
-			String[] messageSplited = message.split("");
+			String[] messageSplited = message.split(":");
+			System.out.println("messageSplited[0]--" + messageSplited[0]);
 
 			switch (messageSplited[0]){
 				case "Failure" : recoverFromFailure(message); // from FE
 					             break;
 				case "recoverFromCrash": recoverFromCrash(message); // from FE
 					             break;
-				default: moveToHoldBackQueue(message); //from Sequencer, normal operation message
+				default: moveToHoldBackQueue(message,asocket); //from Sequencer, normal operation message
 					     break;
 			}
 		}
@@ -66,14 +76,7 @@ public class ReplicaManager {
 		//检查是否连续出错三次
 		int msgId = 0;//注意修改 取到真正的msgId来比较是否连续错了三次
 		if(checkIfFailThreeTimes(msgId)){
-			// inform replica to reply correct meaasge
-			InetAddress address = InetAddress.getByName("localhost");
-			byte[] data = "Failure".getBytes();
-
-
-			DatagramPacket apacket = new DatagramPacket(data,data.length,address, RMPort.RM_PORT.rmPort1_failure);
-			DatagramSocket asocket = new DatagramSocket();
-			asocket.send(apacket);
+			replica1.fixBug();
 		}
 	}
 
@@ -111,20 +114,12 @@ public class ReplicaManager {
 	}
 
 	private void restartReplica() throws IOException{
-		Runnable replica1 = () -> {
-			try {
-				Replica1.main(null);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		};
-		Thread thread = new Thread(replica1);
-		thread.start();
+		//Replica1.main(null);
+		//restart 之前要把replica1的端口全都关掉，不然udp会报错
+		replica1 = new Replica1();
+		replica1.historyQueue = this.historyQueue;
+		replica1.recoverRplicaData();
 	}
-
-
-
-
 
 
 	/**
@@ -132,20 +127,22 @@ public class ReplicaManager {
 	 * @param msg
 	 * @throws IOException
 	 */
-	private void moveToHoldBackQueue(String msg) throws IOException {
+	private void moveToHoldBackQueue(String msg,DatagramSocket aSocket) throws IOException {
+		System.out.println("moveToHoldBackQueue --" + msg);
 		int id = Integer.parseInt(msg.split(":")[0]);
 		if (!holdBackQueue.containsKey(id)) {
 			Message message = splitMessge(msg);
 			holdBackQueue.put(id,message);
 		}
-		moveToDeliveryQueue();
+		moveToDeliveryQueue(aSocket);
 	}
 
 	/**
 	 * check the msg's seqId and put the msg to the delivery queue
 	 * @throws IOException
 	 */
-	private void moveToDeliveryQueue() throws IOException {
+	private void moveToDeliveryQueue(DatagramSocket aSocket) throws IOException {
+		System.out.println("moveToDeliveryQueue --" );
 		if(holdBackQueue.size() != 0){
 			if(holdBackQueue.containsKey(this.seqNum)){
 				Message message = holdBackQueue.get(this.seqNum);
@@ -153,8 +150,8 @@ public class ReplicaManager {
 					this.deliveryQueue.offer(message);
 					this.holdBackQueue.remove(this.seqNum);
 					this.seqNum ++;
-					checkAndExecuteMessage();
-					moveToDeliveryQueue();
+					checkAndExecuteMessage(aSocket);
+					moveToDeliveryQueue(aSocket);
 				}
 			}
 		}
@@ -162,11 +159,13 @@ public class ReplicaManager {
 
 	public Message splitMessge(String message){
 		Message msg = new Message();
+		//seqId,FEaddr,(operation,userId......)
 		//记得修改数据
-		msg.seqId = Integer.parseInt(message.split(",")[0]);
-		msg.feHostAddr = message.split(",")[0];
-		msg.operationMsg = message.split(",")[0];
-		msg.libCode = message.split(",")[0];
+		String[] msgArry = message.split(":");
+		msg.seqId = Integer.parseInt(msgArry[0]);
+		msg.feHostAddr = msgArry[1];
+		msg.operationMsg = msgArry[2];
+		msg.libCode = msg.operationMsg.split(",")[1].substring(0,4);
 		return msg;
 	}
 
@@ -174,13 +173,14 @@ public class ReplicaManager {
 	 * check sequencer number and delivery number, then ready to send msg
 	 * @throws IOException
 	 */
-	private void checkAndExecuteMessage() throws IOException {
+	private void checkAndExecuteMessage(DatagramSocket aSocket) throws IOException {
+		System.out.println("checkAndExecuteMessage --" );
 		Message message = this.deliveryQueue.peek();
 		if(message != null){
 			message = this.deliveryQueue.poll();
-			sendToReplicaAndGetReply(message);
+			sendToReplicaAndGetReply(message,aSocket);
 			historyQueue.offer(message);
-			checkAndExecuteMessage();
+			checkAndExecuteMessage(aSocket);
 		}
 	}
 	
@@ -189,53 +189,26 @@ public class ReplicaManager {
 	 * @param msg
 	 * @throws IOException
 	 */
-	private void sendToReplicaAndGetReply(Message msg) throws IOException{
-		InetAddress address = InetAddress.getByName("localhost");
-		String sendMsg = msg.operationMsg;
-		byte[] data = sendMsg.getBytes();
-		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, ReplicaPort.REPLICA_PORT.replica1);
-		DatagramSocket aSocket = new DatagramSocket(RMPort.RM_PORT.rmPort1);
-		aSocket.send(aPacket);
-		byte[] buff = new byte[2000];
-		DatagramPacket replyPacket  = new DatagramPacket(buff,buff.length);
-
-		Timer timer = new Timer(aSocket,false);
-		Thread thread = new Thread(timer);
-		thread.start();
-
-		aSocket.receive(replyPacket);
-		String reply = new String(aPacket.getData()).trim();
+	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
+		System.out.println("sendToReplicaAndGetReply");
+		String reply = replica1.executeMsg(msg);
+		System.out.println("reply:"+reply);
 		sendToFE(aSocket,reply);
+
 	}
 
 
 	private void sendToFE(DatagramSocket aSocket, String msgFromReplica) throws IOException{
+		System.out.println("sendToFE");
 		InetAddress address = InetAddress.getByName("localhost");
 		String msg = this.replicaId + ":" + msgFromReplica;
 		byte[] data = msg.getBytes();
 		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.FEPort);
 		aSocket.send(aPacket);
-		aSocket.close();//如果不colse会怎么样
+		//aSocket.close();//如果不colse会怎么样
 	}
 
 
-//	private void crashListener(int crashPort){
-//		logger.info("RM crash listener is started......");
-//		try {
-//			DatagramSocket ascoket = new DatagramSocket(crashPort);
-//			while (true){
-//				byte[] buff = new byte[2000];
-//				DatagramPacket aPacket = new DatagramPacket(buff,buff.length);
-//				ascoket.receive(aPacket);
-//				String reply = new String(aPacket.getData()).trim();
-//			}
-//		}catch (Exception e){
-//			e.printStackTrace();
-//		}
-//	}
-
-
-	
 	public static void main(String[] args) {
 		Logger rmLogger = Logger.getLogger("RM1.log");
 		rmLogger.setLevel(Level.ALL);
@@ -250,15 +223,16 @@ public class ReplicaManager {
 			}
 		};
 
-//		Runnable CrashListener = () ->{
-//			try{
-//
-//			}
-//
-//		};
+		Thread Thread2 = new Thread(TaskListener);
+		Thread2.start();
 
+		try{
+			Thread.sleep(20000);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 
-
+		rm.replica1 = null;
+		rm.recoverFromCrash("1:1");
 	}
-
 }
