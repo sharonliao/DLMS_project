@@ -117,7 +117,7 @@ public class ReplicaManager {
 		//Replica1.main(null);
 		//restart 之前要把replica1的端口全都关掉，不然udp会报错
 		replica1 = new Replica1();
-		replica1.historyQueue = this.historyQueue;
+		replica1.historyQueue=this.historyQueue;
 		replica1.recoverRplicaData();
 	}
 
