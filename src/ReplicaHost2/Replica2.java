@@ -21,9 +21,9 @@ public class Replica2 {
 
 	enum DLMS_Port {
 		PORT;
-		final int CON_PORT = 7007;
-		final int MCG_PORT = 8008;
-		final int MON_PORT = 9009;
+		final int CON_PORT = 1112;
+		final int MCG_PORT = 2223;
+		final int MON_PORT = 3334;
 	}
 
 	public Replica2(Logger log, DLMSImp conServer, DLMSImp mcgServer, DLMSImp monServer) {
@@ -50,7 +50,6 @@ public class Replica2 {
 		mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT);
 		monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT);
 
-		//startServers();
 	}
 
 	public String executeMsg(Message msg){
@@ -147,5 +146,17 @@ public class Replica2 {
 
 
 		Replica2 replica2 = new Replica2();
+
+		Logger replica2_log = Logger.getLogger("Repilca2.log");
+		createLogger("Repilca2.log", replica2_log);
+		Logger conserver2_log = Logger.getLogger("conserver2.log");
+		createLogger("conserver2.log", conserver2_log);
+		Logger mcgserver2_log = Logger.getLogger("mcgserver2.log");
+		createLogger("mcgserver2.log", mcgserver2_log);
+		Logger monserver2_log = Logger.getLogger("monserver2.log");
+		createLogger("monserver2.log", monserver2_log);
+
+		//Replica2 replica2 = new Replica2(replica2_log, conServer, mcgServer, monServer);
+
 	}
 }
