@@ -138,14 +138,14 @@ public class DLMSImp {
 
         String msg = fomatString("availableInLocal,"+managerID);
 
-        for(int port : portMap.values()){
-            if(port != LocalPort){
-                String info = udpClient(msg,port);
-                listOfBook = listOfBook + info +"\n";
-            }
-        }
+//        for(int port : portMap.values()){
+//            if(port != LocalPort){
+//                String info = udpClient(msg,port);
+//                listOfBook = listOfBook + info +"\n";
+//            }
+//        }
         System.out.println("3--"+listOfBook);
-        return listOfBook;
+        return listOfBook.trim();
     }
 
     String availableInLocal(String managerID) {
@@ -433,7 +433,7 @@ public class DLMSImp {
             if(borrowList.containsKey(borrowId)){
                 returnInfo = "YES";
             } else{
-                returnInfo = "Ex10";//The user didn't borrow this book;
+                returnInfo = "Ex9";//The user didn't borrow this book;
             }
         } else {
             returnInfo = "Ex2";//There is no this book;
@@ -456,7 +456,7 @@ public class DLMSImp {
                 if (ifAvailable(newItemId).equals("Available")) { //check  the item is available or not
                     borrowList.put(userAndItemID, 0);
                     bookList.get(newItemId).lendOneItem();
-                    rtn =  "Br0";
+                    rtn =  "Ex0";
                 } else if (ifAvailable(newItemId).equals("Waiting List")) {//put in waiting list or not
                     if(waitingList.get(newItemId) != null){
                         if(waitingList.get(newItemId).contains(userId)){

@@ -1,5 +1,6 @@
 package ReplicaHost3;
 
+import Model.Item;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CORBA.*;
@@ -30,6 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class LibraryObj {
@@ -66,9 +68,9 @@ public class LibraryObj {
 
 	Map<String, Integer> portlist = new HashMap<String, Integer>() {
 		{
-			put("MCG", 9999);
-			put("CON", 8999);
-			put("MON", 7999);
+			put("MCG", 5002);
+			put("CON", 5001);
+			put("MON", 5003);
 		};
 	};
 	public boolean bugFree = false;
@@ -122,12 +124,15 @@ public class LibraryObj {
 		super();
 		this.libraryID = libID;
 		this.portNum = portNumber;
-		Runnable r1 = () -> {
-			receive(portNumber - 1);
-		};
-		logpath = "E:/dlms/DLMS_project/server" + libraryID + "Server.log";
-		Thread udpServerThread = new Thread(r1);
-		udpServerThread.start();
+		initContent();
+	}
+
+	private void initContent(){
+
+		books.put(libraryID+"1111", new Book(libraryID+"1111", "AA", 2));
+		books.put(libraryID+"2222", new Book(libraryID+"2222", "BB", 1));
+		books.put(libraryID+"3333", new Book(libraryID+"3333", "CC", 5));
+		books.put(libraryID+"4444", new Book(libraryID+"4444", "DD", 2));
 	}
 
 	public boolean logincheck(String a, String b) {

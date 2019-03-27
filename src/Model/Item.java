@@ -44,7 +44,7 @@ public class Item {
     }
 
     public String toString(){
-        String itemInfo = itemID + ", "+itemName+", "+quantity;
+        String itemInfo = itemID + " "+itemName+" "+quantity;
         return itemInfo;
     }
 }

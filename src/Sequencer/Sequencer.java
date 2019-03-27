@@ -46,9 +46,10 @@ public class Sequencer {
 			synchronized (this.sequenceNumber) {
 				String sendMessage = this.sequenceNumber.toString() + ":" + FEHostAddress + ":" + receiveMessage;
 				this.sequenceNumber++;
-				multicastMessage(sendMessage, socket);
+
+				multicastMessage(sendMessage, RMPort.RM_PORT.rmPort1);
 				
-				log.info("Sequencer multicasts message: "+sendMessage);
+				//log.info("Sequencer multicasts message: "+sendMessage);
 			}
 			//count++;
 			//System.out.println("Server Connected：" + count);
@@ -59,24 +60,42 @@ public class Sequencer {
 
 	/**
 	 * multicast message to rms
-	 * @param packageMessage
-	 * @param socket
-	 * @throws IOException
 	 */
-	private void multicastMessage(String packageMessage, DatagramSocket socket) throws IOException {
-		
-		//the host address of replica
-		InetAddress address = InetAddress.getByName("localhost");
+	private void multicastMessage(String msg,int sPort) throws IOException {
+		DatagramSocket aSocket = null;
+		String returnMsg ="";
+		try {
+			System.out.println("Client Started........");
+			aSocket = new DatagramSocket();
+			byte [] message = msg.getBytes();
 
-		byte[] data = packageMessage.getBytes();
-		DatagramPacket sendPacket1 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
-		DatagramPacket sendPacket2 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
-		DatagramPacket sendPacket3 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
+			InetAddress aHost = InetAddress.getByName("224.0.0.1");
+			int serverPort = sPort;
+			DatagramPacket request = new DatagramPacket(message,message.length, aHost, serverPort);
+			aSocket.send(request);
+			System.out.println("Request message sent from the client is : "+ new String(request.getData()));
+//            byte [] buffer = new byte[1000];
+//            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+//
+//            aSocket.receive(reply);
+//            returnMsg = new String(reply.getData()).trim();
+//            System.out.println("Reply received from the server is: "+ returnMsg);
 
-		System.out.println("====== 2. Sequencer multicasts message to RMS.======" );
-		socket.send(sendPacket1);
-		socket.send(sendPacket2);
-		socket.send(sendPacket3);
+		} catch(Exception e){
+			System.out.println("udpClient error: "+e);
+		}
+//		//the host address of replica
+//		InetAddress address = InetAddress.getByName("localhost");
+//
+//		byte[] data = packageMessage.getBytes();
+//		DatagramPacket sendPacket1 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
+//		DatagramPacket sendPacket2 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
+//		DatagramPacket sendPacket3 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
+//
+//		System.out.println("====== 2. Sequencer multicasts message to RMS.======" );
+//		socket.send(sendPacket1);
+//		socket.send(sendPacket2);
+//		socket.send(sendPacket3);
 	}
 
 	public static void main(String[] args) throws IOException {

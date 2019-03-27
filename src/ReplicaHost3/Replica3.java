@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import Model.*;
 import java.util.Queue;
 
-public class Replica1 {
+public class Replica3 {
 
 	public Logger log;
 	public LibraryObj conServer;
@@ -20,19 +20,19 @@ public class Replica1 {
 
 	enum DLMS_Port {
 		PORT;
-		final int CON_PORT = 7777;
-		final int MCG_PORT = 8888;
-		final int MON_PORT = 9999;
+		final int CON_PORT = 5001;
+		final int MCG_PORT = 5002;
+		final int MON_PORT = 5003;
 	}
 
-	public Replica1(Logger log, LibraryObj conServer, LibraryObj mcgServer, LibraryObj monServer) {
+	public Replica3(Logger log, LibraryObj conServer, LibraryObj mcgServer, LibraryObj monServer) {
 		super();
 		this.log = log;
 		this.conServer = conServer;
 		this.mcgServer = mcgServer;
 		this.monServer = monServer;
 	}
-	public Replica1(){
+	public Replica3(){
 		try{
 			Logger replica1_log = Logger.getLogger("Repilca1.log");
 			createLogger("Repilca1.log", replica1_log);
@@ -49,7 +49,7 @@ public class Replica1 {
 		mcgServer = new LibraryObj("MCG",DLMS_Port.PORT.MCG_PORT);
 		monServer = new LibraryObj("MON",DLMS_Port.PORT.MON_PORT);
 
-		//startServers();
+		startServers();
 	}
 
 
@@ -58,6 +58,7 @@ public class Replica1 {
 		String result = "";
 		String operation[] = msg.operationMsg.split(",");
 		LibraryObj dlms = getLibrary(msg.libCode);
+		System.out.println("msg.libCode------:" +msg.libCode);
 		switch (operation[0]){
 			case ("addItem"):
 				result=dlms.addItem(operation[1], operation[2], operation[3], Integer.parseInt(operation[4]));
@@ -167,7 +168,7 @@ public class Replica1 {
 	public static void main(String[] args) throws IOException {
 
 
-		Replica1 replica1 = new Replica1();
+		Replica3 replica1 = new Replica3();
 //		Replica1.replica1_Instance = replica1;
 //		System.out.println("replica1_Instance :" +replica1_Instance.getClass());
 
