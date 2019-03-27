@@ -1,16 +1,12 @@
 package ReplicaHost1;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Model.RMPort;
-import Model.ReplicaPort;
-import Model.logSetFormatter;
-
+import Model.*;
+import java.util.Queue;
 
 public class Replica1 {
 
@@ -19,6 +15,8 @@ public class Replica1 {
 	public DLMSImp mcgServer;
 	public DLMSImp monServer;
 	public Boolean bugFree = true;
+	public Queue<Message> historyQueue;
+	//public static Replica1 replica1_Instance;
 
 	enum DLMS_Port {
 		PORT;
@@ -34,47 +32,73 @@ public class Replica1 {
 		this.mcgServer = mcgServer;
 		this.monServer = monServer;
 	}
-
-	private static void startUdpServer(int udpPort, DLMSImp library) {
-		// TODO Auto-generated method stub
-	}
-
-	public void startReplica(int replica_Port) throws IOException {
-		DatagramSocket socket = new DatagramSocket(replica_Port);
-		DatagramPacket packet = null;
-		byte[] data = null;
-		log.info(" Replica_2 Server Start");
-		while (true) {
-			data = new byte[1024];
-			packet = new DatagramPacket(data, data.length);
-
-			System.out.println("====== 1. Replica_1 starts ======");
-			socket.receive(packet);
-
-			String receiveMsg = new String(packet.getData(), 0, packet.getLength());
-			log.info(" Replica_2 Server Receive Message: " + receiveMsg);
-
-			String library=receiveMsg.split(":")[0].toLowerCase();
-			Thread thread = new Thread(new UdpServer(socket, packet, getLibrary(library)));
-			thread.start();
+	public Replica1(){
+		try{
+			Logger replica1_log = Logger.getLogger("Repilca1.log");
+			createLogger("Repilca1.log", replica1_log);
+			Logger conserver1_log = Logger.getLogger("conserver1.log");
+			createLogger("conserver1.log", conserver1_log);
+			Logger mcgserver1_log = Logger.getLogger("mcgserver1.log");
+			createLogger("mcgserver1.log", mcgserver1_log);
+			Logger monserver1_log = Logger.getLogger("monserver1.log");
+			createLogger("monserver1.log", monserver1_log);
+		}catch (Exception e){
+			e.printStackTrace();
 		}
+		conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT);
+		mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT);
+		monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT);
+
+		startServers();
 	}
 
-	//if this port receive message from Rm, then recover the failure
-	public void startFailureListening(int port) throws IOException{
-		DatagramSocket aSocket = new DatagramSocket(port);
-		byte[] buff = new byte[2000];
-		DatagramPacket aPacket = new DatagramPacket(buff,buff.length);
-		while (true){
-			aSocket.receive(aPacket);
-			if(aPacket.getData() != null){
-				conServer.bugFree = true;
-				mcgServer.bugFree = true;
-				monServer.bugFree = true;
-			}
+
+	public String executeMsg(Message msg){
+		System.out.println("executeMsg");
+		String result = "";
+		String operation[] = msg.operationMsg.split(",");
+		DLMSImp dlms = getLibrary(msg.libCode);
+		switch (operation[0]){
+			case ("addItem"):
+				result=dlms.addItem(operation[1], operation[2], operation[3], Integer.parseInt(operation[4]));
+				break;
+			case ("removeItem"):
+				result=dlms.removeItem(operation[1], operation[2], Integer.parseInt(operation[3]));
+				break;
+			case ("listItem"):
+				result=dlms.listItemAvailability(operation[1]);
+				break;
+			case ("borrowItem"):
+				result=dlms.borrowItem(operation[1],operation[2]);
+				break;
+			case (" addToWaitlist"):
+				result=dlms.putInWaiting(operation[1],operation[2]);
+				break;
+			case ("findItem"):
+				result=dlms.findItem(operation[1],operation[2]);
+				break;
+			case ("returnItem"):
+				result=dlms.returnItem(operation[1],operation[2]);
+				break;
+			case ("exchangeItem"):
+				result=dlms.exchangeItem(operation[1],operation[2],operation[3]);
+				break;
+			case ("addToWaitlistforExchagne"):
+				result=dlms.ex_putInWaiting(operation[1],operation[2],operation[3]);
+				break;
+			default:
+				System.out.println("\nERROR: Invalid input please try again.");
+				break;
 		}
+		return  result;
 	}
 
+
+	public void fixBug(){
+		conServer.bugFree = true;
+		mcgServer.bugFree = true;
+		monServer.bugFree = true;
+	}
 
 	private DLMSImp getLibrary(String library) {
 		if (library.equalsIgnoreCase("con"))
@@ -92,57 +116,139 @@ public class Replica1 {
 		logger.addHandler(handler);
 	}
 
-	public static void main(String[] args) throws IOException {
-		Logger replica1_log = Logger.getLogger("Repilca1.log");
-		createLogger("Repilca1.log", replica1_log);
-		Logger conserver1_log = Logger.getLogger("conserver1.log");
-		createLogger("conserver1.log", conserver1_log);
-		Logger mcgserver1_log = Logger.getLogger("mcgserver1.log");
-		createLogger("mcgserver1.log", mcgserver1_log);
-		Logger monserver1_log = Logger.getLogger("monserver1.log");
-		createLogger("monserver1.log", monserver1_log);
+	public void recoverRplicaData(){
+		while (historyQueue.size() > 0){
+			Message msg = historyQueue.poll();
+			System.out.println("msg---"+msg.operationMsg +"\n");
+			executeMsg(msg);
+		}
+	}
 
-		DLMSImp conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT);
-		DLMSImp mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT);
-		DLMSImp monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT);
-
-
-
-		Replica1 replica1 = new Replica1(replica1_log, conServer, mcgServer, monServer);
-
-		/*
-		 * Runnable r1 = () -> { replica2.startUdpServer(1112, conServer); }; Runnable
-		 * r2 = () -> { replica2.startUdpServer(2223, mcgServer); }; Runnable r3 = () ->
-		 * { replica2.startUdpServer(3334, monServer); };
-		 */
-		Runnable r4 = () -> {
-			try {
-				replica1.startReplica(ReplicaPort.REPLICA_PORT.replica1);
-			} catch (IOException e) {
+	public void startServers(){
+		Runnable start_CON_UDP = () -> {
+			try{
+				conServer.udpServer();
+			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		};
 
-		Runnable failureListener = () -> {
+		Runnable start_MCG_UDP = () -> {
 			try{
-				replica1.startFailureListening(RMPort.RM_PORT.rmPort1_failure);
-			}catch (Exception e){
+				mcgServer.udpServer();
+
+			}catch (Exception e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		};
 
-		/*
-		 * Thread Thread1 = new Thread(r1); Thread Thread2 = new Thread(r2); Thread
-		 * Thread3 = new Thread(r3);
-		 */
-		Thread Thread4 = new Thread(r4);
-		/*
-		 * Thread1.start(); Thread2.start(); Thread3.start();
-		 */
-		Thread4.start();
+		Runnable start_MON_UDP = () -> {
+			try{
+				monServer.udpServer();
+			}catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		};
 
+		Thread Thread2 = new Thread(start_CON_UDP);
+		Thread Thread3 = new Thread(start_MCG_UDP);
+		Thread Thread4 = new Thread(start_MON_UDP);
+		//Thread Thread5 = new Thread(failureListener);
+
+		//Thread1.start();
+		Thread2.start();
+		Thread3.start();
+		Thread4.start();
 	}
 
+	public static void main(String[] args) throws IOException {
+
+
+		Replica1 replica1 = new Replica1();
+//		Replica1.replica1_Instance = replica1;
+//		System.out.println("replica1_Instance :" +replica1_Instance.getClass());
+
+//		Runnable startReplica = () -> {
+//			try {
+//				replica1.startReplica(ReplicaPort.REPLICA_PORT.replica1);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		};
+
+//		Runnable start_CON_UDP = () -> {
+//			try{
+//				conServer.udpServer();
+//			}catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		};
+//
+//		Runnable start_MCG_UDP = () -> {
+//			try{
+//				mcgServer.udpServer();
+//
+//			}catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		};
+//
+//		Runnable start_MON_UDP = () -> {
+//			try{
+//				monServer.udpServer();
+//			}catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		};
+
+
+//		Runnable failureListener = () -> {
+//			try{
+//				replica1.startFailureListening(RMPort.RM_PORT.rmPort1_failure);
+//			}catch (Exception e){
+//				e.printStackTrace();
+//			}
+//		};
+
+
+		//Thread Thread1 = new Thread(startReplica);
+//		Thread Thread2 = new Thread(start_CON_UDP);
+//		Thread Thread3 = new Thread(start_MCG_UDP);
+//		Thread Thread4 = new Thread(start_MON_UDP);
+//		//Thread Thread5 = new Thread(failureListener);
+//
+//		//Thread1.start();
+//		Thread2.start();
+//		Thread3.start();
+//		Thread4.start();
+//		//Thread5.start();
+
+
+//		String info = conServer.listItemAvailability("CONM0001");
+//		//System.out.println(conServer.addItem("CONM0001","CON1111","BB",4));
+//
+//		Message addBookMsg = new Message();
+//		addBookMsg.operationMsg = "addItem,CONM0001,CON9999,XSSsss,4";
+//		addBookMsg.seqId = 1;
+//		addBookMsg.libCode = "CON";
+//		replica1.historyQueue  = new LinkedList<>();
+//		replica1.historyQueue.offer(addBookMsg);
+//
+//		Message removeMsg = new Message();
+//		removeMsg.operationMsg = "removeItem,CONM0001,CON2222,-1";
+//		removeMsg.seqId = 2;
+//		removeMsg.libCode = "CON";
+//		replica1.historyQueue.offer(removeMsg);
+//
+//		replica1.recoverRplicaData();
+//		info = conServer.listItemAvailability("CONM0001");
+	}
 }
 

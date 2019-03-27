@@ -2,7 +2,7 @@ package Model;
 
 public enum ReplicaPort {
 	REPLICA_PORT;
-	public final int replica1 = 1111;
-	public final int replica2 = 2222;
-	public final int replica3 = 3333;
+	public final int replica1 = 9906;
+	public final int replica2 = 9907;
+	public final int replica3 = 9908;
 }
