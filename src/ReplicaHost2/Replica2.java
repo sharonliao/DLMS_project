@@ -31,20 +31,21 @@ public class Replica2 {
 		byte[] data = null;
 		log.info(" Replica_2 Server Start");
 		while (true) {
-			data = new byte[1024];
-			packet = new DatagramPacket(data, data.length);
+//			data = new byte[1024];
+//			packet = new DatagramPacket(data, data.length);
+//
+//			System.out.println("====== 1. Replica_2 starts ======");
+//			socket.receive(packet);
+//
+//			String receiveMsg = new String(packet.getData(), 0, packet.getLength());
+//			log.info(" Replica_2 Server Receive Message: " + receiveMsg);
+//
+//			String library = receiveMsg.split(",")[1].substring(0, 3).toLowerCase();
+//			System.out.println("====== 1. Replica_2 receive message ======" + receiveMsg + " library---" + library);
+//
+//			Thread thread = new Thread(new UdpServer(socket, packet, getLibrary(library)));
+//			thread.start();
 
-			System.out.println("====== 1. Replica_2 starts ======");
-			socket.receive(packet);
-
-			String receiveMsg = new String(packet.getData(), 0, packet.getLength());
-			log.info(" Replica_2 Server Receive Message: " + receiveMsg);
-
-			String library = receiveMsg.split(",")[1].substring(0, 3).toLowerCase();
-			System.out.println("====== 1. Replica_2 receive message ======" + receiveMsg + " library---" + library);
-
-			Thread thread = new Thread(new UdpServer(socket, packet, getLibrary(library)));
-			thread.start();
 		}
 
 	}
@@ -88,7 +89,5 @@ public class Replica2 {
 
 		Thread Thread4 = new Thread(r4);
 		Thread4.start();
-
 	}
-
 }
