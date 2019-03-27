@@ -24,7 +24,6 @@ public class ReplicaManager {
 	Queue<Message> historyQueue;
 
 
-
 	ReplicaManager(Logger logger){
 
 		this.logger = logger;

@@ -37,6 +37,7 @@ public class Test_udp_client {
         }
         return returnMsg;
     }
+    
 
     public void udpServer(){
         DatagramSocket aSocket = null;
@@ -69,6 +70,8 @@ public class Test_udp_client {
         messages.add("0:localhost:addItem,CONM0001,CON9999,distributed,4");
         messages.add("1:localhost:removeItem,CONM0001,CON1111,-1");
         messages.add("2:localhost:listItem,CONM0001");
+        
+        
         Runnable TaskListener = () ->{
             try{
                 testClient.udpServer();
@@ -82,18 +85,21 @@ public class Test_udp_client {
         Thread2.start();
 
         for(String message : messages){
-            testClient.udpClient(message, RMPort.RM_PORT.rmPort1);
+            testClient.udpClient(message, RMPort.RM_PORT.rmPort2);
         }
 
         try{
-            Thread.sleep(50000);
+            Thread.sleep(20000);
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        String message = "3:localhost:listItem,CONM0001";
-        testClient.udpClient(message, RMPort.RM_PORT.rmPort1);
-
+        String message3 = "3:localhost:borrowItem,CONU0001,MON1111";
+        testClient.udpClient(message3, RMPort.RM_PORT.rmPort2);
+        
+        
+        String message4 = "4:localhost:exchangeItem,CONU0001,MON2222,MON1111";
+        testClient.udpClient(message4, RMPort.RM_PORT.rmPort2);
 
 
 

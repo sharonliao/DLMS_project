@@ -3,8 +3,6 @@ package ReplicaHost2;
 import Model.FEPort;
 import Model.Message;
 import Model.RMPort;
-import Model.ReplicaPort;
-import FrontEnd.Timer;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
@@ -48,6 +46,7 @@ public class ReplicaManager {
 		DatagramPacket apocket = null;
 		byte[] buf = null;
 		logger.info("RM is listenning ");
+		
 
 		while (true){
 			buf = new byte[2000];
@@ -165,7 +164,7 @@ public class ReplicaManager {
 		msg.seqId = Integer.parseInt(msgArry[0]);
 		msg.feHostAddr = msgArry[1];
 		msg.operationMsg = msgArry[2];
-		msg.libCode = msg.operationMsg.split(",")[1].substring(0,4);
+		msg.libCode = msg.operationMsg.split(",")[1].substring(0,3);
 		return msg;
 	}
 
@@ -210,14 +209,14 @@ public class ReplicaManager {
 
 
 	public static void main(String[] args) {
-		Logger rmLogger = Logger.getLogger("RM1.log");
+		Logger rmLogger = Logger.getLogger("RM2.log");
 		rmLogger.setLevel(Level.ALL);
 
 		ReplicaManager rm = new ReplicaManager(rmLogger);
 
 		Runnable TaskListener = () ->{
 			try{
-				rm.startRMListener(RMPort.RM_PORT.rmPort1);
+				rm.startRMListener(RMPort.RM_PORT.rmPort2);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -227,7 +226,7 @@ public class ReplicaManager {
 		Thread2.start();
 
 		try{
-			Thread.sleep(800000);
+			Thread.sleep(20000);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
@@ -235,4 +234,5 @@ public class ReplicaManager {
 		rm.replica2 = null;
 		rm.recoverFromCrash("1:1");
 	}
+
 }

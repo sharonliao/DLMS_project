@@ -23,7 +23,6 @@ public class DLMSImp {
 	public Logger log;
 	public String library;
 
-	String answer = "";
 	int LocalPort;
 	String localFlag;
 	public boolean bugFree = false;
@@ -38,22 +37,13 @@ public class DLMSImp {
 		UserBorrow = new HashMap<>();
 		WaitList = new HashMap<>();
 
-		Runnable r1 = () -> {
-			receive(1112);
-		};
-		Runnable r2 = () -> {
-			receive(2223);
-		};
-		Runnable r3 = () -> {
-			receive(3334);
-		};
-
-		Thread thread1 = new Thread(r1);
-		Thread thread2 = new Thread(r2);
-		Thread thread3 = new Thread(r3);
-		thread1.start();
-		thread2.start();
-		thread3.start();
+		/*
+		 * Runnable r1 = () -> { receive(1112); }; Runnable r2 = () -> { receive(2223);
+		 * }; Runnable r3 = () -> { receive(3334); };
+		 * 
+		 * Thread thread1 = new Thread(r1); Thread thread2 = new Thread(r2); Thread
+		 * thread3 = new Thread(r3); thread1.start(); thread2.start(); thread3.start();
+		 */
 
 		if (localFlag.equals("CON")) {
 			map.put("CON1111", new Item("CON1111", "Test for Concordia", 3));
@@ -75,6 +65,7 @@ public class DLMSImp {
 
 	public String addItem(String managerID, String itemID, String itemName, int quantity) {
 		String userwl;
+		String answer = "";
 		synchronized (this) {
 			if (!map.containsKey(itemID)) {
 				map.put(itemID, new Item(itemID, itemName, quantity));
@@ -137,8 +128,10 @@ public class DLMSImp {
 	}
 
 	public String removeItem(String managerID, String itemID, int quantity) {
+		String answer = "";
 		synchronized (this) {
-			if (map.get(itemID) != null) {
+			// System.out.println("=======list map====="+map);
+			if (!map.isEmpty() && map.containsKey(itemID)) {
 				String name = map.get(itemID).getItemName();
 				int qty = map.get(itemID).getQuantity();
 				if (quantity < 0) {
@@ -190,6 +183,7 @@ public class DLMSImp {
 	}
 
 	public String listItemAvailability(String managerID) {
+		String answer = "";
 		synchronized (this) {
 			answer = listItemUdp();
 			if (managerID.substring(0, 3).equalsIgnoreCase("con")) {
@@ -204,6 +198,7 @@ public class DLMSImp {
 	}
 
 	public String listItemUdp() {
+		String answer = "";
 		for (String key : map.keySet()) {
 			answer += key + "--" + map.get(key).getQuantity() + ";";
 		}
@@ -211,6 +206,7 @@ public class DLMSImp {
 	}
 
 	public String borrowItem(String userID, String itemID) {
+		String answer = "";
 		synchronized (this) {
 			if (userID.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
 				answer = borrowItemUdp(userID, itemID);
@@ -224,6 +220,7 @@ public class DLMSImp {
 	}
 
 	public String borrowItemUdp(String userID, String itemID) {
+		String answer = "";
 		int qty;
 		String name;
 		if (!map.isEmpty() && map.containsKey(itemID)) {
@@ -262,6 +259,7 @@ public class DLMSImp {
 	}
 
 	public String findItem(String userID, String itemName) {
+		String answer = "";
 		answer = findItemUdp(itemName);
 		if (userID.substring(0, 3).equalsIgnoreCase("con")) {
 			answer += sendMessage(2223, "Find:" + "&" + userID + "&" + itemName)
@@ -292,6 +290,7 @@ public class DLMSImp {
 	}
 
 	public String returnItem(String userID, String itemID) {
+		String answer = "";
 		synchronized (this) {
 			if (userID.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
 				answer = returnItemUdp(userID, itemID);
@@ -304,6 +303,7 @@ public class DLMSImp {
 	}
 
 	public String returnItemUdp(String userID, String itemID) {
+		String answer = "";
 		int qty;
 		String name;
 		if (!map.isEmpty() && map.containsKey(itemID)) {
@@ -377,6 +377,7 @@ public class DLMSImp {
 	}
 
 	public String addWaitlistUdp(String userID, String itemID) {
+		String answer = "";
 		if (!WaitList.isEmpty()) {
 			if (WaitList.containsKey(itemID)) {
 				Queue queue = WaitList.get(itemID);
@@ -397,6 +398,7 @@ public class DLMSImp {
 	}
 
 	public String addWaitList(String userID, String itemID) {
+		String answer = "";
 		synchronized (this) {
 			if (itemID.substring(0, 3).equals(userID.substring(0, 3))) {
 				answer = addWaitlistUdp(userID, itemID);
@@ -409,6 +411,7 @@ public class DLMSImp {
 	}
 
 	public String checkOldItemUdp(String userID, String oldItemID) {
+		String answer = "";
 		if (!map.isEmpty() & map.containsKey(oldItemID)) {
 			if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).contains(oldItemID)) {
 				answer = "available";
@@ -422,6 +425,7 @@ public class DLMSImp {
 	}
 
 	public String checkNewItemUdp(String userID, String newItemID, String oldItemID) {
+		String answer = "";
 		int qty;
 		if (!map.isEmpty() & map.containsKey(newItemID)) {
 			qty = map.get(newItemID).getQuantity();
@@ -431,8 +435,10 @@ public class DLMSImp {
 					&& UserBorrow.get(userID).contains(newItemID)) {
 				answer = "You have borrowed this item.";
 			} else if (!userID.substring(0, 3).equals(newItemID.substring(0, 3))
-					&& newItemID.substring(0, 3).equals(oldItemID.substring(0, 3)) && !UserBorrow.isEmpty()
-					&& UserBorrow.containsKey(userID) && !UserBorrow.get(userID).equals(oldItemID)) {
+					&& newItemID.substring(0, 3).equals(oldItemID.substring(0, 3)) && UserBorrow.containsKey(userID)
+					&& !UserBorrow.get(userID).contains(oldItemID)) {
+				
+				System.out.println("U------ userborrow: " + UserBorrow.get(userID));
 				answer = "You have borrowed from this library.";
 			} else {
 				if (qty == 0) {
@@ -476,6 +482,7 @@ public class DLMSImp {
 	}
 
 	public String exchangeItem(String userID, String newItemID, String oldItemID) {
+		String answer = "";
 		String replynew = "";
 		String replyold = "";
 		String replyborrow = "";
@@ -532,6 +539,7 @@ public class DLMSImp {
 	}
 
 	public String newExchange(String userID, String newItemID, String oldItemID) {
+		String answer = "";
 		String replynew = "";
 		String replyold = "";
 		String replyborrow = "";
@@ -607,6 +615,7 @@ public class DLMSImp {
 	}
 
 	public String borrowNewItemUdp(String userID, String newItemID) {
+		String answer = "";
 		int qty;
 		if (!map.isEmpty() && map.containsKey(newItemID)) {
 			qty = map.get(newItemID).getQuantity();
@@ -638,6 +647,7 @@ public class DLMSImp {
 	}
 
 	public String returnOldItemUdp(String userID, String oldItemID) {
+		String answer = "";
 		int qty;
 		String name;
 		if (!map.isEmpty() && map.containsKey(oldItemID)) {
@@ -689,12 +699,13 @@ public class DLMSImp {
 									map.put(oldItemID, new Item(oldItemID, name, qty + 1));
 									break;
 								}
+								
 							}
 						}
 						if (list.size() == 0) {
 							it.remove();
 						}
-						answer = "Successfully Return. ";
+						answer = "Successfully return.";
 					}
 				}
 			} else {
@@ -805,6 +816,5 @@ public class DLMSImp {
 		}
 		return "";
 	}
-
 
 }
