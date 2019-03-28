@@ -88,7 +88,7 @@ public class Test_udp_client {
         Thread2.start();
 
         for(String message : messages){
-            testClient.udpClient(message, SequencerPort.SEQUENCER_PORT.sequencerPort);
+            testClient.udpClient(message, FEPort.FE_PORT.FEPort);
         }
 
         try{
@@ -99,11 +99,11 @@ public class Test_udp_client {
 
 
         String message3 = "borrowItem,CONU0001,MON1111";
-        testClient.udpClient(message3, SequencerPort.SEQUENCER_PORT.sequencerPort);
+        testClient.udpClient(message3, FEPort.FE_PORT.FEPort);
         
         
         String message4 = "exchangeItem,CONU0001,MON2222,MON1111";
-        testClient.udpClient(message4, SequencerPort.SEQUENCER_PORT.sequencerPort);
+        testClient.udpClient(message4, FEPort.FE_PORT.FEPort);
 
     }
 

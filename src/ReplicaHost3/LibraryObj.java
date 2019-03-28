@@ -50,21 +50,6 @@ public class LibraryObj {
 	Book oldBookClone;
 	String logpath;
 	String logmessage;
-	Map<String, String> accounts = new HashMap<String, String>() {
-		{
-			put("MCGU2000", "1q2w3e4r");
-			put("MCGU2001", "1q2w3e4r");
-			put("MCGM2000", "1q2w3e4r");
-			put("CONU2000", "1q2w3e4r");
-			put("CONU2001", "1q2w3e4r");
-			put("CONM2000", "1q2w3e4r");
-			put("MONU2000", "1q2w3e4r");
-			put("MONU2001", "1q2w3e4r");
-			put("MONM2000", "1q2w3e4r");
-
-		};
-
-	};
 
 	Map<String, Integer> portlist = new HashMap<String, Integer>() {
 		{
@@ -133,18 +118,6 @@ public class LibraryObj {
 		books.put(libraryID+"2222", new Book(libraryID+"2222", "BB", 1));
 		books.put(libraryID+"3333", new Book(libraryID+"3333", "CC", 5));
 		books.put(libraryID+"4444", new Book(libraryID+"4444", "DD", 2));
-	}
-
-	public boolean logincheck(String a, String b) {
-		if (accounts.containsKey(a)) {
-			if (accounts.get(a).equals(b)) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
 	}
 
 	public static String sendMessage(byte[] message, int serverPort) {
