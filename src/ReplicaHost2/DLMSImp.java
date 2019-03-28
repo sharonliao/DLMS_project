@@ -188,7 +188,7 @@ public class DLMSImp {
         String answer = "";
         synchronized (this) {
             for (String key : map.keySet()) {
-                answer += key + " " + map.get(key).getItemName() + " " + map.get(key).getQuantity() + "\n";
+                answer += key + "," + map.get(key).getItemName() + "=" + map.get(key).getQuantity() + "\n";
             }
             log.info("List item锛�"+managerID+": "+answer);
             return answer.trim();

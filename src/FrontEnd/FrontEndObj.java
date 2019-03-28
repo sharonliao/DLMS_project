@@ -53,6 +53,7 @@ public class FrontEndObj extends FrontEndPOA {
 	private static boolean failureCase = false;
 	private static boolean crashCase = false;
 	private static boolean voteStatus;
+	private static String sequenceID;
 	public static boolean isInteger(String str) {
 		Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
 		return pattern.matcher(str).matches();
@@ -147,7 +148,8 @@ public class FrontEndObj extends FrontEndPOA {
 			System.out.println("receive " + result);
 
 			String[] res = result.split(":");
-			resultSet.put(res[0], res[1]);
+			resultSet.put(res[1], res[2]);
+			sequenceID = res[0];
 		} catch (SocketException e) {
 
 		} catch (IOException e) {
@@ -192,6 +194,7 @@ public class FrontEndObj extends FrontEndPOA {
 		Map<String, String> resultSet = new HashMap<>();
 		DatagramSocket socket = null;
 		String x = "";
+		sequenceID = "";
 		int count = 0;
 		try {
 			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
@@ -288,9 +291,8 @@ public class FrontEndObj extends FrontEndPOA {
 			tellRMCrash(resultSet);
 		}
 		String x = majorityList(resultSet);
-		String[] m = x.split(",");
-		if (m.length > 0) {
-			return m[1];
+		if (x.length() > 0) {
+			return x;
 		} else {
 			return "The library has no book now";
 		}
@@ -643,15 +645,15 @@ public class FrontEndObj extends FrontEndPOA {
 	}
 
 	private static String majorityList(Map<String, String> resultSet) {
-		Map<HashMap<String, Integer>, Integer> map = new HashMap<>();
-		Map<String, HashMap<String, Integer>> result = new HashMap<>();
+		Map<HashMap<String, String>, Integer> map = new HashMap<>();
+		Map<String, HashMap<String, String>> result = new HashMap<>();
 		for (String s : resultSet.keySet()) {
 			String tmp = resultSet.get(s);
 			String s1[] = tmp.split("\\p{javaWhitespace}+");
-			HashMap<String, Integer> tmp1 = new HashMap<>();
+			HashMap<String, String> tmp1 = new HashMap<>();
 			for (int i = 0; i < s1.length; i++) {
 				String s2[] = s1[i].split(",");
-				tmp1.put(s2[0], Integer.parseInt(s2[1]));
+				tmp1.put(s2[0], s2[1]);
 			}
 			result.put(s, tmp1);
 			if (map.containsKey(tmp1)) {
@@ -661,8 +663,8 @@ public class FrontEndObj extends FrontEndPOA {
 			}
 		}
 		Integer vote = 0;
-		HashMap<String, Integer> candidate = new HashMap<>();
-		for (HashMap<String, Integer> s : map.keySet()) {
+		HashMap<String, String> candidate = new HashMap<>();
+		for (HashMap<String, String> s : map.keySet()) {
 			int tmp = map.get(s);
 			if (tmp > vote) {
 				candidate = s;
@@ -678,6 +680,7 @@ public class FrontEndObj extends FrontEndPOA {
 
 		return returnresult;
 	}
+	
 
 	private static void findSoftwareFail(String candidate, Integer vote, Map<String, String> resultSet) {
 		if (vote == 3)
@@ -702,8 +705,8 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 	}
 
-	private static void findSoftwareFailforHash(HashMap<String, Integer> candidate, Integer vote,
-			Map<String, HashMap<String, Integer>> resultSet) {
+	private static void findSoftwareFailforHash(HashMap<String, String> candidate, Integer vote,
+			Map<String, HashMap<String, String>> resultSet) {
 		if (vote == 3)
 			return;
 		String failServerNum = null;
@@ -719,7 +722,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		try {
 			socket = new DatagramSocket();
-			String msg = "SoftWareFailure";
+			String msg = "SoftWareFailure"+sequenceID;
 
 			byte[] data = msg.getBytes();
 
