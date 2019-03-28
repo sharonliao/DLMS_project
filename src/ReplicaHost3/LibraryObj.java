@@ -372,7 +372,7 @@ public class LibraryObj {
 		if (!books.isEmpty()) {
 			for (String key : books.keySet()) {
 				Book temp = books.get(key);
-				booklist.append(temp.getitemID() + " " + temp.getBookName() + " " + temp.getQuantity().getQuantity());
+				booklist.append(temp.getitemID() + "," + temp.getBookName() + "=" + temp.getQuantity().getQuantity());
 				booklist.append("\n");
 			}
 			logmessage = df.format(new Date()) + " List Available Books " + managerID + " Successful";
@@ -383,7 +383,7 @@ public class LibraryObj {
 			writeFile(logpath, logmessage);
 		}
 		String result = booklist.toString();
-		return result;
+		return result.trim();
 	}
 
 	public void searchWaitList(String itemID) {
