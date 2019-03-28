@@ -32,10 +32,13 @@ public class Sequencer {
 		DatagramPacket packet = null;
 		byte[] data = null;
 		//int count = 0;
+
+		log.info("Sequencer starts! ");
 		while (true) {
 			data = new byte[1024];
 			packet = new DatagramPacket(data, data.length);
-			
+
+
 			System.out.println("====== 1. Sequencer starts ======" );
 			socket.receive(packet);
 						
@@ -73,6 +76,7 @@ public class Sequencer {
 			int serverPort = sPort;
 			DatagramPacket request = new DatagramPacket(message,message.length, aHost, serverPort);
 			aSocket.send(request);
+			log.info("Sequencer multicasts message: "+msg);
 			System.out.println("Request message sent from the client is : "+ new String(request.getData()));
 //            byte [] buffer = new byte[1000];
 //            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);

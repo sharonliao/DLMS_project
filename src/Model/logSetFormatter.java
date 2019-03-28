@@ -9,7 +9,7 @@ public class logSetFormatter extends Formatter{
 	@Override
 	public String format(LogRecord record) {
 		// TODO Auto-generated method stub
-		return "[" + new Date() + "]" + " [" + record.getLevel() + "] " + record + "\n";
+		return "[" + new Date() + "]" + " [" + record.getLevel() + "] " + record.getMessage() + "\n";
 	}
 
 	

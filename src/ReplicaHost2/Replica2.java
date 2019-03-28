@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import Model.Message;
 import Model.logSetFormatter;
+import ReplicaHost1.Replica1;
 
 public class Replica2 {
 
@@ -17,7 +18,8 @@ public class Replica2 {
 	public DLMSImp monServer;
 	public Boolean bugFree = true;
 	public Queue<Message> historyQueue;
-	// public static Replica1 replica1_Instance;
+
+
 
 	enum DLMS_Port {
 		PORT;
@@ -33,26 +35,28 @@ public class Replica2 {
 		this.mcgServer = mcgServer;
 		this.monServer = monServer;
 	}
-
-	public Replica2() {
-		try {
-			Logger replica2_log = Logger.getLogger("Repilca2.log");
-			createLogger("Repilca2.log", replica2_log);
+	public Replica2(){
+		try{
+			//Logger replica2_log = Logger.getLogger("Repilca2.log");
+			//createLogger("Repilca2.log", replica2_log);
 			Logger conserver2_log = Logger.getLogger("conserver2.log");
 			createLogger("conserver2.log", conserver2_log);
 			Logger mcgserver2_log = Logger.getLogger("mcgserver2.log");
 			createLogger("mcgserver2.log", mcgserver2_log);
 			Logger monserver2_log = Logger.getLogger("monserver2.log");
 			createLogger("monserver2.log", monserver2_log);
-		} catch (Exception e) {
+
+			conServer = new ReplicaHost2.DLMSImp("CON", Replica2.DLMS_Port.PORT.CON_PORT,conserver2_log);
+			mcgServer = new ReplicaHost2.DLMSImp("MCG", Replica2.DLMS_Port.PORT.MCG_PORT,mcgserver2_log);
+			monServer = new ReplicaHost2.DLMSImp("MON", Replica2.DLMS_Port.PORT.MON_PORT,monserver2_log);
+		}catch (Exception e){
 			e.printStackTrace();
 		}
-		conServer = new DLMSImp("CON", DLMS_Port.PORT.CON_PORT);
-		mcgServer = new DLMSImp("MCG", DLMS_Port.PORT.MCG_PORT);
-		monServer = new DLMSImp("MON", DLMS_Port.PORT.MON_PORT);
+
 
 		startServers();
 	}
+
 
 	public String executeMsg(Message msg) {
 		//System.out.println("executeMsg" + msg);
@@ -60,13 +64,13 @@ public class Replica2 {
 		String operation[] = msg.operationMsg.split(",");
 		DLMSImp dlms = getLibrary(msg.libCode);
 
-		//System.out.println("=======list map=====" + dlms.toString());
+		//log.info("Replica2 execute message:"+msg.operationMsg);
+
 		switch (operation[0]) {
 		case ("addItem"):
 			result = dlms.addItem(operation[1], operation[2], operation[3], Integer.parseInt(operation[4]));
 			break;
 		case ("removeItem"):
-			System.out.println("executeMsg===remove" + operation[1] + operation[2]);
 			result = dlms.removeItem(operation[1], operation[2], Integer.parseInt(operation[3]));
 			break;
 		case ("listItem"):
@@ -94,6 +98,8 @@ public class Replica2 {
 			System.out.println("\nERROR: Invalid input please try again.");
 			break;
 		}
+
+		//log.info("Replica2 gets result: "+result);
 		return result;
 	}
 
@@ -171,7 +177,6 @@ public class Replica2 {
 	public static void main(String[] args) throws IOException {
 
 		Replica2 replica2 = new Replica2();
-
 		Logger replica2_log = Logger.getLogger("Repilca2.log");
 		createLogger("Repilca2.log", replica2_log);
 		Logger conserver2_log = Logger.getLogger("conserver2.log");
@@ -181,8 +186,19 @@ public class Replica2 {
 		Logger monserver2_log = Logger.getLogger("monserver2.log");
 		createLogger("monserver2.log", monserver2_log);
 
-		// Replica2 replica2 = new Replica2(replica2_log, conServer, mcgServer,
-		// monServer);
+		//DLMSImp conServer = new DLMSImp("CON", DLMS_Port.PORT.CON_PORT, conserver2_log);
+		//DLMSImp mcgServer = new DLMSImp("MCG", DLMS_Port.PORT.MCG_PORT, mcgserver2_log);
+		//DLMSImp monServer = new DLMSImp("MON", DLMS_Port.PORT.MON_PORT, monserver2_log);
+		//Replica2 replica2 = new Replica2(replica2_log, conServer, mcgServer,
+		//monServer);
 
 	}
+
+	public void closeImpSocket() {
+		conServer.aSocket.close();
+		monServer.aSocket.close();
+		mcgServer.aSocket.close();
+	}
+	// public static Replica1 replica1_Instance;
+
 }
