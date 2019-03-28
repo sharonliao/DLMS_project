@@ -42,19 +42,20 @@ public class Replica1 {
 			createLogger("mcgserver1.log", mcgserver1_log);
 			Logger monserver1_log = Logger.getLogger("monserver1.log");
 			createLogger("monserver1.log", monserver1_log);
+
+			conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT,replica1_log);
+			mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT,conserver1_log);
+			monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT,monserver1_log);
+
+			startServers();
+
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-		conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT);
-		mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT);
-		monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT);
-
-		startServers();
 	}
 
 
 	public String executeMsg(Message msg){
-		System.out.println("executeMsg");
 		String result = "";
 		String operation[] = msg.operationMsg.split(",");
 		DLMSImp dlms = getLibrary(msg.libCode);
@@ -120,7 +121,7 @@ public class Replica1 {
 	public void recoverRplicaData(){
 		while (historyQueue.size() > 0){
 			Message msg = historyQueue.poll();
-			System.out.println("msg---"+msg.operationMsg +"\n");
+			System.out.println("recover --- "+msg.operationMsg );
 			executeMsg(msg);
 		}
 	}
@@ -165,91 +166,10 @@ public class Replica1 {
 		Thread4.start();
 	}
 
-	public static void main(String[] args) throws IOException {
-
-
-		Replica1 replica1 = new Replica1();
-//		Replica1.replica1_Instance = replica1;
-//		System.out.println("replica1_Instance :" +replica1_Instance.getClass());
-
-//		Runnable startReplica = () -> {
-//			try {
-//				replica1.startReplica(ReplicaPort.REPLICA_PORT.replica1);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-
-//		Runnable start_CON_UDP = () -> {
-//			try{
-//				conServer.udpServer();
-//			}catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-//
-//		Runnable start_MCG_UDP = () -> {
-//			try{
-//				mcgServer.udpServer();
-//
-//			}catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-//
-//		Runnable start_MON_UDP = () -> {
-//			try{
-//				monServer.udpServer();
-//			}catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-
-
-//		Runnable failureListener = () -> {
-//			try{
-//				replica1.startFailureListening(RMPort.RM_PORT.rmPort1_failure);
-//			}catch (Exception e){
-//				e.printStackTrace();
-//			}
-//		};
-
-
-		//Thread Thread1 = new Thread(startReplica);
-//		Thread Thread2 = new Thread(start_CON_UDP);
-//		Thread Thread3 = new Thread(start_MCG_UDP);
-//		Thread Thread4 = new Thread(start_MON_UDP);
-//		//Thread Thread5 = new Thread(failureListener);
-//
-//		//Thread1.start();
-//		Thread2.start();
-//		Thread3.start();
-//		Thread4.start();
-//		//Thread5.start();
-
-
-//		String info = conServer.listItemAvailability("CONM0001");
-//		//System.out.println(conServer.addItem("CONM0001","CON1111","BB",4));
-//
-//		Message addBookMsg = new Message();
-//		addBookMsg.operationMsg = "addItem,CONM0001,CON9999,XSSsss,4";
-//		addBookMsg.seqId = 1;
-//		addBookMsg.libCode = "CON";
-//		replica1.historyQueue  = new LinkedList<>();
-//		replica1.historyQueue.offer(addBookMsg);
-//
-//		Message removeMsg = new Message();
-//		removeMsg.operationMsg = "removeItem,CONM0001,CON2222,-1";
-//		removeMsg.seqId = 2;
-//		removeMsg.libCode = "CON";
-//		replica1.historyQueue.offer(removeMsg);
-//
-//		replica1.recoverRplicaData();
-//		info = conServer.listItemAvailability("CONM0001");
+	public void closeImpSocket(){
+		conServer.aSocket.close();
+		mcgServer.aSocket.close();
+		monServer.aSocket.close();
 	}
 
 }
