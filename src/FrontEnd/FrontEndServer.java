@@ -10,6 +10,7 @@ import org.omg.PortableServer.Servant;
 
 import FrontEndAPP.FrontEnd;
 import FrontEndAPP.FrontEndHelper;
+import Model.FEPort;
 
 public class FrontEndServer {
 
@@ -19,10 +20,8 @@ public class FrontEndServer {
 			ORB orb = ORB.init(args, null);
 			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 			rootpoa.the_POAManager().activate();
-			String id = "FE";
-			int serverPort = 5000;
 			// create servant and register it with the ORB
-			FrontEndObj libobj = new FrontEndObj(serverPort);
+			FrontEndObj libobj = new FrontEndObj(FEPort.FE_PORT.FEPort);
 			libobj.setORB(orb);
 
 			// get object reference from the servant
