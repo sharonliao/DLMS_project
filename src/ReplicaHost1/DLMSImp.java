@@ -27,9 +27,9 @@ public class DLMSImp {
     int LocalPort;
     String localFlag;
 
-    private ConcurrentHashMap<String, Item> bookList; //itemId ItemName quantity
-    private ConcurrentHashMap<String, Integer> borrowList;//userId itemId
-    private ConcurrentHashMap<String, Queue<String>> waitingList;
+    private ConcurrentHashMap<String, Item> bookList= new ConcurrentHashMap<String, Item>();//itemId ItemName quantity
+    private ConcurrentHashMap<String, Integer> borrowList = new ConcurrentHashMap<String, Integer>();//userId itemId
+    private ConcurrentHashMap<String, Queue<String>> waitingList= new ConcurrentHashMap<String, Queue<String>>();
 
     public DLMSImp(String local, int localPort, Logger log) {
         this.log = log;
@@ -38,7 +38,7 @@ public class DLMSImp {
         portMap.put("CON", 7777);
         portMap.put("MCG", 8888);
         portMap.put("MON", 9999);
-        initContent();
+       //initContent();
     }
 
 
@@ -79,7 +79,7 @@ public class DLMSImp {
             bookList.put(itemId, newItem);
             returnMsg = "Ad0";
         }
-        System.out.println("add book - book list：" + bookList);
+        System.out.println("add book - book list锛�" + bookList);
 
         return returnMsg;
     }
@@ -202,7 +202,7 @@ public class DLMSImp {
                 + returnInfo + "\n"
                 + waitingInfo + "\n";
 
-        return returnInfo;  //如果不属于本图书馆的书，只管记录是否归还，至于waitinglist自动续借是外馆自己记录，本地图书不需要知道
+        return returnInfo;  //濡傛灉涓嶅睘浜庢湰鍥句功棣嗙殑涔︼紝鍙璁板綍鏄惁褰掕繕锛岃嚦浜巜aitinglist鑷姩缁�熸槸澶栭鑷繁璁板綍锛屾湰鍦板浘涔︿笉闇�瑕佺煡閬�
     }
 
     public String returnInLocal(String userId, String itemId) {
@@ -270,7 +270,7 @@ public class DLMSImp {
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
                 System.out.println("Request received from client: " + requestMsg);
-                //格式 1、function 2、之后都是参数
+                //鏍煎紡 1銆乫unction 2銆佷箣鍚庨兘鏄弬鏁�
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
@@ -420,7 +420,7 @@ public class DLMSImp {
             returnInfo = udpCommunication(itemId, message);
         }
         System.out.print("checkIfReturnAvailable1 returnInfo --- " + returnInfo);
-        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") ———— "
+        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 鈥斺�斺�斺�� "
                 + returnInfo + "\n";
         //writeLog(info);
         return returnInfo;
@@ -518,7 +518,7 @@ public class DLMSImp {
 
 
     public String putInWaiting(String userId, String itemId) {
-        //如果是外馆书籍，发送外馆记录
+        //濡傛灉鏄棣嗕功绫嶏紝鍙戦�佸棣嗚褰�
         String rtnMsg = "";
         if (itemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(itemId)) {
@@ -540,7 +540,7 @@ public class DLMSImp {
 
 
     public String ex_putInWaiting(String userId, String newItemId, String oldItem) {
-        //如果是外馆书籍，发送外馆记录
+        //濡傛灉鏄棣嗕功绫嶏紝鍙戦�佸棣嗚褰�
         String rtnMsg = "";
         if (newItemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(newItemId)) {
@@ -580,7 +580,7 @@ public class DLMSImp {
                     }
                 }
             } while (getNextUser);
-            System.out.println("waitingUId 自动借书：" + waitingUId);
+            System.out.println("waitingUId 鑷姩鍊熶功锛�" + waitingUId);
 
             String userAndItemID = waitingUId + "-" + itemId;
 

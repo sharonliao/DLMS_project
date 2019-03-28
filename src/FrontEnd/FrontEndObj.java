@@ -9,6 +9,7 @@ import org.omg.PortableServer.POA;
 import FrontEndAPP.*;
 import Model.FEPort;
 import Model.RMPort;
+import Model.ReplicaPort;
 import Model.SequencerPort;
 
 import java.io.ByteArrayInputStream;
@@ -50,32 +51,8 @@ public class FrontEndObj extends FrontEndPOA {
 	String logpath;
 	String logmessage;
 	private static boolean failureCase = false;
+	private static boolean crashCase = false;
 	private static boolean voteStatus;
-	static Map<String, String> RMIPAddresses = new HashMap<String, String>() {
-		{
-			put("RM1address", "localhost");
-			put("RM2address", "localhost");
-			put("RM3address", "localhost");
-		};
-
-	};
-
-	static Map<String, Integer> RMAddresses = new HashMap<String, Integer>() {
-		{
-			put("RM1address", 1111);
-			put("RM2address", 2222);
-			put("RM3address", 3333);
-		};
-
-	};
-	Map<String, Integer> portlist = new HashMap<String, Integer>() {
-		{
-			put("MCG", 9999);
-			put("CON", 8999);
-			put("MON", 7999);
-		};
-	};
-
 	public static boolean isInteger(String str) {
 		Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
 		return pattern.matcher(str).matches();
@@ -238,7 +215,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3) {
+		if (resultSet.size() < 3&&crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Ad0")) {
@@ -747,19 +724,19 @@ public class FrontEndObj extends FrontEndPOA {
 			byte[] data = msg.getBytes();
 
 			if (crashServerNum.equals("1")) {
-				InetAddress address = InetAddress.getByName(RMIPAddresses.get("RM1address"));
+				InetAddress address = InetAddress.getByName("localhost");
 				DatagramPacket packet = new DatagramPacket(data, 0, data.length, address,
-						RMAddresses.get("RM1address"));
+						ReplicaPort.REPLICA_PORT.replica1);
 				socket.send(packet);
 			} else if (crashServerNum.equals("2")) {
-				InetAddress address = InetAddress.getByName(RMIPAddresses.get("RM2address"));
+				InetAddress address = InetAddress.getByName("localhost");
 				DatagramPacket packet = new DatagramPacket(data, 0, data.length, address,
-						RMAddresses.get("RM2address"));
+						ReplicaPort.REPLICA_PORT.replica2);
 				socket.send(packet);
 			} else {
-				InetAddress address = InetAddress.getByName(RMIPAddresses.get("RM3address"));
+				InetAddress address = InetAddress.getByName("localhost");
 				DatagramPacket packet = new DatagramPacket(data, 0, data.length, address,
-						RMAddresses.get("RM3address"));
+						ReplicaPort.REPLICA_PORT.replica3);
 				socket.send(packet);
 			}
 		} catch (SocketException e) {

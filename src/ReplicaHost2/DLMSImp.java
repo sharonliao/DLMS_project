@@ -45,22 +45,22 @@ public class DLMSImp {
          * Thread thread1 = new Thread(r1); Thread thread2 = new Thread(r2); Thread
          * thread3 = new Thread(r3); thread1.start(); thread2.start(); thread3.start();
          */
-
-        if (library.equals("CON")) {
-            map.put("CON1111", new Item("CON1111", "Test for Concordia", 3));
-            map.put("CON2222", new Item("CON2222", "Math", 5));
-            map.put("CON3333", new Item("CON3333", "French", 1));
-
-        } else if (library.equals("MCG")) {
-            map.put("MCG1111", new Item("MCG1111", "Test for Mcgill", 8));
-            map.put("MCG2222", new Item("MCG2222", "Math", 1));
-            map.put("MCG3333", new Item("MCG3333", "French", 1));
-
-        } else if (library.equals("MON")) {
-            map.put("MON1111", new Item("MON1111", "Test for Mcgill", 5));
-            map.put("MON2222", new Item("MON2222", "Math", 2));
-            map.put("MON3333", new Item("MON3333", "French", 1));
-        }
+//
+//        if (library.equals("CON")) {
+//            map.put("CON1111", new Item("CON1111", "Test for Concordia", 3));
+//            map.put("CON2222", new Item("CON2222", "Math", 5));
+//            map.put("CON3333", new Item("CON3333", "French", 1));
+//
+//        } else if (library.equals("MCG")) {
+//            map.put("MCG1111", new Item("MCG1111", "Test for Mcgill", 8));
+//            map.put("MCG2222", new Item("MCG2222", "Math", 1));
+//            map.put("MCG3333", new Item("MCG3333", "French", 1));
+//
+//        } else if (library.equals("MON")) {
+//            map.put("MON1111", new Item("MON1111", "Test for Mcgill", 5));
+//            map.put("MON2222", new Item("MON2222", "Math", 2));
+//            map.put("MON3333", new Item("MON3333", "French", 1));
+//        }
 
     }
 
@@ -113,7 +113,7 @@ public class DLMSImp {
                 }
                 removeNullWaitlist(WaitList);
             }
-            log.info("Add item："+managerID+", "+itemID+", "+quantity+": "+answer);
+            log.info("Add item锛�"+managerID+", "+itemID+", "+quantity+": "+answer);
             return answer;
         }
     }
@@ -179,7 +179,7 @@ public class DLMSImp {
             } else {
                 answer = "Re3";   ///item not exist
             }
-            log.info("Remove item："+managerID+", "+itemID+", "+quantity+": "+answer);
+            log.info("Remove item锛�"+managerID+", "+itemID+", "+quantity+": "+answer);
             return answer;
         }
     }
@@ -190,7 +190,7 @@ public class DLMSImp {
             for (String key : map.keySet()) {
                 answer += key + " " + map.get(key).getItemName() + " " + map.get(key).getQuantity() + "\n";
             }
-            log.info("List item："+managerID+": "+answer);
+            log.info("List item锛�"+managerID+": "+answer);
             return answer.trim();
         }
 
@@ -205,7 +205,7 @@ public class DLMSImp {
                 answer = sendToUdpServer(itemID, "Borrow item:" + "&" + userID + "&" + itemID);
             }
         }
-        log.info("Borrow item："+userID+", "+itemID+": "+answer);
+        log.info("Borrow item锛�"+userID+", "+itemID+": "+answer);
         return answer;
     }
 
@@ -261,7 +261,7 @@ public class DLMSImp {
             answer += sendMessage(2223, "Find:" + "&" + userID + "&" + itemName)
                     + sendMessage(1112, "Find:" + "&" + userID + "&" + itemName);
         }
-        log.info("Find item："+userID+": "+answer);
+        log.info("Find item锛�"+userID+": "+answer);
         return answer;
     }
 
@@ -286,7 +286,7 @@ public class DLMSImp {
 
                 answer = sendToUdpServer(itemID, "Return item:" + "&" + userID + "&" + itemID);
             }
-            log.info("Return item："+userID+", "+itemID+": "+answer);
+            log.info("Return item锛�"+userID+", "+itemID+": "+answer);
             return answer;
         }
     }
@@ -388,7 +388,7 @@ public class DLMSImp {
             } else {
                 answer = sendToUdpServer(itemID, "Addlist:" + "&" + userID + "&" + itemID);
             }
-            log.info("Add waitlist："+userID+", "+itemID+": "+answer);
+            log.info("Add waitlist锛�"+userID+", "+itemID+": "+answer);
             return answer;
         }
     }
@@ -518,7 +518,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
-            log.info("Exchange item："+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
+            log.info("Exchange item锛�"+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
             return answer;
         }
     }
@@ -596,7 +596,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
-            log.info("Add to waitlist for Exchange item："+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
+            log.info("Add to waitlist for Exchange item锛�"+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
             return answer;
         }
     }

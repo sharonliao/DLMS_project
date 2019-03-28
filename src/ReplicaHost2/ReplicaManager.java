@@ -218,7 +218,7 @@ public class ReplicaManager {
 		System.out.println("sendToFE");
 		InetAddress address = InetAddress.getByName("localhost");
 		byte[] data = msgFromReplica.getBytes();
-		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.FEPort);
+		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.RegistorPort);
 		aSocket.send(aPacket);
 		logger.info("RM2 sends message to FE:"+msgFromReplica);
 		//aSocket.close();//如果不colse会怎么样

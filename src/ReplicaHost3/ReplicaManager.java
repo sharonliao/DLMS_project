@@ -204,7 +204,7 @@ public class ReplicaManager {
 	 */
 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
 		System.out.println("sendToReplicaAndGetReply");
-		String reply = this.replicaId + ":" + replica3.executeMsg(msg);
+		String reply = msg.seqId+":"+ this.replicaId + ":" + replica3.executeMsg(msg);
 		System.out.println("reply:"+reply);
 		DatagramSocket socket = null;
 		socket = new DatagramSocket();

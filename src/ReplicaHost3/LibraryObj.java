@@ -110,7 +110,7 @@ public class LibraryObj {
 		super();
 		this.libraryID = libID;
 		this.portNum = portNumber;
-		initContent();
+		//initContent();
 	}
 
 	private void initContent(){
