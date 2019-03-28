@@ -1,5 +1,7 @@
 *.log
 *.iml
+*.log.1
+*.lck
 /out
 /bin
 
