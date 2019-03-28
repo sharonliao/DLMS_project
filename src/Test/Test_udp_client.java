@@ -1,6 +1,7 @@
 package Test;
 
 import Model.FEPort;
+import Model.SequencerPort;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -43,7 +44,8 @@ public class Test_udp_client {
     public void udpServer(){
         DatagramSocket aSocket = null;
         try {
-            aSocket = new DatagramSocket(FEPort.FE_PORT.FEPort);
+            aSocket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
+
 
             System.out.println("Server Started............");
             while (true) {
@@ -80,14 +82,12 @@ public class Test_udp_client {
                 e.printStackTrace();
             }
         };
-        
-
 
         Thread Thread2 = new Thread(TaskListener);
         Thread2.start();
 
         for(String message : messages){
-            testClient.udpClient(message, FEPort.FE_PORT.FEPort);
+            testClient.udpClient(message, SequencerPort.SEQUENCER_PORT.sequencerPort);
         }
 
         try{
@@ -98,11 +98,14 @@ public class Test_udp_client {
 
 
         String message3 = "borrowItem,CONU0001,MON1111";
-        testClient.udpClient(message3, FEPort.FE_PORT.FEPort);
+        testClient.udpClient(message3, SequencerPort.SEQUENCER_PORT.sequencerPort);
         
         
         String message4 = "exchangeItem,CONU0001,MON2222,MON1111";
-        testClient.udpClient(message4, FEPort.FE_PORT.FEPort);
+        testClient.udpClient(message4,SequencerPort.SEQUENCER_PORT.sequencerPort);
+
+        String message5 = "findItem,CONU0001,MON2222,MON1111";
+        testClient.udpClient(message5,SequencerPort.SEQUENCER_PORT.sequencerPort);
 
     }
 
