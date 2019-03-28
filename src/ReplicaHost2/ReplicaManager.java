@@ -124,6 +124,8 @@ public class ReplicaManager {
 	private void restartReplica() throws IOException{
 		//Replica1.main(null);
 		//restart 之前要把replica1的端口全都关掉，不然udp会报错
+
+		replica2.closeImpSocket();
 		replica2 = null;
 		System.gc();
 
@@ -250,5 +252,7 @@ public class ReplicaManager {
 		}
 
 	}
+
+
 
 }

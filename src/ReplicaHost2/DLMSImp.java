@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 import Model.Item;
 
+import javax.swing.*;
+
 public class DLMSImp {
     public HashMap<String, Item> map;
     public HashMap<String, List<String>> UserBorrow;
@@ -22,6 +24,7 @@ public class DLMSImp {
     public HashMap<String, Item> temp;
     public Logger log;
 
+    DatagramSocket aSocket = null;
     int LocalPort;
     String library;
     public boolean bugFree = false;
@@ -714,7 +717,7 @@ public class DLMSImp {
     }
 
     public void receive(int portNumber) {
-        DatagramSocket aSocket = null;
+
         try {
             aSocket = new DatagramSocket(portNumber);
             byte[] buffer = new byte[1000];

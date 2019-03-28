@@ -18,7 +18,8 @@ public class Replica2 {
 	public DLMSImp monServer;
 	public Boolean bugFree = true;
 	public Queue<Message> historyQueue;
-	// public static Replica1 replica1_Instance;
+
+
 
 	enum DLMS_Port {
 		PORT;
@@ -192,4 +193,12 @@ public class Replica2 {
 		//monServer);
 
 	}
+
+	public void closeImpSocket() {
+		conServer.aSocket.close();
+		monServer.aSocket.close();
+		mcgServer.aSocket.close();
+	}
+	// public static Replica1 replica1_Instance;
+
 }
