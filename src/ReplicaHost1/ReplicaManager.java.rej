@@ -1,9 +1,0 @@
-diff a/src/ReplicaHost1/ReplicaManager.java b/src/ReplicaHost1/ReplicaManager.java	(rejected hunks)
-@@ -198,6 +198,7 @@
- 	 */
- 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
- 		System.out.println("sendToReplicaAndGetReply");
-+		String reply = msg.seqId+":"+ this.replicaId + ":" + replica1.executeMsg(msg);
- 		System.out.println("reply:"+reply);
- 		sendToFE(aSocket,reply);
- 

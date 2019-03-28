@@ -1,8 +1,6 @@
-package ReplicaHost1;
+package Test;
 
 import Model.FEPort;
-import Model.RMPort;
-import Model.SequencerPort;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
