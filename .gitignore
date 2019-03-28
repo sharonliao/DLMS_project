@@ -4,4 +4,6 @@
 *.lck
 /out
 /bin
-
+*.log.1
+*.log.2
+.lck

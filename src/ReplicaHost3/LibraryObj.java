@@ -50,6 +50,7 @@ public class LibraryObj {
 	Book oldBookClone;
 	String logpath;
 	String logmessage;
+	public static DatagramSocket aSocket = null;
 
 	Map<String, Integer> portlist = new HashMap<String, Integer>() {
 		{
@@ -121,7 +122,6 @@ public class LibraryObj {
 	}
 
 	public static String sendMessage(byte[] message, int serverPort) {
-		DatagramSocket aSocket = null;
 		try {
 			aSocket = new DatagramSocket();
 			InetAddress aHost = InetAddress.getByName("localhost");
@@ -151,7 +151,6 @@ public class LibraryObj {
 	}
 
 	public void receive(int portNum) {
-		DatagramSocket aSocket = null;
 
 		try {
 			aSocket = new DatagramSocket(portNum);
