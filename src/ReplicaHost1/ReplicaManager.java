@@ -75,8 +75,8 @@ public class ReplicaManager {
 
 	public void recoverFromFailure(String failureMsg) throws IOException {
 		logger.info("Replica "+ replicaId + " has failure");
-		//妫�鏌ユ槸鍚﹁繛缁嚭閿欎笁娆�
-		int msgId = 0;//娉ㄦ剰淇敼 鍙栧埌鐪熸鐨刴sgId鏉ユ瘮杈冩槸鍚﹁繛缁敊浜嗕笁娆�
+
+		int msgId = 0;
 		if(checkIfFailThreeTimes(msgId)){
 			replica1.fixBug();
 		}
@@ -118,8 +118,9 @@ public class ReplicaManager {
 	}
 
 	private void restartReplica() throws IOException{
-		//Replica1.main(null);
-		//restart 涔嬪墠瑕佹妸replica1鐨勭鍙ｅ叏閮藉叧鎺夛紝涓嶇劧udp浼氭姤閿�
+
+		//restart 之前要把replica1的端口全都关掉，不然udp会报错
+		replica1.closeImpSocket();
 		replica1 = null;
 		System.gc();
 
@@ -135,7 +136,6 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void moveToHoldBackQueue(String msg,DatagramSocket aSocket) throws IOException {
-		System.out.println("moveToHoldBackQueue --" + msg);
 		int id = Integer.parseInt(msg.split(":")[0]);
 		if (!holdBackQueue.containsKey(id)) {
 			Message message = splitMessge(msg);
@@ -149,7 +149,6 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void moveToDeliveryQueue(DatagramSocket aSocket) throws IOException {
-		System.out.println("moveToDeliveryQueue --" );
 		if(holdBackQueue.size() != 0){
 			if(holdBackQueue.containsKey(this.seqNum)){
 				Message message = holdBackQueue.get(this.seqNum);
@@ -181,7 +180,6 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void checkAndExecuteMessage(DatagramSocket aSocket) throws IOException {
-		System.out.println("checkAndExecuteMessage --" );
 		Message message = this.deliveryQueue.peek();
 		if(message != null){
 			message = this.deliveryQueue.poll();
@@ -197,8 +195,8 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
-		System.out.println("sendToReplicaAndGetReply");
-		String reply = this.replicaId + ":" + replica1.executeMsg(msg);
+
+		String reply = msg.seqId+":"+ this.replicaId + ":" + replica1.executeMsg(msg);
 		System.out.println("reply:"+reply);
 		DatagramSocket socket = null;
 		socket = new DatagramSocket();
@@ -208,7 +206,6 @@ public class ReplicaManager {
 
 
 	private void sendToFE(DatagramSocket aSocket, String msgFromReplica) throws IOException{
-		System.out.println("sendToFE");
 		InetAddress address = InetAddress.getByName("localhost");
 		byte[] data = msgFromReplica.getBytes();
 		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.RegistorPort);
@@ -233,14 +230,14 @@ public class ReplicaManager {
 
 		Thread Thread2 = new Thread(TaskListener);
 		Thread2.start();
+		System.out.println("test");
 
 		try{
-			Thread.sleep(8000);
+			Thread.sleep(5000);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 
-//		rm.replica1 = null;
-//		rm.recoverFromCrash("1:1");
+		rm.recoverFromCrash("1:1");
 	}
 }

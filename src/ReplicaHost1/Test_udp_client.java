@@ -74,6 +74,7 @@ public class Test_udp_client {
         messages.add("addItem,CONM0001,CON9999,distributed,4");
         messages.add("removeItem,CONM0001,CON1111,-1");
         messages.add("listItem,CONM0001");
+        messages.add("borrowItem,CONU0001,MCG2222");
         Runnable TaskListener = () ->{
             try{
                 testClient.udpServer();
@@ -92,7 +93,7 @@ public class Test_udp_client {
         }
 
         try{
-            Thread.sleep(5000);
+            Thread.sleep(8000);
         }catch (Exception e){
             e.printStackTrace();
         }
