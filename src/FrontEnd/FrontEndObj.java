@@ -7,6 +7,9 @@ import org.omg.CORBA.Object;
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 import FrontEndAPP.*;
+import Model.FEPort;
+import Model.RMPort;
+import Model.SequencerPort;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,11 +45,12 @@ public class FrontEndObj extends FrontEndPOA {
 	private static final int TIMEOUT = 5000;
 	private static Map<String, Integer> softwareFailCounter;
 	String FEID;
-	static int portNum;
-	static int portSeq;
+	private static int portNum;
+	static int portSeq = SequencerPort.SEQUENCER_PORT.sequencerPort;
 	String logpath;
 	String logmessage;
-
+	private static boolean failureCase = false;
+	private static boolean voteStatus;
 	static Map<String, String> RMIPAddresses = new HashMap<String, String>() {
 		{
 			put("RM1address", "localhost");
@@ -129,66 +133,21 @@ public class FrontEndObj extends FrontEndPOA {
 
 	public void sendMessage(String message) throws Exception {
 		// TODO:Sequener Ip;
-		int send_count = 0;
-		boolean revResponse = false;
-		DatagramSocket socket = null;
-		DatagramPacket reply = null;
-		while (!revResponse && send_count < MAXNUM) {
-			try {
-				InetAddress address = InetAddress.getByName("localhost");
-				byte[] data = message.getBytes();
-				DatagramPacket sendPacket = new DatagramPacket(data, data.length, address, portSeq);
-				socket = new DatagramSocket();
-				socket.setSoTimeout(TIMEOUT);
-				socket.send(sendPacket);
-				byte[] buffer = new byte[1000];
-				reply = new DatagramPacket(buffer, buffer.length);
-				socket.receive(reply);
-				revResponse = true;
-			} catch (InterruptedIOException e) {
-				send_count += 1;
-				System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
-			}
-		}
-
-	}
-
-	public static String sendMessage(byte[] message) {
-		DatagramPacket reply = null;
 		DatagramSocket aSocket = null;
 		try {
 			aSocket = new DatagramSocket();
-			aSocket.setSoTimeout(TIMEOUT);
 			InetAddress aHost = InetAddress.getByName("localhost");
-			DatagramPacket request = new DatagramPacket(message, message.length, aHost, portSeq);
-			int send_count = 0;
-			boolean revResponse = false;
-			DatagramSocket socket = null;
-			Map<String, String> resultSet = new HashMap<String, String>();
-			int count = 0;
-			while (!revResponse && send_count < MAXNUM) {
-				try {
-					socket = new DatagramSocket(portNum);
-					aSocket.send(request);
-					System.out.println("Request message sent from the client to server with port number " + portSeq
-							+ " is: " + new String(request.getData()));
-					byte[] buffer = new byte[1000];
-					reply = new DatagramPacket(buffer, buffer.length);
-					aSocket.receive(reply);
-					revResponse = true;
-					while (count < 3) {
-						count = registerListener(socket, resultSet);
-					}
-				} catch (InterruptedIOException e) {
-					send_count += 1;
-					System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
-				}
-			}
-			if (resultSet.size() < 3) {
-				tellRMCrash(resultSet);
-			} else {
-				return majority(resultSet);
-			}
+			byte[] data = message.getBytes();
+			DatagramPacket request = new DatagramPacket(data, data.length, aHost, portSeq);
+			aSocket.send(request);
+			System.out.println("Request message sent from the client to server with port number " + portSeq + " is: "
+					+ new String(request.getData()));
+//			byte[] buffer = new byte[1000];
+//			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+//
+//			aSocket.receive(reply);
+//			System.out.println("Reply received from the server with port number " + portSeq + " is: "
+//					+ new String(reply.getData()));
 
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -199,7 +158,6 @@ public class FrontEndObj extends FrontEndPOA {
 			if (aSocket != null)
 				aSocket.close();
 		}
-		return null;
 	}
 
 	private static int registerListener(DatagramSocket socket, Map<String, String> resultSet) {
@@ -213,7 +171,6 @@ public class FrontEndObj extends FrontEndPOA {
 
 			String[] res = result.split(":");
 			resultSet.put(res[0], res[1]);
-
 		} catch (SocketException e) {
 
 		} catch (IOException e) {
@@ -221,6 +178,8 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		return resultSet.size();
 	}
+	
+	
 
 	public void receive(int portNum) {
 		DatagramSocket aSocket = null;
@@ -255,9 +214,10 @@ public class FrontEndObj extends FrontEndPOA {
 	public String addItem(String managerID, String itemID, String itemName, int q) {
 		Map<String, String> resultSet = new HashMap<>();
 		DatagramSocket socket = null;
+		String x = "";
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "addItem" + "," + managerID + "," + itemID + "," + itemName + "," + q;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -265,9 +225,15 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
+				if (count >= 2 && (!failureCase)) {
+					x = majority(resultSet);
+					if (voteStatus) {
+						break;
+					}
+				}
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -275,16 +241,12 @@ public class FrontEndObj extends FrontEndPOA {
 		if (resultSet.size() < 3) {
 			tellRMCrash(resultSet);
 		}
-		int temp;
-		String x = majority(resultSet);
-		String[] m = x.split(",");
-		if (m[1].equals("Ad0")) {
+		if (x.equals("Ad0")) {
 			return itemID + " " + itemName + " " + q + ": Add Successful";
-		} else{
+		} else {
 			return itemID + " " + itemName + " " + q + ": The itemID and itemName don't match";
 		}
 	}
-
 
 	@Override
 	public String removeItem(String managerID, String itemID, int quantity) {
@@ -292,7 +254,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "removeItem" + "," + managerID + "," + itemID + "," + quantity;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -302,7 +264,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -313,7 +275,7 @@ public class FrontEndObj extends FrontEndPOA {
 
 		String x = majority(resultSet);
 		String[] m = x.split(",");
-		if (m[1].equals("Re0")) {
+		if (m[2].equals("Re0")) {
 			return itemID + " " + quantity + ": Remove Successfully";
 		} else if (m[1].equals("Re1")) {
 			return itemID + " " + quantity + ": Decrease Successfully";
@@ -330,7 +292,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "listItem" + "," + managerID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -340,7 +302,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -350,7 +312,11 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		String x = majorityList(resultSet);
 		String[] m = x.split(",");
-		return m[1];
+		if (m.length > 0) {
+			return m[1];
+		} else {
+			return "The library has no book now";
+		}
 
 	}
 
@@ -360,7 +326,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "borrowItem" + "," + userID + "," + itemID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -370,7 +336,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -380,15 +346,15 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		String x = majority(resultSet);
 		String[] m = x.split(",");
-		if (m[1].equals("Br0")) {
+		if (m[2].equals("Br0")) {
 			return itemID + ": Borrow Successfully";
-		} else if (m[1].equals("Br1")) {
+		} else if (m[2].equals("Br1")) {
 			return itemID + ": Remove Failed. The item does not exist";
-		} else if (m[1].equals("Br2")) {
+		} else if (m[2].equals("Br2")) {
 			return itemID + ": Remove Failed. The book is not available now. Do you want to be added to waitlist? Y/N";
-		} else if (m[1].equals("Br3")) {
+		} else if (m[2].equals("Br3")) {
 			return itemID + ": Remove Failed: You have borrowed this item and not returned yet";
-		} else if (m[1].equals("Br4")) {
+		} else if (m[2].equals("Br4")) {
 			return itemID + ": Remove Failed: You already borrowed another book in that library and not returned yet";
 		} else {
 			return itemID + ": Remove Failed: You are already in a waitlist of that library";
@@ -401,7 +367,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "findItem" + "," + userID + "," + itemName;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -411,7 +377,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -421,7 +387,11 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		String x = majorityList(resultSet);
 		String[] m = x.split(",");
-		return m[1];
+		if (m.length > 0) {
+			return m[2];
+		} else {
+			return itemName + ": This book does not exist";
+		}
 	}
 
 	@Override
@@ -430,7 +400,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "returnItem" + "," + userID + "," + itemID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -440,7 +410,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -450,9 +420,9 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		String x = majority(resultSet);
 		String[] m = x.split(",");
-		if (m[1].equals("Rtn0")) {
+		if (m[2].equals("Rtn0")) {
 			return itemID + ": Return Successfully";
-		} else if (m[1].equals("Rtn1")) {
+		} else if (m[2].equals("Rtn1")) {
 			return itemID + ": Return Failed. The item does not exist";
 		} else {
 			return itemID + ": Return Failed. You haven't borrowed this item";
@@ -461,18 +431,20 @@ public class FrontEndObj extends FrontEndPOA {
 
 	@Override
 	public String checkBorrowList(String userID) {
-		byte[] message = ("checkBorrow" + "," + userID).getBytes();
-		String x = sendMessage(message);
-		String[] m = x.split(",");
-		return m[1];
+		return userID;
+		// byte[] message = ("checkBorrow" + "," + userID).getBytes();
+		// String x = sendMessage(message);
+		// String[] m = x.split(",");
+		// return m[1];
 	}
 
 	@Override
 	public String checkWaitList(String itemID) {
-		byte[] message = ("checkWaitList" + "," + itemID).getBytes();
-		String x = sendMessage(message);
-		String[] m = x.split(",");
-		return m[1];
+		return itemID;
+		// byte[] message = ("checkWaitList" + "," + itemID).getBytes();
+		// String x = sendMessage(message);
+		// String[] m = x.split(",");
+		// return m[1];
 	}
 
 	@Override
@@ -481,7 +453,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "addToWaitList" + "," + userID + "," + itemID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -491,7 +463,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -501,7 +473,7 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		String x = majority(resultSet);
 		String[] m = x.split(",");
-		if (m[1].equals("Atw0")) {
+		if (m[2].equals("Atw0")) {
 			return itemID + ": Add to waitlist Successfully";
 		} else {
 			return itemID + ": Add to waitlist Failed. You're already in the waitlist.";
@@ -514,7 +486,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "exchangeItem" + "," + studentID + "," + newItemID + "," + oldItemID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -524,7 +496,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -534,28 +506,28 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		String x = majority(resultSet);
 		String[] m = x.split(",");
-		if (m[1].equals("Ex0")) {
+		if (m[2].equals("Ex0")) {
 			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange Successfully";
-		} else if (m[1].equals("Ex1")) {
+		} else if (m[2].equals("Ex1")) {
 			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange Failed.";
-		} else if (m[1].equals("Ex2")) {
+		} else if (m[2].equals("Ex2")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange Failed. The book you want to return does not exist";
-		} else if (m[1].equals("Ex3")) {
+		} else if (m[2].equals("Ex3")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange Failed. The book you want to borrow does not exist";
-		} else if (m[1].equals("Ex4")) {
+		} else if (m[2].equals("Ex4")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange Failed. The book is not available now. Do you want to be added to waitlist? Y/N";
-		} else if (m[1].equals("Ex5")) {
+		} else if (m[2].equals("Ex5")) {
 			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You already borrowed the new book";
-		} else if (m[1].equals("Ex6")) {
+		} else if (m[2].equals("Ex6")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You already borrowed another book in that library";
-		} else if (m[1].equals("Ex7")) {
+		} else if (m[2].equals("Ex7")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You're already in the waitlist of the new book";
-		} else if (m[1].equals("Ex8")) {
+		} else if (m[2].equals("Ex8")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You are already in a waitlist in that library";
 		} else {
@@ -569,7 +541,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		int count = 0;
 		try {
-			socket = new DatagramSocket(portNum);
+			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "addToWaitlistforExchagne" + "," + studentID + "," + newItemID + "," + oldItemID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
@@ -579,7 +551,7 @@ public class FrontEndObj extends FrontEndPOA {
 				count = registerListener(socket, resultSet);
 			}
 		} catch (Exception e) {
-//          e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -591,26 +563,26 @@ public class FrontEndObj extends FrontEndPOA {
 		String[] m = x.split(",");
 		if (m[1].equals("Ex0")) {
 			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange Successfully";
-		} else if (m[1].equals("AtwEx0")) {
+		} else if (m[2].equals("AtwEx0")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange Successfully. Add to waitlist successfully.";
-		} else if (m[1].equals("Ex1")) {
+		} else if (m[2].equals("Ex1")) {
 			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange Failed.";
-		} else if (m[1].equals("Ex2")) {
+		} else if (m[2].equals("Ex2")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange Failed. The book you want to return does not exist";
-		} else if (m[1].equals("Ex3")) {
+		} else if (m[2].equals("Ex3")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange Failed. The book you want to borrow does not exist";
-		} else if (m[1].equals("Ex5")) {
+		} else if (m[2].equals("Ex5")) {
 			return "New: " + newItemID + " Old: " + oldItemID + ": Exchange failed. You already borrowed the new book";
-		} else if (m[1].equals("Ex6")) {
+		} else if (m[2].equals("Ex6")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You already borrowed another book in that library";
-		} else if (m[1].equals("Ex7")) {
+		} else if (m[2].equals("Ex7")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You're already in the waitlist of the new book";
-		} else if (m[1].equals("Ex8")) {
+		} else if (m[2].equals("Ex8")) {
 			return "New: " + newItemID + " Old: " + oldItemID
 					+ ": Exchange failed. You are already in a waitlist in that library";
 		} else {
@@ -621,15 +593,15 @@ public class FrontEndObj extends FrontEndPOA {
 	private static void tellRMCrash(Map<String, String> resultSet) {
 		if (!resultSet.containsKey("1")) {
 			String msg = "Crash" + "," + "1";
-			sendReq(msg);
+			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 		} else if (!resultSet.containsKey("2")) {
 			String msg = "Crash" + "," + "2";
 			;
-			sendReq(msg);
+			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 		} else if (!resultSet.containsKey("3")) {
 			String msg = "Crash" + "," + "3";
 			;
-			sendReq(msg);
+			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 		}
 	}
 
@@ -638,27 +610,33 @@ public class FrontEndObj extends FrontEndPOA {
 		return new DatagramPacket(data, 0, data.length, address, replica);
 	}
 
-	private static void sendReq(String msg) {
+	private static void multicastCrashMsg(String msg, int sPort) {
+		DatagramSocket aSocket = null;
+		String returnMsg = "";
 		try {
-			DatagramSocket socket = new DatagramSocket();
-			byte[] data = msg.getBytes();
-			multicastCrashMsg(socket, data);
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
-	}
+			System.out.println("Client Started........");
+			aSocket = new DatagramSocket();
+			byte[] message = msg.getBytes();
 
-	private static void multicastCrashMsg(DatagramSocket socket, byte[] data) {
-		try {
-			socket.send(packet(RMIPAddresses.get("RM1address"), data, RMAddresses.get("RM1address")));
-			socket.send(packet(RMIPAddresses.get("RM2address"), data, RMAddresses.get("RM2address")));
-			socket.send(packet(RMIPAddresses.get("RM3address"), data, RMAddresses.get("RM3address")));
-		} catch (IOException e) {
-			e.printStackTrace();
+			InetAddress aHost = InetAddress.getByName("224.0.0.1");
+			int serverPort = sPort;
+			DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
+			aSocket.send(request);
+			System.out.println("Request message sent from the client is : " + new String(request.getData()));
+			// byte [] buffer = new byte[1000];
+			// DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+			//
+			// aSocket.receive(reply);
+			// returnMsg = new String(reply.getData()).trim();
+			// System.out.println("Reply received from the server is: "+ returnMsg);
+
+		} catch (Exception e) {
+			System.out.println("udpClient error: " + e);
 		}
 	}
 
 	private static String majority(Map<String, String> resultSet) {
+		voteStatus = false;
 		Map<String, Integer> map = new HashMap<>();
 		for (String s : resultSet.keySet()) {
 			String tmp = resultSet.get(s);
@@ -678,9 +656,12 @@ public class FrontEndObj extends FrontEndPOA {
 				vote = tmp;
 			}
 		}
-
-		findSoftwareFail(candidate, vote, resultSet);
-
+		if (failureCase) {
+			findSoftwareFail(candidate, vote, resultSet);
+		}
+		if (vote >= 2) {
+			voteStatus = true;
+		}
 		return candidate;
 	}
 
@@ -745,7 +726,7 @@ public class FrontEndObj extends FrontEndPOA {
 	}
 
 	private static void findSoftwareFailforHash(HashMap<String, Integer> candidate, Integer vote,
-												Map<String, HashMap<String, Integer>> resultSet) {
+			Map<String, HashMap<String, Integer>> resultSet) {
 		if (vote == 3)
 			return;
 		String failServerNum = null;
