@@ -3,9 +3,12 @@ package ReplicaHost2;
 import Model.FEPort;
 import Model.Message;
 import Model.RMPort;
+import Model.logSetFormatter;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +48,7 @@ public class ReplicaManager {
 //		DatagramSocket asocket = new DatagramSocket(RMPort);
 		DatagramPacket apocket = null;
 		byte[] buf = null;
-		logger.info("RM is listenning ");
+		logger.info("RM2 is listenning! ");
 
 		MulticastSocket asocket = new MulticastSocket(RMPort);
 		asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
@@ -58,8 +61,10 @@ public class ReplicaManager {
 			String message = new String(apocket.getData()).trim();
 			System.out.println("UDP receive : " + message);
 
+			logger.info("RM2 receives message:"+message);
+
 			String[] messageSplited = message.split(":");
-			System.out.println("messageSplited[0]--" + messageSplited[0]);
+			System.out.println("messageSplited[0]--sequencerid==" + messageSplited[0]);
 
 			switch (messageSplited[0]){
 				case "Failure" : recoverFromFailure(message); // from FE
@@ -69,6 +74,7 @@ public class ReplicaManager {
 				default: moveToHoldBackQueue(message,asocket); //from Sequencer, normal operation message
 					     break;
 			}
+
 		}
 	}
 
@@ -124,6 +130,7 @@ public class ReplicaManager {
 		replica2 = new Replica2();
 		replica2.historyQueue = this.historyQueue;
 		replica2.recoverRplicaData();
+		logger.info("restart and recover replica2.");
 	}
 
 
@@ -199,6 +206,8 @@ public class ReplicaManager {
 		String reply = msg.seqId+":"+ this.replicaId + ":" + replica2.executeMsg(msg);
 		System.out.println("reply:"+reply);
 		sendToFE(aSocket,reply);
+		logger.info("RM2 sends message to Replica2: "+msg.operationMsg);
+		logger.info("RM2 gets reply from Replica2: "+reply);
 
 	}
 
@@ -209,13 +218,17 @@ public class ReplicaManager {
 		byte[] data = msgFromReplica.getBytes();
 		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.FEPort);
 		aSocket.send(aPacket);
+		logger.info("RM2 sends message to FE:"+msgFromReplica);
 		//aSocket.close();//如果不colse会怎么样
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Logger rmLogger = Logger.getLogger("RM2.log");
 		rmLogger.setLevel(Level.ALL);
+		FileHandler handler=new FileHandler("RM2.log");
+		handler.setFormatter(new logSetFormatter());
+		rmLogger.addHandler(handler);
 
 		ReplicaManager rm = new ReplicaManager(rmLogger);
 

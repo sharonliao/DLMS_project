@@ -21,41 +21,39 @@ public class DLMSImp {
     public Map<String, Queue<String>> WaitList;
     public HashMap<String, Item> temp;
     public Logger log;
-    public String library;
 
     int LocalPort;
-    String localFlag;
+    String library;
     public boolean bugFree = false;
 
-    public DLMSImp(String local, int localPort) {
-        // this.library = library;
-        // this.log = log;
+    public DLMSImp(String local, int localPort,Logger log) {
+        this.log = log;
         this.LocalPort = localPort;
-        this.localFlag = local;
+        this.library = local;
         map = new HashMap<>();
         temp = new HashMap<>();
         UserBorrow = new HashMap<>();
         WaitList = new HashMap<>();
 
-		/*
+        /*
          * Runnable r1 = () -> { receive(1112); }; Runnable r2 = () -> { receive(2223);
-		 * }; Runnable r3 = () -> { receive(3334); };
-		 * 
-		 * Thread thread1 = new Thread(r1); Thread thread2 = new Thread(r2); Thread
-		 * thread3 = new Thread(r3); thread1.start(); thread2.start(); thread3.start();
-		 */
+         * }; Runnable r3 = () -> { receive(3334); };
+         *
+         * Thread thread1 = new Thread(r1); Thread thread2 = new Thread(r2); Thread
+         * thread3 = new Thread(r3); thread1.start(); thread2.start(); thread3.start();
+         */
 
-        if (localFlag.equals("CON")) {
+        if (library.equals("CON")) {
             map.put("CON1111", new Item("CON1111", "Test for Concordia", 3));
             map.put("CON2222", new Item("CON2222", "Math", 5));
             map.put("CON3333", new Item("CON3333", "French", 1));
 
-        } else if (localFlag.equals("MCG")) {
+        } else if (library.equals("MCG")) {
             map.put("MCG1111", new Item("MCG1111", "Test for Mcgill", 8));
             map.put("MCG2222", new Item("MCG2222", "Math", 1));
             map.put("MCG3333", new Item("MCG3333", "French", 1));
 
-        } else if (localFlag.equals("MON")) {
+        } else if (library.equals("MON")) {
             map.put("MON1111", new Item("MON1111", "Test for Mcgill", 5));
             map.put("MON2222", new Item("MON2222", "Math", 2));
             map.put("MON3333", new Item("MON3333", "French", 1));
@@ -69,12 +67,12 @@ public class DLMSImp {
         synchronized (this) {
             if (!map.containsKey(itemID)) {
                 map.put(itemID, new Item(itemID, itemName, quantity));
-                answer = "Successfully add.";
+                answer = "Ad0";              //successfully add
             } else {
                 int qty = map.get(itemID).getQuantity();
                 qty = qty + quantity;
                 map.put(itemID, new Item(itemID, itemName, qty));
-                answer = "Successfully add.";
+                answer = "Ad0";            //successfully add
                 for (int i = 1; i <= quantity; i++) {
                     int num = map.get(itemID).getQuantity();
                     if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
@@ -112,6 +110,7 @@ public class DLMSImp {
                 }
                 removeNullWaitlist(WaitList);
             }
+            log.info("Add item："+managerID+", "+itemID+", "+quantity+": "+answer);
             return answer;
         }
     }
@@ -130,7 +129,6 @@ public class DLMSImp {
     public String removeItem(String managerID, String itemID, int quantity) {
         String answer = "";
         synchronized (this) {
-            // System.out.println("=======list map====="+map);
             if (!map.isEmpty() && map.containsKey(itemID)) {
                 String name = map.get(itemID).getItemName();
                 int qty = map.get(itemID).getQuantity();
@@ -167,16 +165,18 @@ public class DLMSImp {
                             iter1.remove();
                         }
                     }
-                    answer = "Successfully remove.";
+
+                    answer = "Re0";    //successfully remove
                 } else if (quantity <= qty) {
                     map.put(itemID, new Item(itemID, name, qty - quantity));
-                    answer = "Successfully decrease.";
+                    answer = "Re1";    //successfully decrease
                 } else if (quantity > qty) {
-                    answer = "Unsuccessfully remove. The quantity is unvailable.";
+                    answer = "Re2";     //unsuccessfully remove,
                 }
             } else {
-                answer = "Such item does not exist.";
+                answer = "Re3";   ///item not exist
             }
+            log.info("Remove item："+managerID+", "+itemID+", "+quantity+": "+answer);
             return answer;
         }
     }
@@ -187,8 +187,10 @@ public class DLMSImp {
             for (String key : map.keySet()) {
                 answer += key + " " + map.get(key).getItemName() + " " + map.get(key).getQuantity() + "\n";
             }
+            log.info("List item："+managerID+": "+answer);
             return answer.trim();
         }
+
     }
 
     public String borrowItem(String userID, String itemID) {
@@ -197,11 +199,10 @@ public class DLMSImp {
             if (userID.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
                 answer = borrowItemUdp(userID, itemID);
             } else {
-
                 answer = sendToUdpServer(itemID, "Borrow item:" + "&" + userID + "&" + itemID);
-
             }
         }
+        log.info("Borrow item："+userID+", "+itemID+": "+answer);
         return answer;
     }
 
@@ -213,13 +214,13 @@ public class DLMSImp {
             qty = map.get(itemID).getQuantity();
             name = map.get(itemID).getItemName();
             if (!WaitList.isEmpty() && WaitList.containsKey(itemID) && WaitList.get(itemID).contains(userID)) {
-                answer = "You are already in the waitlist.";
+                answer = "Br5";      //already in the waitlist
             } else {
                 if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).equals(itemID)) {
-                    answer = "You have borrowed this item.";
+                    answer = "Br3";     //you have borrowed this item
                 } else if (!userID.substring(0, 3).equals(itemID.substring(0, 3)) && !UserBorrow.isEmpty()
                         && UserBorrow.containsKey(userID)) {
-                    answer = "You have borrowed from this library.";
+                    answer = "Br4";     //you have borrowed from this library
                 } else {
                     if (qty > 0) {
                         map.put(itemID, new Item(itemID, name, qty - 1));
@@ -232,14 +233,14 @@ public class DLMSImp {
                             list.add(itemID);
                             UserBorrow.put(userID, list);
                         }
-                        answer = "Successfully borrow";
+                        answer = "Br0";    ///successfully borrow
                     } else {
-                        answer = "This item is unavailable, do you want to add to waiting list?";
+                        answer = "Br2";   // item not available, add to wait list?
                     }
                 }
             }
         } else {
-            answer = "Such item does not exist.";
+            answer = "Br1";  //item not exist
         }
         return answer;
     }
@@ -257,22 +258,20 @@ public class DLMSImp {
             answer += sendMessage(2223, "Find:" + "&" + userID + "&" + itemName)
                     + sendMessage(1112, "Find:" + "&" + userID + "&" + itemName);
         }
+        log.info("Find item："+userID+": "+answer);
         return answer;
     }
 
     public String findItemUdp(String name) {
         String answer = null;
-        if (!map.isEmpty()) {
-            for (Object key : map.keySet()) {
-                Item value = (Item) map.get(key);
-                if (value.getItemName().equals(name)) {
-                    answer += value + ";";
-                }
+        for (Object key : map.keySet()) {
+            Item value = (Item) map.get(key);
+            if (value.getItemName().equals(name)) {
+                answer += value.toString() + "\n";
             }
-        } else {
-            answer = null;
         }
-        return answer;
+
+        return answer.trim();
     }
 
     public String returnItem(String userID, String itemID) {
@@ -284,6 +283,7 @@ public class DLMSImp {
 
                 answer = sendToUdpServer(itemID, "Return item:" + "&" + userID + "&" + itemID);
             }
+            log.info("Return item："+userID+", "+itemID+": "+answer);
             return answer;
         }
     }
@@ -295,91 +295,85 @@ public class DLMSImp {
         if (!map.isEmpty() && map.containsKey(itemID)) {
             qty = map.get(itemID).getQuantity();
             name = map.get(itemID).getItemName();
-            if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID)) {
-                Iterator<HashMap.Entry<String, List<String>>> it = UserBorrow.entrySet().iterator();
-                while (it.hasNext()) {
-                    HashMap.Entry<String, List<String>> entry = it.next();
-                    String key = entry.getKey();
-                    if (UserBorrow.get(key).contains(itemID) && key.equals(userID)) {
-                        List list = UserBorrow.get(key);
-                        for (int i = 0; i < list.size(); i++) {
-                            if (itemID.equals(list.get(i))) {
-                                list.remove(itemID);
-                                if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
-                                    while (WaitList.get(itemID).size() != 0) {
-                                        String userwl = WaitList.get(itemID).peek();
-                                        if (userwl.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
-                                            if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userwl)) {
-                                                List list1 = UserBorrow.get(userwl);
-                                                list1.add(itemID);
-                                                UserBorrow.put(userwl, list1);
-
-                                            } else {
-                                                List list2 = new LinkedList<String>();
-                                                list2.add(itemID);
-                                                UserBorrow.put(userwl, list2);
-                                            }
-                                            WaitList.get(itemID).poll();
-                                            break;
+            Iterator<HashMap.Entry<String, List<String>>> it = UserBorrow.entrySet().iterator();
+            while (it.hasNext()) {
+                HashMap.Entry<String, List<String>> entry = it.next();
+                String key = entry.getKey();
+                if (UserBorrow.get(key).contains(itemID) && key.equals(userID)) {
+                    List list = UserBorrow.get(key);
+                    for (int i = 0; i < list.size(); i++) {
+                        if (itemID.equals(list.get(i))) {
+                            list.remove(itemID);
+                            if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
+                                while (WaitList.get(itemID).size() != 0) {
+                                    String userwl = WaitList.get(itemID).peek();
+                                    if (userwl.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
+                                        if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userwl)) {
+                                            List list1 = UserBorrow.get(userwl);
+                                            list1.add(itemID);
+                                            UserBorrow.put(userwl, list1);
                                         } else {
-                                            if (UserBorrow.containsKey(WaitList.get(itemID).peek())) {
-                                                WaitList.get(itemID).poll();
-                                                if (WaitList.get(itemID).size() == 0) {
-                                                    map.put(itemID, new Item(itemID, name, qty + 1));
-                                                    break;
-                                                }
-                                            } else {
-                                                List list3 = new LinkedList<String>();
-                                                list3.add(itemID);
-                                                UserBorrow.put(userwl, list3);
+                                            List list2 = new LinkedList<String>();
+                                            list2.add(itemID);
+                                            UserBorrow.put(userwl, list2);
+                                        }
+                                        WaitList.get(itemID).poll();
+                                        break;
+                                    } else {
+                                        if (UserBorrow.containsKey(WaitList.get(itemID).peek())) {
+                                            WaitList.get(itemID).poll();
+                                            if (WaitList.get(itemID).size() == 0) {
+                                                map.put(itemID, new Item(itemID, name, qty + 1));
                                                 break;
                                             }
+                                        } else {
+                                            List list3 = new LinkedList<String>();
+                                            list3.add(itemID);
+                                            UserBorrow.put(userwl, list3);
+                                            break;
                                         }
                                     }
-                                    removeNullWaitlist(WaitList);
-                                    break;
-                                } else {
-                                    map.put(itemID, new Item(itemID, name, qty + 1));
-                                    break;
                                 }
+                                removeNullWaitlist(WaitList);
+                                break;
+                            } else {
+                                map.put(itemID, new Item(itemID, name, qty + 1));
+                                break;
                             }
                         }
-                        if (list.size() == 0) {
-                            it.remove();
-                        }
-                        answer = "Successfully Return!";
-
-                    } else {
-                        answer = "You don't borrow this item. ";
                     }
+                    if (list.size() == 0) {
+                        it.remove();
+                    }
+                    answer = "Rtn0";    //successfully return
+
+                } else {
+                    answer = "Rtn2";    //you didn't borrow it
                 }
-            } else {
-                answer = "You don't borrow this item or nobody borrows item. ";
             }
         } else {
-            answer = "Such item doesn't exist or library is empty.";
+            answer = "Rtn1";    //item not exist
         }
         return answer;
     }
 
     public String addWaitlistUdp(String userID, String itemID) {
         String answer = "";
-        if (!WaitList.isEmpty()) {
-            if (WaitList.containsKey(itemID)) {
+        if (WaitList.containsKey(itemID)) {
+            if (WaitList.get(itemID).contains(userID)) {
+                answer = "Atw1";   //already in the waitlist
+            } else {
                 Queue queue = WaitList.get(itemID);
                 queue.offer(userID);
                 WaitList.put(itemID, queue);
-            } else {
-                Queue<String> queue = new LinkedList<String>();
-                queue.offer(userID);
-                WaitList.put(itemID, queue);
+                answer = "Atw0";   //successfully add to waitlist
             }
         } else {
             Queue<String> queue = new LinkedList<String>();
             queue.offer(userID);
             WaitList.put(itemID, queue);
+            answer = "Atw0";   //successfully add to waitlist
         }
-        answer = "Add to waitlist Successfully.";
         return answer;
     }
 
@@ -390,8 +384,8 @@ public class DLMSImp {
                 answer = addWaitlistUdp(userID, itemID);
             } else {
                 answer = sendToUdpServer(itemID, "Addlist:" + "&" + userID + "&" + itemID);
-
             }
+            log.info("Add waitlist："+userID+", "+itemID+": "+answer);
             return answer;
         }
     }
@@ -402,10 +396,10 @@ public class DLMSImp {
             if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).contains(oldItemID)) {
                 answer = "available";
             } else {
-                answer = "You don't borrow this item.";
+                answer = "Ex9";   //you didn't borrow it
             }
         } else {
-            answer = "Old item does not exist.";
+            answer = "Ex2";   //old item not exist
         }
         return answer;
     }
@@ -416,19 +410,19 @@ public class DLMSImp {
         if (!map.isEmpty() & map.containsKey(newItemID)) {
             qty = map.get(newItemID).getQuantity();
             if (!WaitList.isEmpty() && WaitList.containsKey(newItemID) && WaitList.get(newItemID).contains(userID)) {
-                answer = "You are already in the waitlist.";
+                answer = "Ex7";   //already in the waitlist
             } else if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID)
                     && UserBorrow.get(userID).contains(newItemID)) {
-                answer = "You have borrowed this item.";
+                answer = "Ex5";     //"You have borrowed this item.";
             } else if (!userID.substring(0, 3).equals(newItemID.substring(0, 3))
                     && newItemID.substring(0, 3).equals(oldItemID.substring(0, 3)) && UserBorrow.containsKey(userID)
                     && !UserBorrow.get(userID).contains(oldItemID)) {
 
-                System.out.println("U------ userborrow: " + UserBorrow.get(userID));
-                answer = "You have borrowed from this library.";
+                //System.out.println("U------ userborrow: " + UserBorrow.get(userID));
+                answer = "Ex6"; //"You have borrowed from this library.";
             } else {
                 if (qty == 0) {
-                    answer = "This item is unavailable, do you want to add to waiting list?";
+                    answer = "Ex4"; //"This item is unavailable, do you want to add to waiting list?";
                 } else {
                     String itemname = map.get(newItemID).getItemName();
                     map.put(newItemID, new Item(newItemID, itemname, qty - 1));
@@ -437,7 +431,7 @@ public class DLMSImp {
                 }
             }
         } else {
-            answer = "New item does not exist.";
+            answer = "Ex3"; //"New item does not exist.";
         }
         return answer;
     }
@@ -501,15 +495,16 @@ public class DLMSImp {
                                     "Return old item:" + "&" + userID + "&" + oldItemID);
                         }
                         if (replyreturn.equals("Successfully return.")) {
-                            answer = "Successfully exchange.";
+                            answer ="Ex0"; // "Successfully exchange.";
                         } else {
                             String str;
+                            System.out.println("replyreturn not equals====Successfully return."+replyborrow);
                             if (userID.substring(0, 3).equalsIgnoreCase(newItemID.substring(0, 3))) {
                                 str = returnNewItem(userID, newItemID);
                             } else {
                                 str = sendToUdpServer(newItemID, "Return new item:" + "&" + userID + "&" + newItemID);
                             }
-                            answer = "Unsuccessfully exchange.";
+                            answer = "Ex1"; //"Unsuccessfully exchange.";
                         }
                     } else {
                         return replyborrow;
@@ -520,6 +515,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
+            log.info("Exchange item："+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
             return answer;
         }
     }
@@ -557,27 +553,28 @@ public class DLMSImp {
                                     "Return old item:" + "&" + userID + "&" + oldItemID);
                         }
                         if (replyreturn.equals("Successfully return.")) {
-                            answer = "Successfully exchange.";
+                            answer = "Ex0"; //"Successfully exchange.";
                         } else {
                             String ss;
+                            System.out.println("reply return not equals====Successfully return."+replyborrow);
                             if (userID.substring(0, 3).equalsIgnoreCase(newItemID.substring(0, 3))) {
                                 ss = returnNewItem(userID, newItemID);
                             } else {
                                 ss = sendToUdpServer(newItemID, "Return new item:" + "&" + userID + "&" + newItemID);
                             }
-                            answer = "Unsuccessfully exchange.";
+                            answer = "Ex1"; //"Unsuccessfully exchange.";
                         }
                     } else {
                         return replyborrow;
                     }
-                } else if (replynew.equals("This item is unavailable, do you want to add to waiting list?")) {
+                } else if (replynew.equals("Ex4")) {
                     if (userID.substring(0, 3).equalsIgnoreCase(newItemID.substring(0, 3))) {
                         replyborrow = addWaitlistUdp(userID, newItemID);
                     } else {
                         replyborrow = sendToUdpServer(newItemID, "Addlist:" + "&" + userID + "&" + newItemID);
                     }
                     if (replyborrow.equals("Successfully borrow.")
-                            || replyborrow.equals("Add to waitlist Successfully.")) {
+                            || replyborrow.equals("Atw0")) {
                         if (userID.substring(0, 3).equalsIgnoreCase(oldItemID.substring(0, 3))) {
                             replyreturn = returnOldItemUdp(userID, oldItemID);
                         } else {
@@ -585,7 +582,7 @@ public class DLMSImp {
                                     "Return old item:" + "&" + userID + "&" + oldItemID);
                         }
                         if (replyreturn.equals("Successfully return.")) {
-                            answer = "Successfully exchange.";
+                            answer = "AtwEx0";
                         }
                     } else {
                         return replyborrow;
@@ -596,6 +593,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
+            log.info("Add to waitlist for Exchange item："+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
             return answer;
         }
     }
