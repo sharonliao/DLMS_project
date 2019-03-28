@@ -337,7 +337,7 @@ public class DLMSImp {
                 }
                 rtn = "Br2";
             } else { //no this item
-                rtn = "Rr1";
+                rtn = "Br1";
             }
         }
         return rtn;
