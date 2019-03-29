@@ -62,7 +62,7 @@ public class ReplicaManager {
 			System.out.println("messageSplited[0]--" + messageSplited[0]);
 
 			switch (messageSplited[0]){
-				case "SoftWareFailure" : recoverFromFailure(message); // from FE SoftWareFailure:seqID
+				case "SoftWareFailure" : recoverFromFailure(message); // from FE SoftWareFailure:seqID:replicaId
 					             break;
 				case "Crash": recoverFromCrash(message); // from FE
 					             break;
@@ -89,11 +89,12 @@ public class ReplicaManager {
 		boolean rtn = false;
 		if (msgId+1 == latestFailureId){
 			failureTimes ++;
+			this.logger.info("failure time:" +failureTimes );
 		}else {
 			latestFailureId = msgId;
 			failureTimes = 0;
 		}
-		if(failureTimes >= 3){
+		if(failureTimes == 3){
 			// tell the replica correct the reply
 			rtn = true;
 			failureTimes = 0;
@@ -103,7 +104,7 @@ public class ReplicaManager {
 
 
 	public void recoverFromCrash(String msg){
-		int creshNum = Integer.parseInt(msg.split(":")[0]);
+		int creshNum = Integer.parseInt(msg.split(":")[1]);
 		try{
 			if(creshNum == replicaId){
 				//recoverFromCrash
@@ -122,14 +123,16 @@ public class ReplicaManager {
 
 	private void restartReplica() throws IOException{
 
-		//restart 之前要把replica1的端口全都关掉，不然udp会报错
-		replica1.closeImpSocket();
-		replica1 = null;
-		System.gc();
-
+		//before restart need to close replica1's ports
+//		replica1.closeImpSocket();
+//		replica1 = null;
+//		System.gc();
+		this.logger.info("Restart Replica from crash" );
 		replica1 = new Replica1();
 		replica1.historyQueue=this.historyQueue;
 		replica1.recoverRplicaData();
+		replica1.crashFree = true;
+
 	}
 
 
@@ -199,12 +202,21 @@ public class ReplicaManager {
 	 */
 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
 
-		String reply = msg.seqId+":"+ this.replicaId + ":" + replica1.executeMsg(msg);
-		System.out.println("reply:"+reply);
-		DatagramSocket socket = null;
-		socket = new DatagramSocket();
-		sendToFE(socket,reply);
-
+		if(replica1 != null){
+			if( msg.operationMsg.indexOf("listItem") != -1 && replica1.crashFree == false){
+				//if crashFree is false, then findItem operation crash the replica1, no msg return to FE
+				//shut down server
+				System.out.println("shut downt replica1");
+				replica1.closeImpSocket();
+				replica1 = null;
+				return;
+			}
+			String reply = msg.seqId+":"+ this.replicaId + ":" + replica1.executeMsg(msg);
+			System.out.println("reply:"+reply);
+			DatagramSocket socket = null;
+			socket = new DatagramSocket();
+			sendToFE(socket,reply);
+		}
 	}
 
 
