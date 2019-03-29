@@ -79,7 +79,7 @@ public class DLMSImp {
             bookList.put(itemId, newItem);
             returnMsg = "Ad0";
         }
-        System.out.println("add book - book list閿涳拷" + bookList);
+        System.out.println("add book - book list闁挎冻鎷�" + bookList);
 
         return returnMsg;
     }
@@ -202,7 +202,7 @@ public class DLMSImp {
                 + returnInfo + "\n"
                 + waitingInfo + "\n";
 
-        return returnInfo;  //婵″倹鐏夋稉宥呯潣娴滃孩婀伴崶鍙ュ姛妫ｅ棛娈戞稊锔肩礉閸欘亞顓哥拋鏉跨秿閺勵垰鎯佽ぐ鎺曠箷閿涘矁鍤︽禍宸渁itinglist閼奉亜濮╃紒顓烇拷鐔告Ц婢舵牠顩懛顏勭箒鐠佹澘缍嶉敍灞炬拱閸︽澘娴樻稊锔跨瑝闂囷拷鐟曚胶鐓￠柆锟�
+        return returnInfo;  //濠碘�冲�归悘澶嬬▔瀹ュ懐娼ｅù婊冨濠�浼村炊閸欍儱濮涘Λ锝呮濞堟垶绋婇敂鑲╃闁告瑯浜為鍝ユ媼閺夎法绉块柡鍕靛灠閹浇銇愰幒鏇犵闁挎稑鐭侀崵锔界瀹告竵itinglist闁煎浜滄慨鈺冪磼椤撶儑鎷烽悢鍛娦﹀鑸电墵椤╊偊鎳涢鍕畳閻犱焦婢樼紞宥夋晬鐏炵偓鎷遍柛锔芥緲濞存ɑ绋婇敂璺ㄧ憹闂傚浄鎷烽悷鏇氳兌閻擄繝鏌嗛敓锟�
     }
 
     public String returnInLocal(String userId, String itemId) {
@@ -270,7 +270,7 @@ public class DLMSImp {
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
                 System.out.println("Request received from client: " + requestMsg);
-                //閺嶇厧绱� 1閵嗕公unction 2閵嗕椒绠ｉ崥搴ㄥ厴閺勵垰寮弫锟�
+                //闁哄秶鍘х槐锟� 1闁靛棔鍏瑄nction 2闁靛棔妞掔粻锝夊触鎼淬劌鍘撮柡鍕靛灠瀵剟寮敓锟�
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
@@ -420,7 +420,7 @@ public class DLMSImp {
             returnInfo = udpCommunication(itemId, message);
         }
         System.out.print("checkIfReturnAvailable1 returnInfo --- " + returnInfo);
-        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 閳ユ柡锟芥柡锟芥柡锟斤拷 "
+        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 闁炽儲鏌￠敓鑺ユ煛閿熻姤鏌￠敓鏂ゆ嫹 "
                 + returnInfo + "\n";
         //writeLog(info);
         return returnInfo;
@@ -518,7 +518,7 @@ public class DLMSImp {
 
 
     public String putInWaiting(String userId, String itemId) {
-        //婵″倹鐏夐弰顖氼樆妫ｅ棔鍔熺猾宥忕礉閸欐垿锟戒礁顦绘＃鍡氼唶瑜帮拷
+        //濠碘�冲�归悘澶愬及椤栨凹妯嗗Λ锝呮閸旂喓鐚惧蹇曠闁告瑦鍨块敓鎴掔椤︾粯锛冮崱姘煎敹鐟滃府鎷�
         String rtnMsg = "";
         if (itemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(itemId)) {
@@ -529,7 +529,7 @@ public class DLMSImp {
                 queue.add(userId);
                 waitingList.put(itemId, queue);
             }
-            rtnMsg = "User (" + userId + ") is in the waiting List of the item (" + itemId + ")";
+            rtnMsg = "Atw0";
 
         } else {
             String message = "putInWaiting," + userId + "," + itemId;
@@ -540,7 +540,7 @@ public class DLMSImp {
 
 
     public String ex_putInWaiting(String userId, String newItemId, String oldItem) {
-        //婵″倹鐏夐弰顖氼樆妫ｅ棔鍔熺猾宥忕礉閸欐垿锟戒礁顦绘＃鍡氼唶瑜帮拷
+        //濠碘�冲�归悘澶愬及椤栨凹妯嗗Λ锝呮閸旂喓鐚惧蹇曠闁告瑦鍨块敓鎴掔椤︾粯锛冮崱姘煎敹鐟滃府鎷�
         String rtnMsg = "";
         if (newItemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(newItemId)) {
@@ -580,7 +580,7 @@ public class DLMSImp {
                     }
                 }
             } while (getNextUser);
-            System.out.println("waitingUId 閼奉亜濮╅崐鐔跺姛閿涳拷" + waitingUId);
+            System.out.println("waitingUId 闁煎浜滄慨鈺呭磹閻旇泛濮涢柨娑虫嫹" + waitingUId);
 
             String userAndItemID = waitingUId + "-" + itemId;
 

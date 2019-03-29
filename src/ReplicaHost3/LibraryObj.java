@@ -806,11 +806,7 @@ public class LibraryObj {
 			byte[] message_addtowaitlist = ("addtowaitlist" + "," + userID + "," + itemID).getBytes();
 			tmp = portlist.get(itemID.substring(0, 3));
 			x = sendMessage(message_addtowaitlist, tmp-1);
-			if (x.contains("success")) {
-				return "Atw0";
-			} else {
-				return "Atw1";
-			}
+			return x;
 
 		}
 	}

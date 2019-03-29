@@ -79,7 +79,7 @@ public class Replica2 {
 		case ("borrowItem"):
 			result = dlms.borrowItem(operation[1], operation[2]);
 			break;
-		case (" addToWaitlist"):
+		case ("addToWaitlist"):
 			result = dlms.addWaitList(operation[1], operation[2]);
 			break;
 		case ("findItem"):
