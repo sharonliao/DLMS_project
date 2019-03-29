@@ -98,16 +98,16 @@ public class Test_rm {
         String message6 = "10:localhost:exchangeItem,MCGU0001,CON2222,CON4444";
         testClient.udpClient(message6, RMPort.RM_PORT.rmPort1);
 
-        String message7 = "11:localhost:borowItem,MONU0001,CON3333";
+        String message7 = "11:localhost:borrowItem,MONU0001,CON3333";
         testClient.udpClient(message7, RMPort.RM_PORT.rmPort1);
 
-        String message8 = "12:localhost:borowItem,MONU0001,MCG1111";
+        String message8 = "12:localhost:borrowItem,MONU0001,MCG1111";
         testClient.udpClient(message8, RMPort.RM_PORT.rmPort1);
 
         String message9 = "13:localhost:exchangeItem,MONU0001,MCG2222,CON3333";
         testClient.udpClient(message9, RMPort.RM_PORT.rmPort1);
 
-        String message10 = "14:localhost:removeItem,CONM0001,CON3333";
+        String message10 = "14:localhost:removeItem,CONM0001,CON3333,-1";
         testClient.udpClient(message10, RMPort.RM_PORT.rmPort1);
 
         String message11 = "15:localhost:exchangeItem,MONU0001,CON4444,CON3333";
