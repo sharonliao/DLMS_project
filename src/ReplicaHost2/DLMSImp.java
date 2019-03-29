@@ -262,19 +262,19 @@ public class DLMSImp {
                     + sendMessage(1112, "Find:" + "&" + userID + "&" + itemName);
         }
         log.info("Find item锛�"+userID+": "+answer);
-        return answer;
+        return answer.trim();
     }
 
     public String findItemUdp(String name) {
-        String answer = null;
+        String answer = "";
         for (Object key : map.keySet()) {
             Item value = (Item) map.get(key);
             if (value.getItemName().equals(name)) {
-                answer += value.toString() + "\n";
+                answer += value.getItemId()+","+value.getQuantity() + "\n";
             }
         }
 
-        return answer.trim();
+        return answer;
     }
 
     public String returnItem(String userID, String itemID) {
@@ -736,7 +736,7 @@ public class DLMSImp {
                 String answer = "";
 
                 if (param[0].equals("Find:")) {
-                    answer = findItemUdp(param[1]);
+                    answer = findItemUdp(param[2]);
                 } else if (param[0].equals("Borrow item:")) {
                     answer = borrowItemUdp(param[1], param[2]);
                 } else if (param[0].equals("Addlist:")) {

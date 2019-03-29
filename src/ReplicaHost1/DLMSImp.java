@@ -79,7 +79,7 @@ public class DLMSImp {
             bookList.put(itemId, newItem);
             returnMsg = "Ad0";
         }
-        System.out.println("add book - book list锛�" + bookList);
+        System.out.println("add book - book list閿涳拷" + bookList);
 
         return returnMsg;
     }
@@ -202,7 +202,7 @@ public class DLMSImp {
                 + returnInfo + "\n"
                 + waitingInfo + "\n";
 
-        return returnInfo;  //濡傛灉涓嶅睘浜庢湰鍥句功棣嗙殑涔︼紝鍙璁板綍鏄惁褰掕繕锛岃嚦浜巜aitinglist鑷姩缁�熸槸澶栭鑷繁璁板綍锛屾湰鍦板浘涔︿笉闇�瑕佺煡閬�
+        return returnInfo;  //婵″倹鐏夋稉宥呯潣娴滃孩婀伴崶鍙ュ姛妫ｅ棛娈戞稊锔肩礉閸欘亞顓哥拋鏉跨秿閺勵垰鎯佽ぐ鎺曠箷閿涘矁鍤︽禍宸渁itinglist閼奉亜濮╃紒顓烇拷鐔告Ц婢舵牠顩懛顏勭箒鐠佹澘缍嶉敍灞炬拱閸︽澘娴樻稊锔跨瑝闂囷拷鐟曚胶鐓￠柆锟�
     }
 
     public String returnInLocal(String userId, String itemId) {
@@ -213,12 +213,12 @@ public class DLMSImp {
         if (borrowList.containsKey(returnItem)) {
             borrowList.remove(returnItem);
             bookList.get(itemId).returnOneItem();//quantity ++
-            returnInfo = "User(" + userId + ") return the book(" + itemId + ") successfully\n";
+            returnInfo = "Rtn0";
             //check waiting list
             waitingInfo = autoLendWaitingItem(itemId);
 
         } else {
-            returnInfo = "User(" + userId + ") do not borrow the book( " + itemId + ")";
+            returnInfo = "Rtn2";
         }
         return returnInfo;
     }
@@ -229,14 +229,14 @@ public class DLMSImp {
         Collection<Item> allValue = bookList.values();
         for (Item item : allValue) {
             if (item.getItemName().equals(itemName)) {
-                listOfBook = listOfBook + item.toString() + "\n";
+                listOfBook = listOfBook + item.getItemId()+","+item.getQuantity() + "\n";
             }
         }
         String msg = fomatString("findInLocal," + userId + "," + itemName);
 
         for (int port : portMap.values()) {
             String info = udpClient(msg, port);
-            listOfBook = listOfBook + info;
+            listOfBook = listOfBook + info +"\n";
         }
 
         String info = "Find an item \n"
@@ -252,7 +252,7 @@ public class DLMSImp {
         Collection<Item> allValue = bookList.values();
         for (Item item : allValue) {
             if (item.getItemName().equals(itemName)) {
-                listOfBook = listOfBook + item.toString() + "\n";
+                listOfBook = listOfBook + item.getItemId()+","+item.getQuantity() + "\n";
             }
         }
         return listOfBook;
@@ -270,7 +270,7 @@ public class DLMSImp {
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
                 System.out.println("Request received from client: " + requestMsg);
-                //鏍煎紡 1銆乫unction 2銆佷箣鍚庨兘鏄弬鏁�
+                //閺嶇厧绱� 1閵嗕公unction 2閵嗕椒绠ｉ崥搴ㄥ厴閺勵垰寮弫锟�
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
@@ -420,7 +420,7 @@ public class DLMSImp {
             returnInfo = udpCommunication(itemId, message);
         }
         System.out.print("checkIfReturnAvailable1 returnInfo --- " + returnInfo);
-        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 鈥斺�斺�斺�� "
+        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 閳ユ柡锟芥柡锟芥柡锟斤拷 "
                 + returnInfo + "\n";
         //writeLog(info);
         return returnInfo;
@@ -518,7 +518,7 @@ public class DLMSImp {
 
 
     public String putInWaiting(String userId, String itemId) {
-        //濡傛灉鏄棣嗕功绫嶏紝鍙戦�佸棣嗚褰�
+        //婵″倹鐏夐弰顖氼樆妫ｅ棔鍔熺猾宥忕礉閸欐垿锟戒礁顦绘＃鍡氼唶瑜帮拷
         String rtnMsg = "";
         if (itemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(itemId)) {
@@ -540,7 +540,7 @@ public class DLMSImp {
 
 
     public String ex_putInWaiting(String userId, String newItemId, String oldItem) {
-        //濡傛灉鏄棣嗕功绫嶏紝鍙戦�佸棣嗚褰�
+        //婵″倹鐏夐弰顖氼樆妫ｅ棔鍔熺猾宥忕礉閸欐垿锟戒礁顦绘＃鍡氼唶瑜帮拷
         String rtnMsg = "";
         if (newItemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(newItemId)) {
@@ -580,7 +580,7 @@ public class DLMSImp {
                     }
                 }
             } while (getNextUser);
-            System.out.println("waitingUId 鑷姩鍊熶功锛�" + waitingUId);
+            System.out.println("waitingUId 閼奉亜濮╅崐鐔跺姛閿涳拷" + waitingUId);
 
             String userAndItemID = waitingUId + "-" + itemId;
 
