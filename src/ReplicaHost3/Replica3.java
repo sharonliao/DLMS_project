@@ -20,9 +20,9 @@ public class Replica3 {
 
 	enum DLMS_Port {
 		PORT;
-		final int CON_PORT = 5001;
-		final int MCG_PORT = 5002;
-		final int MON_PORT = 5003;
+		final int CON_PORT = 3499;
+		final int MCG_PORT = 3599;
+		final int MON_PORT = 3699;
 	}
 
 	public Replica3(Logger log, LibraryObj conServer, LibraryObj mcgServer, LibraryObj monServer) {
@@ -42,12 +42,13 @@ public class Replica3 {
 			createLogger("mcgserver1.log", mcgserver1_log);
 			Logger monserver1_log = Logger.getLogger("monserver1.log");
 			createLogger("monserver1.log", monserver1_log);
+			conServer = new LibraryObj("CON",DLMS_Port.PORT.CON_PORT);
+			mcgServer = new LibraryObj("MCG",DLMS_Port.PORT.MCG_PORT);
+			monServer = new LibraryObj("MON",DLMS_Port.PORT.MON_PORT);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-		conServer = new LibraryObj("CON",DLMS_Port.PORT.CON_PORT);
-		mcgServer = new LibraryObj("MCG",DLMS_Port.PORT.MCG_PORT);
-		monServer = new LibraryObj("MON",DLMS_Port.PORT.MON_PORT);
+		
 
 		startServers();
 	}
@@ -128,7 +129,7 @@ public class Replica3 {
 	public void startServers(){
 		Runnable start_CON_UDP = () -> {
 			try{
-				conServer.receive(DLMS_Port.PORT.CON_PORT - 1);
+				conServer.receive(3498);
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -137,7 +138,7 @@ public class Replica3 {
 
 		Runnable start_MCG_UDP = () -> {
 			try{
-				mcgServer.receive(DLMS_Port.PORT.MCG_PORT - 1);
+				mcgServer.receive(3598);
 
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -147,7 +148,7 @@ public class Replica3 {
 
 		Runnable start_MON_UDP = () -> {
 			try{
-				monServer.receive(DLMS_Port.PORT.MON_PORT - 1);
+				monServer.receive(3698);
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -50,13 +50,13 @@ public class LibraryObj {
 	Book oldBookClone;
 	String logpath;
 	String logmessage;
-	public static DatagramSocket aSocket = null;
+	DatagramSocket aSocket = null;
 
 	Map<String, Integer> portlist = new HashMap<String, Integer>() {
 		{
-			put("MCG", 5002);
-			put("CON", 5001);
-			put("MON", 5003);
+			put("CON", 3499);
+			put("MCG", 3599);
+			put("MON", 3699);
 		};
 	};
 	public boolean bugFree = false;
@@ -122,32 +122,32 @@ public class LibraryObj {
 	}
 
 	public static String sendMessage(byte[] message, int serverPort) {
+		DatagramSocket bSocket = null;
+		 String returnMsg = "";
 		try {
-			aSocket = new DatagramSocket();
+			bSocket = new DatagramSocket();
 			InetAddress aHost = InetAddress.getByName("localhost");
 			DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
-			aSocket.send(request);
-			System.out.println("Request message sent from the client to server with port number " + serverPort + " is: "
+			bSocket.send(request);
+			System.out.println("Request message sent from the client to "+ serverPort+" is: "
 					+ new String(request.getData()));
 			byte[] buffer = new byte[1000];
 			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 
-			aSocket.receive(reply);
-			System.out.println("Reply received from the server with port number " + serverPort + " is: "
-					+ new String(reply.getData()));
+			bSocket.receive(reply);
+			returnMsg  = new String(reply.getData()).trim();
+			System.out.println("Reply received from the server"+ serverPort+" is: "
+					+ returnMsg);
 
-			return new String(reply.getData()).trim();
+			
 
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("IO: " + e.getMessage());
-		} finally {
-			if (aSocket != null)
-				aSocket.close();
-		}
-		return null;
+		} 
+		return returnMsg;
 	}
 
 	public void receive(int portNum) {
@@ -163,7 +163,6 @@ public class LibraryObj {
 				String s = "";
 				s = new String(request.getData()).trim();
 				String[] m = s.split(",");
-				StringBuilder itemname = new StringBuilder();
 				if (m[0].equals("borrow")) {
 					String replystr = borrowItem(m[1], m[2].substring(0, 7));
 					byte[] replyb = replystr.getBytes();
@@ -256,8 +255,10 @@ public class LibraryObj {
 		} catch (IOException e) {
 			System.out.println("IO: " + e.getMessage());
 		} finally {
-			if (aSocket != null)
+			if (aSocket != null) {
 				aSocket.close();
+			}
+//				
 		}
 	}
 
@@ -324,7 +325,7 @@ public class LibraryObj {
 								int tmp;
 								byte[] message = ("setBorrowStatus" + "," + user + "," + itemID).getBytes();
 								tmp = portlist.get(user.substring(0, 3));
-								x = sendMessage(message, tmp - 1);
+								x = sendMessage(message, tmp -1);
 							}
 						}
 					}
@@ -410,13 +411,13 @@ public class LibraryObj {
 						} else {
 							byte[] message = ("checkuser" + "," + user + "," + itemID).getBytes();
 							tmp = portlist.get(user.substring(0, 3));
-							y = sendMessage(message, tmp - 1);
+							y = sendMessage(message, tmp -1);
 							String[] m = y.split(",");
 							if (m[0].equals("no")) {
 								String x = borrowItem(user, itemID);
 								byte[] message1 = x.getBytes();
 								tmp = portlist.get(user.substring(0, 3));
-								z = sendMessage(message1, tmp - 1);
+								z = sendMessage(message1, tmp-1);
 								continue;
 							} else {
 								logmessage = df.format(new Date()) + " Borrow Item " + user + " " + itemID
@@ -526,11 +527,11 @@ public class LibraryObj {
 			int temp;
 			byte[] message = ("borrow" + "," + userID + "," + itemID).getBytes();
 			temp = portlist.get(itemID.substring(0, 3));
-			x = sendMessage(message, temp - 1);
+			x = sendMessage(message, temp -1);
 			String[] m = x.split(",");
 			if (m[0].equals("borrowsuccess")) {
 				borrowRecord(m[1], m[2], m[3]);
-				return itemID + ": Borrow Successfully!";
+				return "Br0";
 			} else if (m[0].equals("notavailable")) {
 				return "Br2";
 
@@ -588,9 +589,8 @@ public class LibraryObj {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String key : books.keySet()) {
 			Book temp = books.get(key);
-			if (temp.getBookName().replaceAll(" ", "").equals(itemName.replaceAll(" ", ""))) {
 				stringBuilder.append(temp.getitemID() + "," + temp.getQuantity().getQuantity() + "\n");
-			}
+			
 		}
 		if (userID.substring(0, 3).equals(libraryID)) {
 			String x = "";
@@ -605,17 +605,17 @@ public class LibraryObj {
 			String Message = "";
 			Message = "find" + "," + userID + "," + itemName;
 			byte[] message = Message.getBytes();
-			x = sendMessage(message, tmp[0] - 1);
+			x = sendMessage(message, tmp[0]-1);
 			String[] m = x.split(",");
 			if (m[0].equals("has")) {
-				stringBuilder.append(m[1] + " " + m[2] + "\n");
+				stringBuilder.append(m[1] + "," + m[2] + "\n");
 			}
-
+			
 			String x2 = "";
-			x2 = sendMessage(message, tmp[1] - 1);
+			x2 = sendMessage(message, tmp[1]-1);
 			String[] m2 = x2.split(",");
 			if (m2[0].equals("has")) {
-				stringBuilder.append(m2[1] + " " + m2[2] + "\n");
+				stringBuilder.append(m2[1] + "," + m2[2] + "\n");
 			}
 
 			String result = stringBuilder.toString();
@@ -627,7 +627,7 @@ public class LibraryObj {
 				logmessage = df.format(new Date()) + " Find Item " + userID + " " + itemName + " Successful";
 				writeFile(logpath, logmessage);
 			}
-			return result;
+			return result.trim();
 		} else {
 			String results = stringBuilder.toString();
 			if (results.equals("")) {
@@ -689,7 +689,7 @@ public class LibraryObj {
 			int tmp;
 			byte[] message = ("return" + "," + userID + "," + itemID.substring(0, 7)).getBytes();
 			tmp = portlist.get(itemID.substring(0, 3));
-			x = sendMessage(message, tmp - 1);
+			x = sendMessage(message, tmp-1);
 			if (x.contains("Success")) {
 				HashMap<String, Record> person = records.get(userID);
 				Record p = person.get(itemID);
@@ -805,7 +805,7 @@ public class LibraryObj {
 			int tmp;
 			byte[] message_addtowaitlist = ("addtowaitlist" + "," + userID + "," + itemID).getBytes();
 			tmp = portlist.get(itemID.substring(0, 3));
-			x = sendMessage(message_addtowaitlist, tmp - 1);
+			x = sendMessage(message_addtowaitlist, tmp-1);
 			if (x.contains("success")) {
 				return "Atw0";
 			} else {
@@ -844,7 +844,7 @@ public class LibraryObj {
 					byte[] message = ("checkBookAvailable" + "," + userID + "," + newItemID + ","
 							+ oldItemID.substring(0, 7) + "," + "check").getBytes();
 					tmp = portlist.get(newItemID.substring(0, 3));
-					x = sendMessage(message, tmp - 1);
+					x = sendMessage(message, tmp -1);
 				}
 				MyException myException = new MyException();
 				switch (x) {
@@ -857,7 +857,7 @@ public class LibraryObj {
 							byte[] message1 = ("borrowforexchange" + "," + userID + "," + newItemID.substring(0, 7)
 									+ "," + oldItemID.substring(0, 7)).getBytes();
 							tmp1 = portlist.get(newItemID.substring(0, 3));
-							x1 = sendMessage(message1, tmp1 - 1);
+							x1 = sendMessage(message1, tmp1-1);
 							String[] m = x1.split(",");
 							if (x1.contains("success")) {
 								borrowRecord(userID, newItemID, m[1]);
@@ -870,7 +870,7 @@ public class LibraryObj {
 							byte[] message2 = ("returnforexchange" + "," + userID + "," + newItemID + ","
 									+ oldItemID.substring(0, 7)).getBytes();
 							tmp2 = portlist.get(oldItemID.substring(0, 3));
-							x2 = sendMessage(message2, tmp2 - 1);
+							x2 = sendMessage(message2, tmp2-1 );
 							if (x2.contains("success")) {
 								HashMap<String, Record> personrecord = records.get(userID);
 								Record p = personrecord.get(oldItemID);
@@ -897,7 +897,7 @@ public class LibraryObj {
 								byte[] message1 = ("rollbackborrow" + "," + userID + "," + newItemID.substring(0, 7))
 										.getBytes();
 								tmp1 = portlist.get(newItemID.substring(0, 3));
-								x = sendMessage(message1, tmp1 - 1);
+								x = sendMessage(message1, tmp1-1);
 
 							}
 						}
@@ -908,7 +908,7 @@ public class LibraryObj {
 							byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7))
 									.getBytes();
 							tmp2 = portlist.get(oldItemID.substring(0, 3));
-							x = sendMessage(message2, tmp2 - 1);
+							x = sendMessage(message2, tmp2-1);
 						}
 						if (x2.equals("don't exist")) {
 							return "Ex2";
@@ -980,7 +980,7 @@ public class LibraryObj {
 			if (temp1.getQuantity() != 0) {
 				if (operation.equals("check")) {
 					newBookClone = (Book) bb.clone();
-					temp1.setQuantity((temp1.getQuantity()) - 1);
+					temp1.setQuantity((temp1.getQuantity()) );
 					bb.setQuantity(temp1);
 				}
 				return "available";
@@ -1083,7 +1083,7 @@ public class LibraryObj {
 			byte[] message1 = ("checkReturn" + "," + userID + "," + newItemID + "," + oldItemID.substring(0, 7))
 					.getBytes();
 			tmp1 = portlist.get(oldItemID.substring(0, 3));
-			x = sendMessage(message1, tmp1 - 1);
+			x = sendMessage(message1, tmp1-1);
 			if (x.equals("yes")) {
 				return "yes";
 			} else if (x.equals("don't exist")) {
@@ -1143,7 +1143,7 @@ public class LibraryObj {
 				int tmp1;
 				byte[] message1 = ("deleteborrowrecord" + "," + nextuser + "," + oldItemID.substring(0, 7)).getBytes();
 				tmp1 = portlist.get(nextuser.substring(0, 3));
-				x = sendMessage(message1, tmp1 - 1);
+				x = sendMessage(message1, tmp1 -1);
 			}
 		}
 		return "rollback success";
@@ -1168,7 +1168,7 @@ public class LibraryObj {
 			byte[] message = ("checkBookAvailable" + "," + userID + "," + newItemID + ","
 					+ oldItemID.substring(0, 7)+","+"check").getBytes();
 			tmp = portlist.get(newItemID.substring(0, 3));
-			check = sendMessage(message, tmp - 1);
+			check = sendMessage(message, tmp-1);
 		}
 		MyException myException = new MyException();
 		switch (check) {
@@ -1181,7 +1181,7 @@ public class LibraryObj {
 					byte[] message1 = ("borrowforexchange" + "," + userID + "," + newItemID.substring(0, 7) + ","
 							+ oldItemID.substring(0, 7)).getBytes();
 					tmp1 = portlist.get(newItemID.substring(0, 3));
-					x1 = sendMessage(message1, tmp1 - 1);
+					x1 = sendMessage(message1, tmp1-1);
 					String[] m = x1.split(",");
 					if (x1.contains("success")) {
 						borrowRecord(userID, newItemID, m[1]);
@@ -1193,7 +1193,7 @@ public class LibraryObj {
 					int tmp2;
 					byte[] message2 = ("returnforexchange" + "," + userID + "," +newItemID+","+ oldItemID.substring(0, 7)).getBytes();
 					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x2 = sendMessage(message2, tmp2 - 1);
+					x2 = sendMessage(message2, tmp2-1 );
 					if (x2.contains("success")) {
 						HashMap<String, Record> personrecord = records.get(userID);
 						Record p = personrecord.get(oldItemID);
@@ -1223,7 +1223,7 @@ public class LibraryObj {
 					int tmp1;
 					byte[] message1 = ("rollbackborrow" + "," + userID + "," + newItemID.substring(0, 7)).getBytes();
 					tmp1 = portlist.get(newItemID.substring(0, 3));
-					x = sendMessage(message1, tmp1 - 1);
+					x = sendMessage(message1, tmp1-1);
 
 				}
 				if (oldItemID.substring(0, 3).equals(libraryID)) {
@@ -1232,7 +1232,7 @@ public class LibraryObj {
 					int tmp2;
 					byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7)).getBytes();
 					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x = sendMessage(message2, tmp2 - 1);
+					x = sendMessage(message2, tmp2-1 );
 				}
 				return "Ex1";
 			}
@@ -1245,7 +1245,7 @@ public class LibraryObj {
 					int tmp1;
 					byte[] message1 = ("addtowaitlist" + "," + userID + "," + newItemID.substring(0, 7)).getBytes();
 					tmp1 = portlist.get(newItemID.substring(0, 3));
-					x3 = sendMessage(message1, tmp1 - 1);
+					x3 = sendMessage(message1, tmp1-1);
 				}
 				if (oldItemID.substring(0, 3).equals(libraryID)) {
 					x4 = returnforexchange(userID, newItemID, oldItemID);
@@ -1253,7 +1253,7 @@ public class LibraryObj {
 					int tmp2;
 					byte[] message2 = ("returnforexchange" + "," + userID + "," +newItemID+","+ oldItemID.substring(0, 7)).getBytes();
 					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x4 = sendMessage(message2, tmp2 - 1);
+					x4 = sendMessage(message2, tmp2-1 );
 					if (x4.contains("success")) {
 						HashMap<String, Record> personrecord = records.get(userID);
 						Record p = personrecord.get(oldItemID);
@@ -1288,7 +1288,7 @@ public class LibraryObj {
 						byte[] message1 = ("rollbackwaitlist" + "," + userID + "," + newItemID.substring(0, 7))
 								.getBytes();
 						tmp1 = portlist.get(newItemID.substring(0, 3));
-						x = sendMessage(message1, tmp1 - 1);
+						x = sendMessage(message1, tmp1-1);
 
 					}
 				}
@@ -1298,7 +1298,7 @@ public class LibraryObj {
 					int tmp2;
 					byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7)).getBytes();
 					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x = sendMessage(message2, tmp2 - 1);
+					x = sendMessage(message2, tmp2 -1);
 				}
 				if (x4.equals("don't exist")) {
 					return "Ex2";

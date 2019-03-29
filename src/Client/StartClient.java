@@ -334,7 +334,7 @@ public class StartClient {
 								}
 							}
 						}
-						result = libobj.addItem(id, book, name, n);
+						result = libobj.addItem(id, book, name.trim(), n);
 						System.out.println(result);
 						writeFile(logpath, df.format(new Date()) + " " + result);
 						continue;
