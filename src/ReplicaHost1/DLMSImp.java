@@ -235,8 +235,10 @@ public class DLMSImp {
         String msg = fomatString("findInLocal," + userId + "," + itemName);
 
         for (int port : portMap.values()) {
-            String info = udpClient(msg, port);
-            listOfBook = listOfBook + info +"\n";
+            if(port != LocalPort){
+                String info = udpClient(msg, port);
+                listOfBook = listOfBook + info +"\n";
+            }
         }
 
         String info = "Find an item \n"

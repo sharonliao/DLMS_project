@@ -62,9 +62,9 @@ public class ReplicaManager {
 			System.out.println("messageSplited[0]--" + messageSplited[0]);
 
 			switch (messageSplited[0]){
-				case "Failure" : recoverFromFailure(message); // from FE
+				case "SoftWareFailure" : recoverFromFailure(message); // from FE SoftWareFailure:seqID
 					             break;
-				case "recoverFromCrash": recoverFromCrash(message); // from FE
+				case "Crash": recoverFromCrash(message); // from FE
 					             break;
 				default: moveToHoldBackQueue(message,asocket); //from Sequencer, normal operation message
 					     break;
@@ -74,11 +74,14 @@ public class ReplicaManager {
 
 
 	public void recoverFromFailure(String failureMsg) throws IOException {
-		logger.info("Replica "+ replicaId + " has failure");
-
-		int msgId = 0;
-		if(checkIfFailThreeTimes(msgId)){
-			replica1.fixBug();
+		//SoftWareFailure:seqId:replicaID
+		int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
+		int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+		if(failureReplica == replicaId){
+			logger.info("Replica "+ failureReplica + " has failure");
+			if(checkIfFailThreeTimes(msgSeqId)){
+				replica1.fixBug();
+			}
 		}
 	}
 
@@ -230,14 +233,5 @@ public class ReplicaManager {
 
 		Thread Thread2 = new Thread(TaskListener);
 		Thread2.start();
-		System.out.println("test");
-
-		try{
-			Thread.sleep(5000);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-
-		rm.recoverFromCrash("1:1");
 	}
 }
