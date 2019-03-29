@@ -1256,7 +1256,7 @@ public class LibraryObj {
 						p.setStatus();
 					}
 				}
-				if ((!(x3.contains("success")) || (!(x4.contains("success"))))) {
+				if ((!(x3.contains("Atw0")) || (!(x4.contains("success"))))) {
 
 					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
 							+ oldItemID + " Failed";
