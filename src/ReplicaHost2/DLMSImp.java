@@ -45,22 +45,10 @@ public class DLMSImp {
          * Thread thread1 = new Thread(r1); Thread thread2 = new Thread(r2); Thread
          * thread3 = new Thread(r3); thread1.start(); thread2.start(); thread3.start();
          */
-//
-//        if (library.equals("CON")) {
-//            map.put("CON1111", new Item("CON1111", "Test for Concordia", 3));
-//            map.put("CON2222", new Item("CON2222", "Math", 5));
-//            map.put("CON3333", new Item("CON3333", "French", 1));
-//
-//        } else if (library.equals("MCG")) {
-//            map.put("MCG1111", new Item("MCG1111", "Test for Mcgill", 8));
-//            map.put("MCG2222", new Item("MCG2222", "Math", 1));
-//            map.put("MCG3333", new Item("MCG3333", "French", 1));
-//
-//        } else if (library.equals("MON")) {
-//            map.put("MON1111", new Item("MON1111", "Test for Mcgill", 5));
-//            map.put("MON2222", new Item("MON2222", "Math", 2));
-//            map.put("MON3333", new Item("MON3333", "French", 1));
-//        }
+        map.put(library + "1111", new Item(library + "1111", "AA", 2));
+        map.put(library + "2222", new Item(library + "2222", "BB", 1));
+        map.put(library + "3333", new Item(library + "3333", "CC", 5));
+        map.put(library + "4444", new Item(library + "4444", "DD", 2));
 
     }
 
@@ -219,7 +207,7 @@ public class DLMSImp {
             if (!WaitList.isEmpty() && WaitList.containsKey(itemID) && WaitList.get(itemID).contains(userID)) {
                 answer = "Br5";      //already in the waitlist
             } else {
-                if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).equals(itemID)) {
+                if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).contains(itemID)) {
                     answer = "Br3";     //you have borrowed this item
                 } else if (!userID.substring(0, 3).equals(itemID.substring(0, 3)) && !UserBorrow.isEmpty()
                         && UserBorrow.containsKey(userID)) {
