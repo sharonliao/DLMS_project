@@ -38,7 +38,7 @@ public class DLMSImp {
         portMap.put("CON", 7777);
         portMap.put("MCG", 8888);
         portMap.put("MON", 9999);
-       //initContent();
+        initContent();
     }
 
 
@@ -291,7 +291,7 @@ public class DLMSImp {
                     case "checkAndBorrowInlocal":
                         rtnMsg = checkAndBorrowInlocal(params[1], params[2], params[3]);
                         break;
-                    case "ex_putInWaiting":
+                    case "addToWaitlistforExchagne":
                         rtnMsg = ex_putInWaiting(params[1], params[2], params[3]);
                         break;
                     case "availableInLocal":
@@ -518,7 +518,7 @@ public class DLMSImp {
 
 
     public String putInWaiting(String userId, String itemId) {
-        //濠碘�冲�归悘澶愬及椤栨凹妯嗗Λ锝呮閸旂喓鐚惧蹇曠闁告瑦鍨块敓鎴掔椤︾粯锛冮崱姘煎敹鐟滃府鎷�
+
         String rtnMsg = "";
         if (itemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(itemId)) {
@@ -540,7 +540,6 @@ public class DLMSImp {
 
 
     public String ex_putInWaiting(String userId, String newItemId, String oldItem) {
-        //濠碘�冲�归悘澶愬及椤栨凹妯嗗Λ锝呮閸旂喓鐚惧蹇曠闁告瑦鍨块敓鎴掔椤︾粯锛冮崱姘煎敹鐟滃府鎷�
         String rtnMsg = "";
         if (newItemId.substring(0, 3).equals(localFlag)) {
             if (waitingList.containsKey(newItemId)) {
@@ -551,10 +550,11 @@ public class DLMSImp {
                 queue.add(userId);
                 waitingList.put(newItemId, queue);
             }
-            returnItem(userId, oldItem);
+            returnItem(userId, oldItem);//after putting waiting list, return then old book
+            rtnMsg = "AtwEx0";
 
         } else {
-            String message = "ex_putInWaiting," + userId + "," + newItemId + "," + oldItem;
+            String message = "addToWaitlistforExchagne," + userId + "," + newItemId + "," + oldItem;
             rtnMsg = udpCommunication(newItemId, message);
         }
         return rtnMsg;

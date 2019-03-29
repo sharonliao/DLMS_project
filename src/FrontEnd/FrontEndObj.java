@@ -604,14 +604,14 @@ public class FrontEndObj extends FrontEndPOA {
 
 	private static void tellRMCrash(Map<String, String> resultSet) {
 		if (!resultSet.containsKey("1")) {
-			String msg = "Crash" + "," + "1";
+			String msg = "Crash" + ":" + "1";
 			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 		} else if (!resultSet.containsKey("2")) {
-			String msg = "Crash" + "," + "2";
+			String msg = "Crash" + ":" + "2";
 			;
 			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 		} else if (!resultSet.containsKey("3")) {
-			String msg = "Crash" + "," + "3";
+			String msg = "Crash" + ":" + "3";
 			;
 			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 		}
@@ -758,7 +758,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		try {
 			socket = new DatagramSocket();
-			String msg = "SoftWareFailure"+sequenceID;
+			String msg = "SoftWareFailure:"+sequenceID;
 
 			byte[] data = msg.getBytes();
 
