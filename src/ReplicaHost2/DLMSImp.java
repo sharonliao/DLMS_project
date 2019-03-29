@@ -207,7 +207,7 @@ public class DLMSImp {
             if (!WaitList.isEmpty() && WaitList.containsKey(itemID) && WaitList.get(itemID).contains(userID)) {
                 answer = "Br5";      //already in the waitlist
             } else {
-                if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).equals(itemID)) {
+                if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID) && UserBorrow.get(userID).contains(itemID)) {
                     answer = "Br3";     //you have borrowed this item
                 } else if (!userID.substring(0, 3).equals(itemID.substring(0, 3)) && !UserBorrow.isEmpty()
                         && UserBorrow.containsKey(userID)) {
