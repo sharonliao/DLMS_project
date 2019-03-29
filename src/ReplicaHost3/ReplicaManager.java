@@ -1,13 +1,11 @@
 package ReplicaHost3;
 
-import Model.FEPort;
-import Model.Message;
-import Model.RMPort;
-import Model.ReplicaPort;
+import Model.*;
 import FrontEnd.Timer;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,7 +44,7 @@ public class ReplicaManager {
 	public void startRMListener(int RMPort) {
 		DatagramPacket apocket = null;
 		byte[] buf = null;
-		logger.info("RM is listenning ");
+		logger.info("RM3 is listenning ");
 		MulticastSocket aSocket = null;
 		try {
 		aSocket = new MulticastSocket(RMPort);
@@ -57,6 +55,8 @@ public class ReplicaManager {
 			aSocket.receive(apocket);
 			String message = new String(apocket.getData()).trim();
 			System.out.println("UDP receive : " + message);
+
+			logger.info("RM3 receives message:"+message);
 
 			String[] messageSplited = message.split(":");
 			System.out.println("messageSplited[0]--" + messageSplited[0]);
@@ -211,7 +211,7 @@ public class ReplicaManager {
 		socket = new DatagramSocket();
 		sendToFE(socket,reply);
 
-
+		logger.info("RM3 sends message to Replica3: "+msg.operationMsg+"; reply from Replica2: "+reply);
 	}
 
 
@@ -221,13 +221,18 @@ public class ReplicaManager {
 		byte[] data = msgFromReplica.getBytes();
 		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.RegistorPort);
 		aSocket.send(aPacket);
+
+		logger.info("RM3 sends message to FE:"+msgFromReplica);
 		//aSocket.close();//婵″倹鐏夋稉宄渙lse娴兼碍锟藉簼绠為弽锟�
 	}
 
 
-	public static void main(String[] args) {
-		Logger rmLogger = Logger.getLogger("RM1.log");
+	public static void main(String[] args) throws IOException {
+		Logger rmLogger = Logger.getLogger("RM3.log");
 		rmLogger.setLevel(Level.ALL);
+		FileHandler handler=new FileHandler("RM3.log");
+		handler.setFormatter(new logSetFormatter());
+		rmLogger.addHandler(handler);
 
 		ReplicaManager rm = new ReplicaManager(rmLogger);
 

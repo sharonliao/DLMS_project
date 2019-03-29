@@ -34,14 +34,14 @@ public class Replica3 {
 	}
 	public Replica3(){
 		try{
-			Logger replica1_log = Logger.getLogger("Repilca1.log");
-			createLogger("Repilca1.log", replica1_log);
-			Logger conserver1_log = Logger.getLogger("conserver1.log");
-			createLogger("conserver1.log", conserver1_log);
-			Logger mcgserver1_log = Logger.getLogger("mcgserver1.log");
-			createLogger("mcgserver1.log", mcgserver1_log);
-			Logger monserver1_log = Logger.getLogger("monserver1.log");
-			createLogger("monserver1.log", monserver1_log);
+			//Logger replica1_log = Logger.getLogger("Repilca1.log");
+			//createLogger("Repilca1.log", replica1_log);
+			//Logger conserver1_log = Logger.getLogger("conserver1.log");
+			//createLogger("conserver.log", conserver1_log);
+			//Logger mcgserver1_log = Logger.getLogger("mcgserver1.log");
+			//createLogger("mcgserver1.log", mcgserver1_log);
+			//Logger monserver1_log = Logger.getLogger("monserver1.log");
+			//createLogger("monserver1.log", monserver1_log);
 			conServer = new LibraryObj("CON",DLMS_Port.PORT.CON_PORT);
 			mcgServer = new LibraryObj("MCG",DLMS_Port.PORT.MCG_PORT);
 			monServer = new LibraryObj("MON",DLMS_Port.PORT.MON_PORT);
@@ -166,91 +166,6 @@ public class Replica3 {
 		Thread4.start();
 	}
 
-	public static void main(String[] args) throws IOException {
 
-
-		Replica3 replica1 = new Replica3();
-//		Replica1.replica1_Instance = replica1;
-//		System.out.println("replica1_Instance :" +replica1_Instance.getClass());
-
-//		Runnable startReplica = () -> {
-//			try {
-//				replica1.startReplica(ReplicaPort.REPLICA_PORT.replica1);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-
-//		Runnable start_CON_UDP = () -> {
-//			try{
-//				conServer.udpServer();
-//			}catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-//
-//		Runnable start_MCG_UDP = () -> {
-//			try{
-//				mcgServer.udpServer();
-//
-//			}catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-//
-//		Runnable start_MON_UDP = () -> {
-//			try{
-//				monServer.udpServer();
-//			}catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		};
-
-
-//		Runnable failureListener = () -> {
-//			try{
-//				replica1.startFailureListening(RMPort.RM_PORT.rmPort1_failure);
-//			}catch (Exception e){
-//				e.printStackTrace();
-//			}
-//		};
-
-
-		//Thread Thread1 = new Thread(startReplica);
-//		Thread Thread2 = new Thread(start_CON_UDP);
-//		Thread Thread3 = new Thread(start_MCG_UDP);
-//		Thread Thread4 = new Thread(start_MON_UDP);
-//		//Thread Thread5 = new Thread(failureListener);
-//
-//		//Thread1.start();
-//		Thread2.start();
-//		Thread3.start();
-//		Thread4.start();
-//		//Thread5.start();
-
-
-//		String info = conServer.listItemAvailability("CONM0001");
-//		//System.out.println(conServer.addItem("CONM0001","CON1111","BB",4));
-//
-//		Message addBookMsg = new Message();
-//		addBookMsg.operationMsg = "addItem,CONM0001,CON9999,XSSsss,4";
-//		addBookMsg.seqId = 1;
-//		addBookMsg.libCode = "CON";
-//		replica1.historyQueue  = new LinkedList<>();
-//		replica1.historyQueue.offer(addBookMsg);
-//
-//		Message removeMsg = new Message();
-//		removeMsg.operationMsg = "removeItem,CONM0001,CON2222,-1";
-//		removeMsg.seqId = 2;
-//		removeMsg.libCode = "CON";
-//		replica1.historyQueue.offer(removeMsg);
-//
-//		replica1.recoverRplicaData();
-//		info = conServer.listItemAvailability("CONM0001");
-	}
 }
 

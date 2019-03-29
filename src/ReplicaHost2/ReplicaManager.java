@@ -208,8 +208,7 @@ public class ReplicaManager {
 		String reply = msg.seqId+":"+ this.replicaId + ":" + replica2.executeMsg(msg);
 		System.out.println("reply:"+reply);
 		sendToFE(aSocket,reply);
-		logger.info("RM2 sends message to Replica2: "+msg.operationMsg);
-		logger.info("RM2 gets reply from Replica2: "+reply);
+		logger.info("RM2 sends message to Replica2: "+msg.operationMsg+"; reply from Replica2: "+reply);
 
 	}
 

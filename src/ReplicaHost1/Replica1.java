@@ -34,8 +34,8 @@ public class Replica1 {
 	}
 	public Replica1(){
 		try{
-			Logger replica1_log = Logger.getLogger("Repilca1.log");
-			createLogger("Repilca1.log", replica1_log);
+			//Logger replica1_log = Logger.getLogger("Repilca1.log");
+			//createLogger("Repilca1.log", replica1_log);
 			Logger conserver1_log = Logger.getLogger("conserver1.log");
 			createLogger("conserver1.log", conserver1_log);
 			Logger mcgserver1_log = Logger.getLogger("mcgserver1.log");
@@ -43,8 +43,8 @@ public class Replica1 {
 			Logger monserver1_log = Logger.getLogger("monserver1.log");
 			createLogger("monserver1.log", monserver1_log);
 
-			conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT,replica1_log);
-			mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT,conserver1_log);
+			conServer = new DLMSImp("CON",DLMS_Port.PORT.CON_PORT,conserver1_log);
+			mcgServer = new DLMSImp("MCG",DLMS_Port.PORT.MCG_PORT,mcgserver1_log);
 			monServer = new DLMSImp("MON",DLMS_Port.PORT.MON_PORT,monserver1_log);
 
 			startServers();
