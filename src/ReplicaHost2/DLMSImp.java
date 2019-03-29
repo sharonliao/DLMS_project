@@ -113,7 +113,7 @@ public class DLMSImp {
                 }
                 removeNullWaitlist(WaitList);
             }
-            log.info("Add item锛�"+managerID+", "+itemID+", "+quantity+": "+answer);
+            log.info("Add item: "+managerID+", "+itemID+", "+quantity+": "+answer);
             return answer;
         }
     }
@@ -179,7 +179,7 @@ public class DLMSImp {
             } else {
                 answer = "Re3";   ///item not exist
             }
-            log.info("Remove item锛�"+managerID+", "+itemID+", "+quantity+": "+answer);
+            log.info("Remove item: "+managerID+", "+itemID+", "+quantity+": "+answer);
             return answer;
         }
     }
@@ -190,7 +190,7 @@ public class DLMSImp {
             for (String key : map.keySet()) {
                 answer += key + "," + map.get(key).getItemName() + "=" + map.get(key).getQuantity() + "\n";
             }
-            log.info("List item锛�"+managerID+": "+answer);
+            log.info("List item: "+managerID+": "+answer);
             return answer.trim();
         }
 
@@ -205,7 +205,7 @@ public class DLMSImp {
                 answer = sendToUdpServer(itemID, "Borrow item:" + "&" + userID + "&" + itemID);
             }
         }
-        log.info("Borrow item锛�"+userID+", "+itemID+": "+answer);
+        log.info("Borrow item: "+userID+", "+itemID+": "+answer);
         return answer;
     }
 
@@ -261,7 +261,7 @@ public class DLMSImp {
             answer += sendMessage(2223, "Find:" + "&" + userID + "&" + itemName)
                     + sendMessage(1112, "Find:" + "&" + userID + "&" + itemName);
         }
-        log.info("Find item锛�"+userID+": "+answer);
+        log.info("Find item: "+userID+": "+answer);
         return answer.trim();
     }
 
@@ -286,7 +286,7 @@ public class DLMSImp {
 
                 answer = sendToUdpServer(itemID, "Return item:" + "&" + userID + "&" + itemID);
             }
-            log.info("Return item锛�"+userID+", "+itemID+": "+answer);
+            log.info("Return item: "+userID+", "+itemID+": "+answer);
             return answer;
         }
     }
@@ -306,7 +306,10 @@ public class DLMSImp {
                     List list = UserBorrow.get(key);
                     for (int i = 0; i < list.size(); i++) {
                         if (itemID.equals(list.get(i))) {
-                            list.remove(itemID);
+                            list.remove(i);
+                            if (list.size() == 0) {
+                                it.remove();
+                            }
                             if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
                                 while (WaitList.get(itemID).size() != 0) {
                                     String userwl = WaitList.get(itemID).peek();
@@ -343,11 +346,10 @@ public class DLMSImp {
                                 map.put(itemID, new Item(itemID, name, qty + 1));
                                 break;
                             }
+
                         }
                     }
-                    if (list.size() == 0) {
-                        it.remove();
-                    }
+
                     answer = "Rtn0";    //successfully return
 
                 } else {
@@ -388,7 +390,7 @@ public class DLMSImp {
             } else {
                 answer = sendToUdpServer(itemID, "Addlist:" + "&" + userID + "&" + itemID);
             }
-            log.info("Add waitlist锛�"+userID+", "+itemID+": "+answer);
+            log.info("Add waitlist: "+userID+", "+itemID+": "+answer);
             return answer;
         }
     }
@@ -451,7 +453,7 @@ public class DLMSImp {
                     List list = UserBorrow.get(key);
                     for (int i = 0; i < list.size(); i++) {
                         if (list.get(i).equals(newItemID)) {
-                            list.remove(newItemID);
+                            list.remove(i);
                             map.put(newItemID, new Item(newItemID, name, qty + 1));
                         }
                     }
@@ -518,7 +520,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
-            log.info("Exchange item锛�"+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
+            log.info("Exchange item: "+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
             return answer;
         }
     }
@@ -596,7 +598,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
-            log.info("Add to waitlist for Exchange item锛�"+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
+            log.info("Add to waitlist for Exchange item: "+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
             return answer;
         }
     }
@@ -649,7 +651,7 @@ public class DLMSImp {
                         List list = UserBorrow.get(key);
                         for (int i = 0; i < list.size(); i++) {
                             if (list.get(i).equals(oldItemID)) {
-                                list.remove(oldItemID);
+                                list.remove(i);
                                 if (!WaitList.isEmpty() && WaitList.containsKey(oldItemID)) {
                                     while (WaitList.get(oldItemID).size() != 0) {
                                         String userwl = WaitList.get(oldItemID).peek();
