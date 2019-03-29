@@ -252,14 +252,14 @@ public class DLMSImp {
         String answer = "";
         answer = findItemUdp(itemName);
         if (userID.substring(0, 3).equalsIgnoreCase("con")) {
-            answer += sendMessage(2223, "Find:" + "&" + userID + "&" + itemName)
-                    + sendMessage(3334, "Find:" + "&" + userID + "&" + itemName);
+            answer += sendMessage(DLMS_Port.PORT.MCG_PORT, "Find:" + "&" + userID + "&" + itemName)
+                    + sendMessage(DLMS_Port.PORT.MON_PORT, "Find:" + "&" + userID + "&" + itemName);
         } else if (userID.substring(0, 3).equalsIgnoreCase("mcg")) {
-            answer += sendMessage(1112, "Find:" + "&" + userID + "&" + itemName)
-                    + sendMessage(3334, "Find:" + "&" + userID + "&" + itemName);
+            answer += sendMessage(DLMS_Port.PORT.CON_PORT, "Find:" + "&" + userID + "&" + itemName)
+                    + sendMessage(DLMS_Port.PORT.MON_PORT, "Find:" + "&" + userID + "&" + itemName);
         } else if (userID.substring(0, 3).equalsIgnoreCase("mon")) {
-            answer += sendMessage(2223, "Find:" + "&" + userID + "&" + itemName)
-                    + sendMessage(1112, "Find:" + "&" + userID + "&" + itemName);
+            answer += sendMessage(DLMS_Port.PORT.CON_PORT, "Find:" + "&" + userID + "&" + itemName)
+                    + sendMessage(DLMS_Port.PORT.MCG_PORT, "Find:" + "&" + userID + "&" + itemName);
         }
         log.info("Find item: "+userID+": "+answer);
         return answer.trim();
@@ -709,11 +709,11 @@ public class DLMSImp {
     public String sendToUdpServer(String itemID, String msg) {
         String reply = null;
         if (itemID.substring(0, 3).equalsIgnoreCase("con")) {
-            reply = sendMessage(1112, msg);
+            reply = sendMessage(DLMS_Port.PORT.CON_PORT, msg);
         } else if (itemID.substring(0, 3).equalsIgnoreCase("mcg")) {
-            reply = sendMessage(2223, msg);
+            reply = sendMessage(DLMS_Port.PORT.MCG_PORT, msg);
         } else if (itemID.substring(0, 3).equalsIgnoreCase("mon")) {
-            reply = sendMessage(3334, msg);
+            reply = sendMessage(DLMS_Port.PORT.MON_PORT, msg);
         }
         return reply;
     }
@@ -723,11 +723,11 @@ public class DLMSImp {
         try {
             aSocket = new DatagramSocket(portNumber);
             byte[] buffer = new byte[1000];
-            if (portNumber == 1112) {
+            if (portNumber == DLMS_Port.PORT.CON_PORT) {
                 System.out.println("Concordia UdpServer Started............");
-            } else if (portNumber == 2223) {
+            } else if (portNumber == DLMS_Port.PORT.MCG_PORT) {
                 System.out.println("Mcgill UdpServer Started............");
-            } else if (portNumber == 3334) {
+            } else if (portNumber == DLMS_Port.PORT.MON_PORT) {
                 System.out.println("Montreal UdpServer Started............");
             }
             while (true) {
@@ -804,4 +804,11 @@ public class DLMSImp {
         return "";
     }
 
+}
+
+enum DLMS_Port {
+    PORT;
+    final int CON_PORT = 2345;
+    final int MCG_PORT = 2346;
+    final int MON_PORT = 2347;
 }

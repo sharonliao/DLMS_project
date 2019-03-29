@@ -23,9 +23,9 @@ public class Replica2 {
 
 	enum DLMS_Port {
 		PORT;
-		final int CON_PORT = 1112;
-		final int MCG_PORT = 2223;
-		final int MON_PORT = 3334;
+		final int CON_PORT = 2345;
+		final int MCG_PORT = 2346;
+		final int MON_PORT = 2347;
 	}
 
 	public Replica2(Logger log, DLMSImp conServer, DLMSImp mcgServer, DLMSImp monServer) {
@@ -137,7 +137,7 @@ public class Replica2 {
 	public void startServers(){
 		Runnable start_CON_UDP = () -> {
 			try{
-				conServer.receive(1112);
+				conServer.receive(DLMS_Port.PORT.CON_PORT);
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -146,7 +146,7 @@ public class Replica2 {
 
 		Runnable start_MCG_UDP = () -> {
 			try{
-				mcgServer.receive(2223);
+				mcgServer.receive(DLMS_Port.PORT.MCG_PORT);
 
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -156,7 +156,7 @@ public class Replica2 {
 
 		Runnable start_MON_UDP = () -> {
 			try{
-				monServer.receive(3334);
+				monServer.receive(DLMS_Port.PORT.MON_PORT);
 			}catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
