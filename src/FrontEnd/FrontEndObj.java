@@ -338,15 +338,15 @@ public class FrontEndObj extends FrontEndPOA {
 		if (x.equals("Br0")) {
 			return itemID + ": Borrow Successfully";
 		} else if (x.equals("Br1")) {
-			return itemID + ": Remove Failed. The item does not exist";
+			return itemID + ": Borrow Failed. The item does not exist";
 		} else if (x.equals("Br2")) {
-			return itemID + ": Remove Failed. The book is not available now. Do you want to be added to waitlist? Y/N";
+			return itemID + ": Borrow Failed. The book is not available now. Do you want to be added to waitlist? Y/N";
 		} else if (x.equals("Br3")) {
-			return itemID + ": Remove Failed: You have borrowed this item and not returned yet";
+			return itemID + ": Borrow Failed: You have borrowed this item and not returned yet";
 		} else if (x.equals("Br4")) {
-			return itemID + ": Remove Failed: You already borrowed another book in that library and not returned yet";
+			return itemID + ": Borrow Failed: You already borrowed another book in that library and not returned yet";
 		} else {
-			return itemID + ": Remove Failed: You are already in a waitlist of that library";
+			return itemID + ": Borrow Failed: You are already in a waitlist of that library";
 		}
 	}
 
@@ -457,7 +457,7 @@ public class FrontEndObj extends FrontEndPOA {
 		int count = 0;
 		try {
 			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
-			String message = "addToWaitList" + "," + userID + "," + itemID;
+			String message = "addToWaitlist" + "," + userID + "," + itemID;
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
 			Thread thread = new Thread(timer);
