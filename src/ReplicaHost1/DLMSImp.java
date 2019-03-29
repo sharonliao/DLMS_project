@@ -38,7 +38,7 @@ public class DLMSImp {
         portMap.put("CON", 7777);
         portMap.put("MCG", 8888);
         portMap.put("MON", 9999);
-       //initContent();
+        initContent();
     }
 
 
@@ -235,8 +235,11 @@ public class DLMSImp {
         String msg = fomatString("findInLocal," + userId + "," + itemName);
 
         for (int port : portMap.values()) {
-            String info = udpClient(msg, port);
-            listOfBook = listOfBook + info +"\n";
+            if(port != LocalPort){
+                String info = udpClient(msg, port);
+                listOfBook = listOfBook + info +"\n";
+            }
+
         }
 
         String info = "Find an item \n"
@@ -270,7 +273,7 @@ public class DLMSImp {
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
                 System.out.println("Request received from client: " + requestMsg);
-                //闁哄秶鍘х槐锟� 1闁靛棔鍏瑄nction 2闁靛棔妞掔粻锝夊触鎼淬劌鍘撮柡鍕靛灠瀵剟寮敓锟�
+
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":

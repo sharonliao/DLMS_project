@@ -241,12 +241,5 @@ public class ReplicaManager {
 
 		Thread Thread2 = new Thread(TaskListener);
 		Thread2.start();
-
-		try{
-			Thread.sleep(3000);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-
 	}
 }

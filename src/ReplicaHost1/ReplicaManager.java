@@ -78,6 +78,7 @@ public class ReplicaManager {
 
 		int msgId = 0;
 		if(checkIfFailThreeTimes(msgId)){
+			this.logger.info("Recover Replica from crash" );
 			replica1.fixBug();
 		}
 	}
@@ -86,11 +87,12 @@ public class ReplicaManager {
 		boolean rtn = false;
 		if (msgId+1 == latestFailureId){
 			failureTimes ++;
+			this.logger.info("failure time:" +failureTimes );
 		}else {
 			latestFailureId = msgId;
 			failureTimes = 0;
 		}
-		if(failureTimes >= 3){
+		if(failureTimes == 3){
 			// tell the replica correct the reply
 			rtn = true;
 			failureTimes = 0;
@@ -119,14 +121,15 @@ public class ReplicaManager {
 
 	private void restartReplica() throws IOException{
 
-		//restart 之前要把replica1的端口全都关掉，不然udp会报错
-		replica1.closeImpSocket();
-		replica1 = null;
-		System.gc();
-
+		//before restart need to close replica1's ports
+//		replica1.closeImpSocket();
+//		replica1 = null;
+//		System.gc();
+		this.logger.info("Restart Replica from crash" );
 		replica1 = new Replica1();
 		replica1.historyQueue=this.historyQueue;
 		replica1.recoverRplicaData();
+		replica1.crashFree = true;
 	}
 
 
@@ -136,6 +139,7 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void moveToHoldBackQueue(String msg,DatagramSocket aSocket) throws IOException {
+		System.out.println();
 		int id = Integer.parseInt(msg.split(":")[0]);
 		if (!holdBackQueue.containsKey(id)) {
 			Message message = splitMessge(msg);
@@ -195,13 +199,21 @@ public class ReplicaManager {
 	 * @throws IOException
 	 */
 	private void sendToReplicaAndGetReply(Message msg,DatagramSocket aSocket) throws IOException{
-
-		String reply = msg.seqId+":"+ this.replicaId + ":" + replica1.executeMsg(msg);
-		System.out.println("reply:"+reply);
-		DatagramSocket socket = null;
-		socket = new DatagramSocket();
-		sendToFE(socket,reply);
-
+		if(replica1 != null){
+			if( msg.operationMsg.indexOf("listItem") != -1 && replica1.crashFree == false){
+				//if crashFree is false, then findItem operation crash the replica1, no msg return to FE
+				//shut down server
+				System.out.println("shut downt replica1");
+				replica1.closeImpSocket();
+				replica1 = null;
+				return;
+			}
+			String reply = msg.seqId+":"+ this.replicaId + ":" + replica1.executeMsg(msg);
+			System.out.println("reply:"+reply);
+			DatagramSocket socket = null;
+			socket = new DatagramSocket();
+			sendToFE(socket,reply);
+		}
 	}
 
 
@@ -238,6 +250,16 @@ public class ReplicaManager {
 			e.printStackTrace();
 		}
 
-		rm.recoverFromCrash("1:1");
+//		//shut down server
+//		System.out.println("shut downt replica1");
+//		rm.replica1.closeImpSocket();
+//		rm.replica1 = null;
+//
+//		try{
+//			Thread.sleep(6000);
+//		}catch (Exception e){
+//			e.printStackTrace();
+//		}
+		//rm.recoverFromCrash("1:1");
 	}
 }

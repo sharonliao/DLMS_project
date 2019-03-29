@@ -110,7 +110,7 @@ public class LibraryObj {
 		super();
 		this.libraryID = libID;
 		this.portNum = portNumber;
-		//initContent();
+		initContent();
 	}
 
 	private void initContent(){
@@ -123,7 +123,7 @@ public class LibraryObj {
 
 	public static String sendMessage(byte[] message, int serverPort) {
 		DatagramSocket bSocket = null;
-		 String returnMsg = "";
+		String returnMsg = "";
 		try {
 			bSocket = new DatagramSocket();
 			InetAddress aHost = InetAddress.getByName("localhost");
@@ -139,14 +139,14 @@ public class LibraryObj {
 			System.out.println("Reply received from the server"+ serverPort+" is: "
 					+ returnMsg);
 
-			
+
 
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("IO: " + e.getMessage());
-		} 
+		}
 		return returnMsg;
 	}
 
@@ -258,7 +258,7 @@ public class LibraryObj {
 			if (aSocket != null) {
 				aSocket.close();
 			}
-//				
+//
 		}
 	}
 
@@ -589,8 +589,8 @@ public class LibraryObj {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String key : books.keySet()) {
 			Book temp = books.get(key);
-				stringBuilder.append(temp.getitemID() + "," + temp.getQuantity().getQuantity() + "\n");
-			
+			stringBuilder.append(temp.getitemID() + "," + temp.getQuantity().getQuantity() + "\n");
+
 		}
 		if (userID.substring(0, 3).equals(libraryID)) {
 			String x = "";
@@ -610,7 +610,7 @@ public class LibraryObj {
 			if (m[0].equals("has")) {
 				stringBuilder.append(m[1] + "," + m[2] + "\n");
 			}
-			
+
 			String x2 = "";
 			x2 = sendMessage(message, tmp[1]-1);
 			String[] m2 = x2.split(",");
@@ -844,80 +844,80 @@ public class LibraryObj {
 				}
 				MyException myException = new MyException();
 				switch (x) {
-				case "available":
-					try {
-						if (newItemID.substring(0, 3).equals(libraryID)) {
-							x1 = borrowforExchange(userID, newItemID, oldItemID);
-						} else {
-							int tmp1;
-							byte[] message1 = ("borrowforexchange" + "," + userID + "," + newItemID.substring(0, 7)
-									+ "," + oldItemID.substring(0, 7)).getBytes();
-							tmp1 = portlist.get(newItemID.substring(0, 3));
-							x1 = sendMessage(message1, tmp1-1);
-							String[] m = x1.split(",");
-							if (x1.contains("success")) {
-								borrowRecord(userID, newItemID, m[1]);
-							}
-						}
-						if (oldItemID.substring(0, 3).equals(libraryID)) {
-							x2 = returnforexchange(userID, newItemID, oldItemID);
-						} else {
-							int tmp2;
-							byte[] message2 = ("returnforexchange" + "," + userID + "," + newItemID + ","
-									+ oldItemID.substring(0, 7)).getBytes();
-							tmp2 = portlist.get(oldItemID.substring(0, 3));
-							x2 = sendMessage(message2, tmp2-1 );
-							if (x2.contains("success")) {
-								HashMap<String, Record> personrecord = records.get(userID);
-								Record p = personrecord.get(oldItemID);
-								p.setStatus();
-							}
-						}
-						if ((!(x1.contains("success")) || (!(x2.contains("success"))))) {
-							myException.testMyException();
-						} else {
-							return "Ex0";
-						}
-					} catch (Exception e) {
-						x = "";
-						if (!x2.equals("don't exist")) {
-							Record p = person.get(oldItemID);
-							p.rollbackStatus();
-						}
-						person.remove(newItemID);
-						if (!x1.equals("failed")) {
+					case "available":
+						try {
 							if (newItemID.substring(0, 3).equals(libraryID)) {
-								rollbackBorrow(userID, newItemID);
+								x1 = borrowforExchange(userID, newItemID, oldItemID);
 							} else {
 								int tmp1;
-								byte[] message1 = ("rollbackborrow" + "," + userID + "," + newItemID.substring(0, 7))
-										.getBytes();
+								byte[] message1 = ("borrowforexchange" + "," + userID + "," + newItemID.substring(0, 7)
+										+ "," + oldItemID.substring(0, 7)).getBytes();
 								tmp1 = portlist.get(newItemID.substring(0, 3));
-								x = sendMessage(message1, tmp1-1);
-
+								x1 = sendMessage(message1, tmp1-1);
+								String[] m = x1.split(",");
+								if (x1.contains("success")) {
+									borrowRecord(userID, newItemID, m[1]);
+								}
 							}
+							if (oldItemID.substring(0, 3).equals(libraryID)) {
+								x2 = returnforexchange(userID, newItemID, oldItemID);
+							} else {
+								int tmp2;
+								byte[] message2 = ("returnforexchange" + "," + userID + "," + newItemID + ","
+										+ oldItemID.substring(0, 7)).getBytes();
+								tmp2 = portlist.get(oldItemID.substring(0, 3));
+								x2 = sendMessage(message2, tmp2-1 );
+								if (x2.contains("success")) {
+									HashMap<String, Record> personrecord = records.get(userID);
+									Record p = personrecord.get(oldItemID);
+									p.setStatus();
+								}
+							}
+							if ((!(x1.contains("success")) || (!(x2.contains("success"))))) {
+								myException.testMyException();
+							} else {
+								return "Ex0";
+							}
+						} catch (Exception e) {
+							x = "";
+							if (!x2.equals("don't exist")) {
+								Record p = person.get(oldItemID);
+								p.rollbackStatus();
+							}
+							person.remove(newItemID);
+							if (!x1.equals("failed")) {
+								if (newItemID.substring(0, 3).equals(libraryID)) {
+									rollbackBorrow(userID, newItemID);
+								} else {
+									int tmp1;
+									byte[] message1 = ("rollbackborrow" + "," + userID + "," + newItemID.substring(0, 7))
+											.getBytes();
+									tmp1 = portlist.get(newItemID.substring(0, 3));
+									x = sendMessage(message1, tmp1-1);
+
+								}
+							}
+							if (oldItemID.substring(0, 3).equals(libraryID)) {
+								rollbackReturn(userID, oldItemID);
+							} else {
+								int tmp2;
+								byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7))
+										.getBytes();
+								tmp2 = portlist.get(oldItemID.substring(0, 3));
+								x = sendMessage(message2, tmp2-1);
+							}
+							if (x2.equals("don't exist")) {
+								return "Ex2";
+							}
+							if (x1.equals("failed")) {
+								return "Ex3";
+							}
+							return "Ex1";
 						}
-						if (oldItemID.substring(0, 3).equals(libraryID)) {
-							rollbackReturn(userID, oldItemID);
-						} else {
-							int tmp2;
-							byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7))
-									.getBytes();
-							tmp2 = portlist.get(oldItemID.substring(0, 3));
-							x = sendMessage(message2, tmp2-1);
-						}
-						if (x2.equals("don't exist")) {
-							return "Ex2";
-						}
-						if (x1.equals("failed")) {
-							return "Ex3";
-						}
-						return "Ex1";
-					}
-				case "notAvailable":
-					return "Ex4";
-				default:
-					return x;
+					case "notAvailable":
+						return "Ex4";
+					default:
+						return x;
 				}
 
 			} else if (check.equals("don't exist")) {
@@ -1049,17 +1049,11 @@ public class LibraryObj {
 
 	public String checkReturn(String userID, String newItemID, String oldItemID) {
 		if (oldItemID.substring(0, 3).equals(libraryID)) {
-				if (books.containsKey(oldItemID)) {
-					if (libRecords.containsKey(oldItemID)) {
-						HashMap<String, Record> itemRecords = libRecords.get(oldItemID);
-						if (itemRecords.containsKey(userID) && itemRecords.get(userID).getStatus().equals("Borrowed")) {
-							return "yes";
-						} else {
-							logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID
-									+ " Old: " + oldItemID + " Failed: Haven't borrowed the old book.";
-							writeFile(logpath, logmessage);
-							return "no";
-						}
+			if (books.containsKey(oldItemID)) {
+				if (libRecords.containsKey(oldItemID)) {
+					HashMap<String, Record> itemRecords = libRecords.get(oldItemID);
+					if (itemRecords.containsKey(userID) && itemRecords.get(userID).getStatus().equals("Borrowed")) {
+						return "yes";
 					} else {
 						logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID
 								+ " Old: " + oldItemID + " Failed: Haven't borrowed the old book.";
@@ -1067,12 +1061,18 @@ public class LibraryObj {
 						return "no";
 					}
 				} else {
-					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
-							+ oldItemID + " Failed: The book you wants to return does not exist.";
+					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID
+							+ " Old: " + oldItemID + " Failed: Haven't borrowed the old book.";
 					writeFile(logpath, logmessage);
-					return "don't exist";
+					return "no";
 				}
-			
+			} else {
+				logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
+						+ oldItemID + " Failed: The book you wants to return does not exist.";
+				writeFile(logpath, logmessage);
+				return "don't exist";
+			}
+
 		} else {
 			String x = "";
 			int tmp1;
@@ -1168,144 +1168,144 @@ public class LibraryObj {
 		}
 		MyException myException = new MyException();
 		switch (check) {
-		case "available":
-			try {
-				if (newItemID.substring(0, 3).equals(libraryID)) {
-					x1 = borrowforExchange(userID, newItemID, oldItemID);
-				} else {
-					int tmp1;
-					byte[] message1 = ("borrowforexchange" + "," + userID + "," + newItemID.substring(0, 7) + ","
-							+ oldItemID.substring(0, 7)).getBytes();
-					tmp1 = portlist.get(newItemID.substring(0, 3));
-					x1 = sendMessage(message1, tmp1-1);
-					String[] m = x1.split(",");
-					if (x1.contains("success")) {
-						borrowRecord(userID, newItemID, m[1]);
-					}
-				}
-				if (oldItemID.substring(0, 3).equals(libraryID)) {
-					x2 = returnforexchange(userID, newItemID, oldItemID);
-				} else {
-					int tmp2;
-					byte[] message2 = ("returnforexchange" + "," + userID + "," +newItemID+","+ oldItemID.substring(0, 7)).getBytes();
-					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x2 = sendMessage(message2, tmp2-1 );
-					if (x2.contains("success")) {
-						HashMap<String, Record> personrecord = records.get(userID);
-						Record p = personrecord.get(oldItemID);
-						p.setStatus();
-					}
-				}
-				if ((!(x1.contains("success")) || (!(x2.contains("success"))))) {
-					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
-							+ oldItemID + " Failed";
-					writeFile(logpath, logmessage);
-					myException.testMyException();
-				} else {
-					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
-							+ oldItemID + " Successful";
-					writeFile(logpath, logmessage);
-					return "Ex0";
-				}
-			} catch (Exception e) {
-				HashMap<String, Record> person = records.get(userID);
-				String x = "";
-				person.remove(newItemID);
-				Record p = person.get(oldItemID);
-				p.rollbackStatus();
-				if (newItemID.substring(0, 3).equals(libraryID)) {
-					rollbackBorrow(userID, newItemID);
-				} else {
-					int tmp1;
-					byte[] message1 = ("rollbackborrow" + "," + userID + "," + newItemID.substring(0, 7)).getBytes();
-					tmp1 = portlist.get(newItemID.substring(0, 3));
-					x = sendMessage(message1, tmp1-1);
-
-				}
-				if (oldItemID.substring(0, 3).equals(libraryID)) {
-					rollbackReturn(userID, oldItemID);
-				} else {
-					int tmp2;
-					byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7)).getBytes();
-					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x = sendMessage(message2, tmp2-1 );
-				}
-				return "Ex1";
-			}
-		case "notAvailable":
-			try {
-
-				if (newItemID.substring(0, 3).equals(libraryID)) {
-					x3 = addToWaitlist(userID, newItemID);
-				} else {
-					int tmp1;
-					byte[] message1 = ("addtowaitlist" + "," + userID + "," + newItemID.substring(0, 7)).getBytes();
-					tmp1 = portlist.get(newItemID.substring(0, 3));
-					x3 = sendMessage(message1, tmp1-1);
-				}
-				if (oldItemID.substring(0, 3).equals(libraryID)) {
-					x4 = returnforexchange(userID, newItemID, oldItemID);
-				} else {
-					int tmp2;
-					byte[] message2 = ("returnforexchange" + "," + userID + "," +newItemID+","+ oldItemID.substring(0, 7)).getBytes();
-					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x4 = sendMessage(message2, tmp2-1 );
-					if (x4.contains("success")) {
-						HashMap<String, Record> personrecord = records.get(userID);
-						Record p = personrecord.get(oldItemID);
-						p.setStatus();
-					}
-				}
-				if ((!(x3.contains("success")) || (!(x4.contains("success"))))) {
-
-					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
-							+ oldItemID + " Failed";
-					writeFile(logpath, logmessage);
-					myException.testMyException();
-				} else {
-					logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
-							+ oldItemID + " Successful";
-					writeFile(logpath, logmessage);
-					return "AtwEx0";
-				}
-			} catch (Exception e) {
-				String x = "";
-				HashMap<String, Record> person = records.get(userID);
-				if (!x4.equals("don't exist")) {
-					Record p = person.get(oldItemID);
-					p.rollbackStatus();
-				}
-				if (!x3.equals("failed")) {
+			case "available":
+				try {
 					if (newItemID.substring(0, 3).equals(libraryID)) {
-						ArrayList<String> queue = waitlist.get(newItemID);
-						queue.remove(queue.size() - 1);
+						x1 = borrowforExchange(userID, newItemID, oldItemID);
 					} else {
 						int tmp1;
-						byte[] message1 = ("rollbackwaitlist" + "," + userID + "," + newItemID.substring(0, 7))
-								.getBytes();
+						byte[] message1 = ("borrowforexchange" + "," + userID + "," + newItemID.substring(0, 7) + ","
+								+ oldItemID.substring(0, 7)).getBytes();
+						tmp1 = portlist.get(newItemID.substring(0, 3));
+						x1 = sendMessage(message1, tmp1-1);
+						String[] m = x1.split(",");
+						if (x1.contains("success")) {
+							borrowRecord(userID, newItemID, m[1]);
+						}
+					}
+					if (oldItemID.substring(0, 3).equals(libraryID)) {
+						x2 = returnforexchange(userID, newItemID, oldItemID);
+					} else {
+						int tmp2;
+						byte[] message2 = ("returnforexchange" + "," + userID + "," +newItemID+","+ oldItemID.substring(0, 7)).getBytes();
+						tmp2 = portlist.get(oldItemID.substring(0, 3));
+						x2 = sendMessage(message2, tmp2-1 );
+						if (x2.contains("success")) {
+							HashMap<String, Record> personrecord = records.get(userID);
+							Record p = personrecord.get(oldItemID);
+							p.setStatus();
+						}
+					}
+					if ((!(x1.contains("success")) || (!(x2.contains("success"))))) {
+						logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
+								+ oldItemID + " Failed";
+						writeFile(logpath, logmessage);
+						myException.testMyException();
+					} else {
+						logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
+								+ oldItemID + " Successful";
+						writeFile(logpath, logmessage);
+						return "Ex0";
+					}
+				} catch (Exception e) {
+					HashMap<String, Record> person = records.get(userID);
+					String x = "";
+					person.remove(newItemID);
+					Record p = person.get(oldItemID);
+					p.rollbackStatus();
+					if (newItemID.substring(0, 3).equals(libraryID)) {
+						rollbackBorrow(userID, newItemID);
+					} else {
+						int tmp1;
+						byte[] message1 = ("rollbackborrow" + "," + userID + "," + newItemID.substring(0, 7)).getBytes();
 						tmp1 = portlist.get(newItemID.substring(0, 3));
 						x = sendMessage(message1, tmp1-1);
 
 					}
+					if (oldItemID.substring(0, 3).equals(libraryID)) {
+						rollbackReturn(userID, oldItemID);
+					} else {
+						int tmp2;
+						byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7)).getBytes();
+						tmp2 = portlist.get(oldItemID.substring(0, 3));
+						x = sendMessage(message2, tmp2-1 );
+					}
+					return "Ex1";
 				}
-				if (oldItemID.substring(0, 3).equals(libraryID)) {
-					rollbackReturn(userID, oldItemID);
-				} else {
-					int tmp2;
-					byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7)).getBytes();
-					tmp2 = portlist.get(oldItemID.substring(0, 3));
-					x = sendMessage(message2, tmp2 -1);
+			case "notAvailable":
+				try {
+
+					if (newItemID.substring(0, 3).equals(libraryID)) {
+						x3 = addToWaitlist(userID, newItemID);
+					} else {
+						int tmp1;
+						byte[] message1 = ("addtowaitlist" + "," + userID + "," + newItemID.substring(0, 7)).getBytes();
+						tmp1 = portlist.get(newItemID.substring(0, 3));
+						x3 = sendMessage(message1, tmp1-1);
+					}
+					if (oldItemID.substring(0, 3).equals(libraryID)) {
+						x4 = returnforexchange(userID, newItemID, oldItemID);
+					} else {
+						int tmp2;
+						byte[] message2 = ("returnforexchange" + "," + userID + "," +newItemID+","+ oldItemID.substring(0, 7)).getBytes();
+						tmp2 = portlist.get(oldItemID.substring(0, 3));
+						x4 = sendMessage(message2, tmp2-1 );
+						if (x4.contains("success")) {
+							HashMap<String, Record> personrecord = records.get(userID);
+							Record p = personrecord.get(oldItemID);
+							p.setStatus();
+						}
+					}
+					if ((!(x3.contains("success")) || (!(x4.contains("success"))))) {
+
+						logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
+								+ oldItemID + " Failed";
+						writeFile(logpath, logmessage);
+						myException.testMyException();
+					} else {
+						logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID + " Old: "
+								+ oldItemID + " Successful";
+						writeFile(logpath, logmessage);
+						return "AtwEx0";
+					}
+				} catch (Exception e) {
+					String x = "";
+					HashMap<String, Record> person = records.get(userID);
+					if (!x4.equals("don't exist")) {
+						Record p = person.get(oldItemID);
+						p.rollbackStatus();
+					}
+					if (!x3.equals("failed")) {
+						if (newItemID.substring(0, 3).equals(libraryID)) {
+							ArrayList<String> queue = waitlist.get(newItemID);
+							queue.remove(queue.size() - 1);
+						} else {
+							int tmp1;
+							byte[] message1 = ("rollbackwaitlist" + "," + userID + "," + newItemID.substring(0, 7))
+									.getBytes();
+							tmp1 = portlist.get(newItemID.substring(0, 3));
+							x = sendMessage(message1, tmp1-1);
+
+						}
+					}
+					if (oldItemID.substring(0, 3).equals(libraryID)) {
+						rollbackReturn(userID, oldItemID);
+					} else {
+						int tmp2;
+						byte[] message2 = ("rollbackreturn" + "," + userID + "," + oldItemID.substring(0, 7)).getBytes();
+						tmp2 = portlist.get(oldItemID.substring(0, 3));
+						x = sendMessage(message2, tmp2 -1);
+					}
+					if (x4.equals("don't exist")) {
+						return "Ex2";
+					}
+					if(x3.equals("failed")) {
+						return "Ex3";
+					}
+					return "Ex1";
 				}
-				if (x4.equals("don't exist")) {
-					return "Ex2";
-				}
-				if(x3.equals("failed")) {
-					return "Ex3";
-				}
-				return "Ex1";
-			}
-		default:
-			return check;
+			default:
+				return check;
 		}
 	}
 
