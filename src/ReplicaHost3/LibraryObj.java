@@ -589,8 +589,9 @@ public class LibraryObj {
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String key : books.keySet()) {
 			Book temp = books.get(key);
-				stringBuilder.append(temp.getitemID() + "," + temp.getQuantity().getQuantity() + "\n");
-			
+			if (temp.getBookName().equals(itemName)) {
+			stringBuilder.append(temp.getitemID() + "," + temp.getQuantity().getQuantity() + "\n");
+			}
 		}
 		if (userID.substring(0, 3).equals(libraryID)) {
 			String x = "";

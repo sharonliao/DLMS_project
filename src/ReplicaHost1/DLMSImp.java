@@ -79,7 +79,7 @@ public class DLMSImp {
             bookList.put(itemId, newItem);
             returnMsg = "Ad0";
         }
-        System.out.println("add book - book list闁挎冻鎷�" + bookList);
+        System.out.println("add book - book list闂佹寧鍐婚幏锟�" + bookList);
 
         return returnMsg;
     }
@@ -202,7 +202,7 @@ public class DLMSImp {
                 + returnInfo + "\n"
                 + waitingInfo + "\n";
 
-        return returnInfo;  //濠碘�冲�归悘澶嬬▔瀹ュ懐娼ｅù婊冨濠�浼村炊閸欍儱濮涘Λ锝呮濞堟垶绋婇敂鑲╃闁告瑯浜為鍝ユ媼閺夎法绉块柡鍕靛灠閹浇銇愰幒鏇犵闁挎稑鐭侀崵锔界瀹告竵itinglist闁煎浜滄慨鈺冪磼椤撶儑鎷烽悢鍛娦﹀鑸电墵椤╊偊鎳涢鍕畳閻犱焦婢樼紞宥夋晬鐏炵偓鎷遍柛锔芥緲濞存ɑ绋婇敂璺ㄧ憹闂傚浄鎷烽悷鏇氳兌閻擄繝鏌嗛敓锟�
+        return returnInfo;  //婵犵锟藉啿锟藉綊鎮樻径瀣枖鐎广儱鎳愬锝吤瑰鍐劉婵狅拷娴兼潙鐐婇柛娆嶅劚婵稑螞閿濆懏顥犳繛鍫熷灦缁嬪﹪鏁傞懖鈺冾槷闂佸憡鐟禍鐐侯敇閸濄儲濯奸柡澶庢硶缁夊潡鏌￠崟闈涚仩闁诡垯娴囬妵鎰板箳閺囩姷顔庨梺鎸庣☉閻線宕甸敂鐣岊洸鐎瑰憡绔礽tinglist闂佺厧顨庢禍婊勬叏閳哄啰纾兼い鎾跺剳閹风兘鎮㈤崨濞︼箑顭块懜鐢靛⒌妞も晩鍋婇幊娑㈩敂閸曨厾鐣抽柣鐘辩劍濠㈡绱炲澶嬫櫖閻忕偟鍋撻幏閬嶆煕閿旇姤绶叉繛瀛樕戠粙濠囨晜鐠恒劎鎲归梻鍌氭祫閹风兘鎮烽弴姘冲厡闁绘搫绻濋弻鍡涙晸閿燂拷
     }
 
     public String returnInLocal(String userId, String itemId) {
@@ -245,7 +245,7 @@ public class DLMSImp {
                 + "userId-" + userId + ", itemName-" + itemName + "\n"
                 + listOfBook + "\n";
 
-        return listOfBook;
+        return listOfBook.trim();
     }
 
 
@@ -272,7 +272,7 @@ public class DLMSImp {
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
                 System.out.println("Request received from client: " + requestMsg);
-                //闁哄秶鍘х槐锟� 1闁靛棔鍏瑄nction 2闁靛棔妞掔粻锝夊触鎼淬劌鍘撮柡鍕靛灠瀵剟寮敓锟�
+                //闂佸搫绉堕崢褏妲愰敓锟� 1闂侀潧妫旈崗鐟刵ction 2闂侀潧妫斿鎺旂不閿濆瑙﹂幖娣妼閸樻挳鏌￠崟闈涚仩鐎殿噮鍓熷顐︽晸閿燂拷
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
@@ -422,7 +422,7 @@ public class DLMSImp {
             returnInfo = udpCommunication(itemId, message);
         }
         System.out.print("checkIfReturnAvailable1 returnInfo --- " + returnInfo);
-        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 闁炽儲鏌￠敓鑺ユ煛閿熻姤鏌￠敓鏂ゆ嫹 "
+        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 闂佺偨鍎查弻锟犳晸閼恒儲鐓涢柨鐔诲Г閺岋繝鏁撻弬銈嗗 "
                 + returnInfo + "\n";
         //writeLog(info);
         return returnInfo;
@@ -582,7 +582,7 @@ public class DLMSImp {
                     }
                 }
             } while (getNextUser);
-            System.out.println("waitingUId 闁煎浜滄慨鈺呭磹閻旇泛濮涢柨娑虫嫹" + waitingUId);
+            System.out.println("waitingUId 闂佺厧顨庢禍婊勬叏閳哄懎纾归柣鏃囨硾婵盯鏌ㄥ☉铏" + waitingUId);
 
             String userAndItemID = waitingUId + "-" + itemId;
 

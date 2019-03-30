@@ -186,7 +186,6 @@ public class StartClient {
 								break;
 							}
 						}
-						bookname = bookname.toUpperCase();
 						result = libobj.findItem(id, bookname);
 						System.out.println(result);
 						if (result.contains("Success")) {
@@ -310,14 +309,12 @@ public class StartClient {
 						System.out.println("Please input the name of the book:");
 						while (true) {
 							name = in2.nextLine();
-							name = name.toUpperCase();
 							if (name.trim().isEmpty()) {
 								System.out.println("Your input is empty. Please input again!:");
 							} else {
 								break;
 							}
 						}
-						name = name.toUpperCase();
 						System.out.println("Please input the number of the book:");
 						while (true) {
 							quantity = in2.nextLine();
