@@ -206,7 +206,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}
@@ -243,7 +243,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}
@@ -322,7 +322,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}
@@ -367,7 +367,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majorityList(resultSet);
 				}
 			}
@@ -404,7 +404,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}
@@ -464,7 +464,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}
@@ -501,7 +501,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}
@@ -560,7 +560,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!voteStatus)) {
 					x = majority(resultSet);
 				}
 			}

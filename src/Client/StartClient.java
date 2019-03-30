@@ -74,11 +74,20 @@ public class StartClient {
 		String i1 = id.substring(0, 3);
 		String i2 = id.substring(4, 7);
 		boolean empty = (!id.trim().isEmpty());
-		boolean samelib = (userID.substring(0, 3).equals(i1));
-		if (empty && libid.contains(i1) && samelib && isInteger(i2)) {
-			return true;
-		} else {
-			return false;
+		if(userID.substring(3, 4).equals("M")) {
+			boolean samelib = (userID.substring(0, 3).equals(i1));
+			if (empty && libid.contains(i1) && samelib && isInteger(i2)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		else {
+			if (empty && libid.contains(i1) && isInteger(i2)) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -131,13 +140,13 @@ public class StartClient {
 						String book;
 						while (true) {
 							book = in1.nextLine();
-							if (book.trim().isEmpty()) {
-								System.out.println("Your input is empty. Please input again!:");
-							} else {
+							book = book.toUpperCase();
+							if (isItemCorrect(id, book)) {
 								break;
+							} else {
+								System.out.println("Your input is invalid. Please input again!:");
 							}
 						}
-						book = book.toUpperCase();
 						result = libobj.borrowItem(id, book);
 						System.out.println(result);
 						writeFile(logpath, df.format(new Date()) + " " + result);
@@ -164,13 +173,13 @@ public class StartClient {
 						String bookid;
 						while (true) {
 							bookid = in1.nextLine();
-							if (bookid.trim().isEmpty()) {
-								System.out.println("Your input is empty. Please input again!:");
-							} else {
+							bookid = bookid.toUpperCase();
+							if (isItemCorrect(id, bookid)) {
 								break;
+							} else {
+								System.out.println("Your input is invalid. Please input again!:");
 							}
 						}
-						bookid = bookid.toUpperCase();
 						result = libobj.returnItem(id, bookid);
 						System.out.println(result);
 						writeFile(logpath, df.format(new Date()) + " " + result);
@@ -188,7 +197,7 @@ public class StartClient {
 						}
 						result = libobj.findItem(id, bookname);
 						System.out.println(result);
-						if (result.contains("Success")) {
+						if (!result.contains("exist")) {
 							writeFile(logpath, df.format(new Date()) + " Find Item " + bookname + " Successfully!");
 						} else {
 							writeFile(logpath,
@@ -218,58 +227,64 @@ public class StartClient {
 						String oldItem;
 						while (true) {
 							oldItem = in1.nextLine();
-							if (oldItem.trim().isEmpty()) {
-								System.out.println("Your input is empty. Please input again!:");
-							} else {
+							oldItem = oldItem.toUpperCase();
+							if (isItemCorrect(id, oldItem)) {
 								break;
+							} else {
+								System.out.println("Your input is invalid. Please input again!:");
 							}
 						}
 						System.out.println("Please input the ID of book you want to borrow");
 						String newItem;
 						while (true) {
 							newItem = in1.nextLine();
-							if (newItem.trim().isEmpty()) {
-								System.out.println("Your input is empty. Please input again!:");
-							} else {
+							newItem = newItem.toUpperCase();
+							if (isItemCorrect(id, newItem)) {
 								break;
+							} else {
+								System.out.println("Your input is invalid. Please input again!:");
 							}
 						}
-						newItem = newItem.toUpperCase();
-						oldItem = oldItem.toUpperCase();
-						result = libobj.exchange(id, newItem, oldItem);
-						System.out.println(result);
-						if (result.contains("not available")) {
-							while (true) {
-								Scanner r = new Scanner(System.in);
-								String demand = r.nextLine();
-								if (demand.equals("Y") || demand.equals("y")) {
-									result1 = libobj.addToWaitlistforExchange(id, newItem, oldItem);
-									System.out.println(result1);
-									if (result1.contains("success")) {
-										writeFile(logpath, df.format(new Date()) + " " + "New: " + newItem + " Old: "
-												+ oldItem + ": Exchange successfully.");
+						if(oldItem.equals(newItem)) {
+							writeFile(logpath, df.format(new Date()) + " " + "You can not exchange the same item");
+							System.out.println("You can not exchange the same item");
+						}
+						else {
+							result = libobj.exchange(id, newItem, oldItem);
+							System.out.println(result);
+							if (result.contains("not available")) {
+								while (true) {
+									Scanner r = new Scanner(System.in);
+									String demand = r.nextLine();
+									if (demand.equals("Y") || demand.equals("y")) {
+										result1 = libobj.addToWaitlistforExchange(id, newItem, oldItem);
+										System.out.println(result1);
+										if (result1.contains("success")) {
+											writeFile(logpath, df.format(new Date()) + " " + "New: " + newItem + " Old: "
+													+ oldItem + ": Exchange successfully.");
+										} else {
+											writeFile(logpath, df.format(new Date()) + " " + "New: " + newItem + " Old: "
+													+ oldItem + ": Exchange Failed.");
+										}
+										break;
+									} else if (demand.equals("N") || demand.equals("n")) {
+										result1 = "New: " + newItem + " Old: " + oldItem
+												+ ": Exchange failed. The new book is not available.";
+										writeFile(logpath, df.format(new Date()) + " " + result1);
+										System.out.println(result1);
+										break;
 									} else {
-										writeFile(logpath, df.format(new Date()) + " " + "New: " + newItem + " Old: "
-												+ oldItem + ": Exchange Failed.");
+										System.out.println("The answer you input is invaild. Please input again!");
 									}
-									break;
-								} else if (demand.equals("N") || demand.equals("n")) {
-									result1 = "New: " + newItem + " Old: " + oldItem
-											+ ": Exchange failed. The new book is not available.";
-									writeFile(logpath, df.format(new Date()) + " " + result1);
-									System.out.println(result1);
-									break;
-								} else {
-									System.out.println("The answer you input is invaild. Please input again!");
 								}
+							} else if (result.contains("successful")) {
+								writeFile(logpath, df.format(new Date()) + " " + result);
+							} else {
+								writeFile(logpath, df.format(new Date()) + " " + result);
 							}
-						} else if (result.contains("successful")) {
-							writeFile(logpath, df.format(new Date()) + " " + result);
-						} else {
-							writeFile(logpath, df.format(new Date()) + " " + result);
-						}
 
-						continue;
+							continue;
+						}
 					} else if (option.equals("7")) {
 						System.out.println("Thank you for using Library System. Bye!");
 						break;
@@ -368,7 +383,7 @@ public class StartClient {
 					} else if (option.equals("3")) {
 						result2 = libobj.listItemAvailability(id);
 						System.out.println(result2);
-						if (result2.contains("no")) {
+						if (result2.contains("no book")) {
 							writeFile(logpath, df.format(new Date()) + " " + "List Available Items"
 									+ " Failed: No books in the library");
 						} else {
