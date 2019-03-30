@@ -15,6 +15,7 @@ public class Replica3 {
 	public LibraryObj mcgServer;
 	public LibraryObj monServer;
 	public Boolean bugFree = true;
+	public boolean crashFree = true;
 	public Queue<Message> historyQueue;
 	//public static Replica1 replica1_Instance;
 

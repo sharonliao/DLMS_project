@@ -61,13 +61,16 @@ public class ReplicaManager {
 			String[] messageSplited = message.split(":");
 			System.out.println("messageSplited[0]--" + messageSplited[0]);
 
-			switch (messageSplited[0]){
-				case "Failure" : recoverFromFailure(message); // from FE
-					             break;
-				case "recoverFromCrash": recoverFromCrash(message); // from FE
-					             break;
-				default: moveToHoldBackQueue(message,aSocket); //from Sequencer, normal operation message
-					     break;
+			switch (messageSplited[0]) {
+				case "SoftWareFailure":
+					recoverFromFailure(message); // from FE SoftWareFailure:seqID:replicaId
+					break;
+				case "Crash":
+					recoverFromCrash(message); // from FE
+					break;
+				default:
+					moveToHoldBackQueue(message, aSocket); //from Sequencer, normal operation message
+					break;
 			}
 		}}catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -82,11 +85,14 @@ public class ReplicaManager {
 
 
 	public void recoverFromFailure(String failureMsg) throws IOException {
-		logger.info("Replica "+ replicaId + " has failure");
-		//濡拷閺屻儲妲搁崥锕佺箾缂侇厼鍤柨娆庣瑏濞嗭拷
-		int msgId = 0;//濞夈劍鍓版穱顔芥暭 閸欐牕鍩岄惇鐔割劀閻ㄥ埓sgId閺夈儲鐦潏鍐╂Ц閸氾箒绻涚紒顓㈡晩娴滃棔绗佸▎锟�
-		if(checkIfFailThreeTimes(msgId)){
-			replica3.fixBug();
+		//SoftWareFailure:seqId:replicaID
+		int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
+		int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+		if (failureReplica == replicaId) {
+			logger.info("Replica " + failureReplica + " has failure");
+			if (checkIfFailThreeTimes(msgSeqId)) {
+				replica3.fixBug();
+			}
 		}
 	}
 
@@ -108,7 +114,7 @@ public class ReplicaManager {
 
 
 	public void recoverFromCrash(String msg){
-		int creshNum = Integer.parseInt(msg.split(":")[0]);
+		int creshNum = Integer.parseInt(msg.split(":")[1]);
 		try{
 			if(creshNum == replicaId){
 				//recoverFromCrash
@@ -123,15 +129,19 @@ public class ReplicaManager {
 
 	}
 
-	private void restartReplica() throws IOException{
-		//Replica1.main(null);
-		//restart 娑斿澧犵憰浣瑰Ωreplica1閻ㄥ嫮顏崣锝呭弿闁棄鍙ч幒澶涚礉娑撳秶鍔dp娴兼碍濮ら柨锟�
-		replica3 = null;
-		System.gc();
 
+	private void restartReplica() throws IOException {
+
+		//before restart need to close replica1's ports
+//		replica1.closeImpSocket();
+//		replica1 = null;
+//		System.gc();
 		replica3 = new Replica3();
 		replica3.historyQueue = this.historyQueue;
 		replica3.recoverRplicaData();
+		replica3.crashFree = true;
+		logger.info("restart and recover replica2.");
+
 	}
 
 
@@ -246,12 +256,6 @@ public class ReplicaManager {
 
 		Thread Thread2 = new Thread(TaskListener);
 		Thread2.start();
-
-		try{
-			Thread.sleep(3000);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
 
 	}
 }

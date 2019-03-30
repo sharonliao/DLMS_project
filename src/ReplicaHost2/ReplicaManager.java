@@ -66,13 +66,16 @@ public class ReplicaManager {
 			String[] messageSplited = message.split(":");
 			System.out.println("messageSplited[0]--sequencerid==" + messageSplited[0]);
 
-			switch (messageSplited[0]){
-				case "Failure" : recoverFromFailure(message); // from FE
-					             break;
-				case "recoverFromCrash": recoverFromCrash(message); // from FE
-					             break;
-				default: moveToHoldBackQueue(message,asocket); //from Sequencer, normal operation message
-					     break;
+			switch (messageSplited[0]) {
+				case "SoftWareFailure":
+					recoverFromFailure(message); // from FE SoftWareFailure:seqID:replicaId
+					break;
+				case "Crash":
+					recoverFromCrash(message); // from FE
+					break;
+				default:
+					moveToHoldBackQueue(message, asocket); //from Sequencer, normal operation message
+					break;
 			}
 
 		}
@@ -80,18 +83,21 @@ public class ReplicaManager {
 
 
 	public void recoverFromFailure(String failureMsg) throws IOException {
-		logger.info("Replica "+ replicaId + " has failure");
-		//检查是否连续出错三次
-		int msgId = 0;//注意修改 取到真正的msgId来比较是否连续错了三次
-		if(checkIfFailThreeTimes(msgId)){
-			replica2.fixBug();
+		//SoftWareFailure:seqId:replicaID
+		int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
+		int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+		if (failureReplica == replicaId) {
+			logger.info("Replica " + failureReplica + " has failure");
+			if (checkIfFailThreeTimes(msgSeqId)) {
+				replica2.fixBug();
+			}
 		}
 	}
-
 	public boolean checkIfFailThreeTimes(int msgId){
 		boolean rtn = false;
 		if (msgId+1 == latestFailureId){
 			failureTimes ++;
+			this.logger.info("failure time:" + failureTimes);
 		}else {
 			latestFailureId = msgId;
 			failureTimes = 0;
@@ -106,7 +112,7 @@ public class ReplicaManager {
 
 
 	public void recoverFromCrash(String msg){
-		int creshNum = Integer.parseInt(msg.split(":")[0]);
+		int creshNum = Integer.parseInt(msg.split(":")[1]);
 		try{
 			if(creshNum == replicaId){
 				//recoverFromCrash
@@ -114,6 +120,7 @@ public class ReplicaManager {
 				restartReplica();
 			}else {
 				//check if replica is alive
+				return;
 			}
 		}catch (IOException e){
 			e.printStackTrace();
@@ -132,6 +139,7 @@ public class ReplicaManager {
 		replica2 = new Replica2();
 		replica2.historyQueue = this.historyQueue;
 		replica2.recoverRplicaData();
+		replica2.crashFree = true;
 		logger.info("restart and recover replica2.");
 	}
 
@@ -174,7 +182,6 @@ public class ReplicaManager {
 	public Message splitMessge(String message){
 		Message msg = new Message();
 		//seqId,FEaddr,(operation,userId......)
-		//记得修改数据
 		String[] msgArry = message.split(":");
 		msg.seqId = Integer.parseInt(msgArry[0]);
 		msg.feHostAddr = msgArry[1];
@@ -243,12 +250,6 @@ public class ReplicaManager {
 
 		Thread Thread2 = new Thread(TaskListener);
 		Thread2.start();
-
-		try{
-			Thread.sleep(3000);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
 
 	}
 

@@ -68,7 +68,7 @@ public class ReplicaManager {
                     recoverFromFailure(message); // from FE SoftWareFailure:seqID:replicaId
                     break;
                 case "Crash":
-                    recoverFromCrash(message); // from FE
+                    recoverFromCrash(message); // from FE (if choose crash test, then set replica1 crashFree = fasle)
                     break;
                 default:
                     moveToHoldBackQueue(message, asocket); //from Sequencer, normal operation message
@@ -132,11 +132,11 @@ public class ReplicaManager {
 //		replica1.closeImpSocket();
 //		replica1 = null;
 //		System.gc();
-        this.logger.info("Restart Replica from crash");
         replica1 = new Replica1();
         replica1.historyQueue = this.historyQueue;
         replica1.recoverRplicaData();
         replica1.crashFree = true;
+        logger.info("restart and recover replica2.");
 
     }
 
@@ -179,7 +179,6 @@ public class ReplicaManager {
     public Message splitMessge(String message) {
         Message msg = new Message();
         //seqId,FEaddr,(operation,userId......)
-        //璁板緱淇敼鏁版嵁
         String[] msgArry = message.split(":");
         msg.seqId = Integer.parseInt(msgArry[0]);
         msg.feHostAddr = msgArry[1];
@@ -216,7 +215,8 @@ public class ReplicaManager {
             if (msg.operationMsg.indexOf("listItem") != -1 && replica1.crashFree == false) {
                 //if crashFree is false, then findItem operation crash the replica1, no msg return to FE
                 //shut down server
-                System.out.println("shut downt replica1");
+                System.out.println("Replica1 shut downt");
+                logger.info("Replica1 shut downt");
                 replica1.closeImpSocket();
                 replica1 = null;
                 return;
@@ -226,10 +226,8 @@ public class ReplicaManager {
             DatagramSocket socket = null;
             socket = new DatagramSocket();
             sendToFE(socket, reply);
-            logger.info("RM1 sends message to Replica1: " + msg.operationMsg + "; reply from Replica2: " + reply);
+            logger.info("RM1 sends message to Replica1: " + msg.operationMsg + "; reply from Replica1: " + reply);
         }
-
-
     }
 
 
@@ -240,7 +238,7 @@ public class ReplicaManager {
         aSocket.send(aPacket);
 
         logger.info("RM1 sends message to FE:" + msgFromReplica);
-        //aSocket.close();//濡傛灉涓峜olse浼氭�庝箞鏍�
+        //aSocket.close();
     }
 
 

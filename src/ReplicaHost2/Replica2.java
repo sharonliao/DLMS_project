@@ -16,7 +16,8 @@ public class Replica2 {
     public DLMSImp conServer;
     public DLMSImp mcgServer;
     public DLMSImp monServer;
-    public Boolean bugFree = true;
+    public boolean bugFree = true;
+    public boolean crashFree = true;
     public Queue<Message> historyQueue;
 
 
