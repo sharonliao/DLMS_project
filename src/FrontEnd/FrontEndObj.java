@@ -54,6 +54,7 @@ public class FrontEndObj extends FrontEndPOA {
 	private static boolean crashCase = false;
 	private static boolean voteStatus;
 	private static String sequenceID;
+
 	public static boolean isInteger(String str) {
 		Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
 		return pattern.matcher(str).matches();
@@ -157,8 +158,6 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		return resultSet.size();
 	}
-	
-	
 
 	public void receive(int portNum) {
 		DatagramSocket aSocket = null;
@@ -216,7 +215,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Ad0")) {
@@ -253,7 +252,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Re0")) {
@@ -284,7 +283,7 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase)&&(!voteStatus)) {
+				if (count >= 2 && (!failureCase) && (!voteStatus)) {
 					x = majorityList(resultSet);
 				}
 			}
@@ -294,7 +293,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.length() > 0) {
@@ -332,7 +331,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Br0")) {
@@ -377,7 +376,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.length() > 0) {
@@ -417,7 +416,7 @@ public class FrontEndObj extends FrontEndPOA {
 		if (resultSet.size() < 3) {
 			tellRMCrash(resultSet);
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Rtn0")) {
@@ -474,7 +473,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Atw0")) {
@@ -511,7 +510,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Ex0")) {
@@ -570,7 +569,7 @@ public class FrontEndObj extends FrontEndPOA {
 			if (socket != null)
 				socket.close();
 		}
-		if (resultSet.size() < 3&&crashCase) {
+		if (resultSet.size() < 3 && crashCase) {
 			tellRMCrash(resultSet);
 		}
 		if (x.equals("Ex0")) {
@@ -603,18 +602,15 @@ public class FrontEndObj extends FrontEndPOA {
 	}
 
 	private static void tellRMCrash(Map<String, String> resultSet) {
+		String msg = "";
 		if (!resultSet.containsKey("1")) {
-			String msg = "Crash" + ":" + "1";
-			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+			msg = "Crash" + ":" + "1";
 		} else if (!resultSet.containsKey("2")) {
-			String msg = "Crash" + ":" + "2";
-			;
-			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+			msg = "Crash" + ":" + "2";
 		} else if (!resultSet.containsKey("3")) {
-			String msg = "Crash" + ":" + "3";
-			;
-			multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+			msg = "Crash" + ":" + "3";
 		}
+		multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 	}
 
 	private static DatagramPacket packet(String rmAddress, byte[] data, int replica) throws UnknownHostException {
@@ -716,7 +712,6 @@ public class FrontEndObj extends FrontEndPOA {
 		}
 		return returnresult;
 	}
-	
 
 	private static void findSoftwareFail(String candidate, Integer vote, Map<String, String> resultSet) {
 		if (vote == 3)
@@ -736,9 +731,7 @@ public class FrontEndObj extends FrontEndPOA {
 				}
 			}
 		}
-		if (softwareFailCounter.get(failServerNum) != null && softwareFailCounter.get(failServerNum) == 3) {
-			sendToRM(failServerNum);
-		}
+		sendToRM(failServerNum);
 	}
 
 	private static void findSoftwareFailforHash(HashMap<String, String> candidate, Integer vote,
@@ -758,7 +751,7 @@ public class FrontEndObj extends FrontEndPOA {
 		DatagramSocket socket = null;
 		try {
 			socket = new DatagramSocket();
-			String msg = "SoftWareFailure:"+sequenceID;
+			String msg = "SoftWareFailure:" + sequenceID;
 
 			byte[] data = msg.getBytes();
 
