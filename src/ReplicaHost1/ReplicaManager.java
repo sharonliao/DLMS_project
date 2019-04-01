@@ -80,25 +80,37 @@ public class ReplicaManager {
 
     public void recoverFromFailure(String failureMsg) throws IOException {
         //SoftWareFailure:seqId:replicaID
-        int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
-        int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+        int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
+        int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {
             logger.info("Replica " + failureReplica + " has failure");
             if (checkIfFailThreeTimes(msgSeqId)) {
-                replica1.fixBug();
+                try{
+                    replica1.fixBug();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
         }
     }
 
     public boolean checkIfFailThreeTimes(int msgId) {
         boolean rtn = false;
-        if (msgId + 1 == latestFailureId) {
+        if(failureTimes==0){
             failureTimes++;
-            this.logger.info("failure time:" + failureTimes);
-        } else {
             latestFailureId = msgId;
-            failureTimes = 0;
+
+        }else if (msgId == latestFailureId+1){
+            failureTimes++;
+            latestFailureId ++;
+
+        } else{
+            failureTimes = 1;
+            latestFailureId = msgId;
+
         }
+        this.logger.info("failure time:" + failureTimes);
         if (failureTimes == 3) {
             // tell the replica correct the reply
             rtn = true;
@@ -132,10 +144,14 @@ public class ReplicaManager {
 //		replica1.closeImpSocket();
 //		replica1 = null;
 //		System.gc();
-        replica1 = new Replica1();
-        replica1.historyQueue = this.historyQueue;
-        replica1.recoverRplicaData();
-        replica1.crashFree = true;
+        try{
+            replica1 = new Replica1();
+            replica1.historyQueue = this.historyQueue;
+            replica1.recoverRplicaData();
+            replica1.crashFree = true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         logger.info("restart and recover replica2.");
 
     }
@@ -209,7 +225,7 @@ public class ReplicaManager {
      * @throws IOException
      */
     private void sendToReplicaAndGetReply(Message msg, DatagramSocket aSocket) throws IOException {
-
+        String reply = "";
 
         if (replica1 != null) {
             if (msg.operationMsg.indexOf("listItem") != -1 && replica1.crashFree == false) {
@@ -221,7 +237,18 @@ public class ReplicaManager {
                 replica1 = null;
                 return;
             }
-            String reply = msg.seqId + ":" + this.replicaId + ":" + replica1.executeMsg(msg);
+
+            if (msg.operationMsg.indexOf("listItem") != -1 && replica1.bugFree == false) {
+                //if bugFree is false, then replica1 return wrong info on findItem operation
+                //logger.info("Replica1 failure");
+                reply = msg.seqId + ":" + this.replicaId + ":AAAAAAAA,AA=0";
+            }else{
+                try{
+                    reply = msg.seqId + ":" + this.replicaId + ":" + replica1.executeMsg(msg);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
             System.out.println("reply:" + reply);
             DatagramSocket socket = null;
             socket = new DatagramSocket();

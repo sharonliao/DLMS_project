@@ -50,9 +50,10 @@ public class FrontEndObj extends FrontEndPOA {
 	static int portSeq = SequencerPort.SEQUENCER_PORT.sequencerPort;
 	String logpath;
 	String logmessage;
-	private static boolean failureCase = false;
-	private static boolean crashCase = false;
+	private static boolean failureCase = false ;
+	private static boolean crashCase = true;
 	private static boolean voteStatus;
+	private static boolean listStatus = false;
 	private static String sequenceID;
 
 	public static boolean isInteger(String str) {
@@ -112,6 +113,7 @@ public class FrontEndObj extends FrontEndPOA {
 
 	public void sendMessage(String message) throws Exception {
 		// TODO:Sequener Ip;
+		System.out.println("sendMessage");
 		DatagramSocket aSocket = null;
 		try {
 			aSocket = new DatagramSocket();
@@ -273,6 +275,7 @@ public class FrontEndObj extends FrontEndPOA {
 		String x = "";
 		sequenceID = "";
 		voteStatus = false;
+		listStatus =true;
 		int count = 0;
 		try {
 			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
@@ -283,8 +286,14 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if (count >= 2 && (!failureCase) && (!voteStatus)) {
-					x = majorityList(resultSet);
+				if(failureCase){
+					if(count==3){
+						x = majorityList(resultSet);
+					}
+				}else{
+					if (count >= 2 && (!voteStatus)) {
+						x = majorityList(resultSet);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -306,6 +315,7 @@ public class FrontEndObj extends FrontEndPOA {
 
 	@Override
 	public String borrowItem(String userID, String itemID) {
+		System.out.println("1 borrowItem");
 		Map<String, String> resultSet = new HashMap<>();
 		DatagramSocket socket = null;
 		String x = "";
@@ -315,6 +325,7 @@ public class FrontEndObj extends FrontEndPOA {
 		try {
 			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
 			String message = "borrowItem" + "," + userID + "," + itemID;
+			System.out.println("2 borrowItem");
 			sendMessage(message);
 			Timer timer = new Timer(socket, false);
 			Thread thread = new Thread(timer);
@@ -326,7 +337,7 @@ public class FrontEndObj extends FrontEndPOA {
 				}
 			}
 		} catch (Exception e) {
-			// e.printStackTrace();
+			 e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -613,6 +624,19 @@ public class FrontEndObj extends FrontEndPOA {
 		multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 	}
 
+
+	private static void tellRMFailure(String failServerNum) {
+		String msg = "SoftWareFailure";
+		if (failServerNum.equals("1")) {
+			msg = msg + ":" + "1" +":"+sequenceID;
+		} else if (failServerNum.equals("2")) {
+			msg = msg + ":" + "1" +":"+sequenceID;
+		} else if (failServerNum.equals("3")) {
+			msg = msg + ":" + "1" +":"+sequenceID;
+		}
+		multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+	}
+
 	private static DatagramPacket packet(String rmAddress, byte[] data, int replica) throws UnknownHostException {
 		InetAddress address = InetAddress.getByName(rmAddress);
 		return new DatagramPacket(data, 0, data.length, address, replica);
@@ -663,9 +687,6 @@ public class FrontEndObj extends FrontEndPOA {
 				vote = tmp;
 			}
 		}
-		if (failureCase) {
-			findSoftwareFail(candidate, vote, resultSet);
-		}
 		if (vote >= 2) {
 			voteStatus = true;
 		}
@@ -704,7 +725,7 @@ public class FrontEndObj extends FrontEndPOA {
 			stringbuilder.append(s + "," + candidate.get(s) + "\n");
 		}
 		String returnresult = stringbuilder.toString();
-		if (failureCase) {
+		if (failureCase&&listStatus) {
 			findSoftwareFailforHash(candidate, vote, result);
 		}
 		if (vote >= 2) {
@@ -744,7 +765,7 @@ public class FrontEndObj extends FrontEndPOA {
 				failServerNum = s;
 			}
 		}
-		sendToRM(failServerNum);
+		tellRMFailure(failServerNum);
 	}
 
 	private static void sendToRM(String crashServerNum) {

@@ -15,7 +15,7 @@ public class Replica1 {
 	public DLMSImp mcgServer;
 	public DLMSImp monServer;
 	public boolean bugFree = true;
-	public boolean crashFree = true;
+	public boolean crashFree = false;
 	public Queue<Message> historyQueue;
 	//public static Replica1 replica1_Instance;
 
@@ -98,9 +98,10 @@ public class Replica1 {
 
 
 	public void fixBug(){
-		conServer.bugFree = true;
-		mcgServer.bugFree = true;
-		monServer.bugFree = true;
+//		conServer.bugFree = true;
+//		mcgServer.bugFree = true;
+//		monServer.bugFree = true;
+		bugFree = true;
 	}
 
 	private DLMSImp getLibrary(String library) {
