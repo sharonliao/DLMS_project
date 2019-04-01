@@ -5,7 +5,7 @@ package FrontEndAPP;
 * FrontEndAPP/FrontEndHelper.java .
 * 由IDL-to-Java 编译器 (可移植), 版本 "3.2"生成
 * 从E:/dlms/DLMS_project/FrontEnd.idl
-* 2019年3月22日 星期五 上午11时53分28秒 EDT
+* 2019年4月1日 星期一 下午04时30分43秒 EDT
 */
 
 abstract public class FrontEndHelper

@@ -104,18 +104,30 @@ public class StartClient {
 			FrontEnd libobj;
 			String id;
 			Scanner c = new Scanner(System.in);
+			libobj = (FrontEnd) FrontEndHelper.narrow(ncRef.resolve_str("FE"));
 			System.out.println("Welcome to the Online Library System:");
+			while (true) {
+				System.out.println("Please choose the service:");
+				System.out.println("1.Software Failure");
+				System.out.println("2.Crash Failure");
+				String s ="";
+				int option = Integer.parseInt(c.nextLine());
+				if(option==1||option==2) {
+					s= libobj.setUpFailureType(option);
+					break;
+				} else {
+					System.out.println("Your input is invalid!");
+				}
+			}
+			
 			while (true) {
 				System.out.println("Please input your User:");
 				id = c.nextLine();
 				id = id.toUpperCase();
-				if (!(id.length() == 8)) {
-					System.out.println("Your UseID is not correct!");
-					continue;
-				}
 				if (isIDCorret(id)) {
-					libobj = (FrontEnd) FrontEndHelper.narrow(ncRef.resolve_str("FE"));
 					break;
+				}else {
+					System.out.println("Your UseID is invalid!");
 				}
 			}
 			String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
@@ -126,10 +138,8 @@ public class StartClient {
 					System.out.println("1.Borrow Book");
 					System.out.println("2.Return Book");
 					System.out.println("3.Find Book");
-					System.out.println("4.Check Borrow List");
-					System.out.println("5.Check Wait List");
-					System.out.println("6.Exchange Book");
-					System.out.println("7.Quit");
+					System.out.println("4.Exchange Book");
+					System.out.println("5.Quit");
 					String option = c.nextLine();
 					Scanner in1 = new Scanner(System.in);
 					String result;
@@ -206,23 +216,6 @@ public class StartClient {
 
 						continue;
 					} else if (option.equals("4")) {
-						result2 = libobj.checkBorrowList(id);
-						System.out.println(result2);
-						if (result2.contains("no")) {
-							writeFile(logpath, df.format(new Date()) + " Check Borrow List: You have no borrow record");
-						} else {
-							writeFile(logpath, df.format(new Date()) + " Check Borrow List Successfully");
-						}
-
-						continue;
-					} else if (option.equals("5")) {
-						String bookid = in1.nextLine();
-						bookid = bookid.toUpperCase();
-						result2 = libobj.checkWaitList(bookid);
-						System.out.println(result2);
-						writeFile(logpath, df.format(new Date()) + " Check Wait List");
-						continue;
-					} else if (option.equals("6")) {
 						System.out.println("Please input the ID of book you want to return");
 						String oldItem;
 						while (true) {
@@ -285,7 +278,7 @@ public class StartClient {
 
 							continue;
 						}
-					} else if (option.equals("7")) {
+					} else if (option.equals("5")) {
 						System.out.println("Thank you for using Library System. Bye!");
 						break;
 					} else {

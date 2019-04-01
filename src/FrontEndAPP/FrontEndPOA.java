@@ -5,7 +5,7 @@ package FrontEndAPP;
 * FrontEndAPP/FrontEndPOA.java .
 * 由IDL-to-Java 编译器 (可移植), 版本 "3.2"生成
 * 从E:/dlms/DLMS_project/FrontEnd.idl
-* 2019年3月22日 星期五 上午11时53分28秒 EDT
+* 2019年4月1日 星期一 下午04时30分43秒 EDT
 */
 
 public abstract class FrontEndPOA extends org.omg.PortableServer.Servant
@@ -28,7 +28,8 @@ public abstract class FrontEndPOA extends org.omg.PortableServer.Servant
     _methods.put ("addToWaitlist", new java.lang.Integer (8));
     _methods.put ("exchange", new java.lang.Integer (9));
     _methods.put ("addToWaitlistforExchange", new java.lang.Integer (10));
-    _methods.put ("shutdown", new java.lang.Integer (11));
+    _methods.put ("setUpFailureType", new java.lang.Integer (11));
+    _methods.put ("shutdown", new java.lang.Integer (12));
   }
 
   public org.omg.CORBA.portable.OutputStream _invoke (String $method,
@@ -165,7 +166,17 @@ public abstract class FrontEndPOA extends org.omg.PortableServer.Servant
          break;
        }
 
-       case 11:  // FrontEndAPP/FrontEnd/shutdown
+       case 11:  // FrontEndAPP/FrontEnd/setUpFailureType
+       {
+         int option = in.read_long ();
+         String $result = null;
+         $result = this.setUpFailureType (option);
+         out = $rh.createReply();
+         out.write_string ($result);
+         break;
+       }
+
+       case 12:  // FrontEndAPP/FrontEnd/shutdown
        {
          this.shutdown ();
          out = $rh.createReply();
