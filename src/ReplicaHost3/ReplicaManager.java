@@ -54,8 +54,9 @@ public class ReplicaManager {
 			apocket = new DatagramPacket(buf,buf.length);
 			aSocket.receive(apocket);
 			String message = new String(apocket.getData()).trim();
+			aSocket.send(apocket);
 			System.out.println("UDP receive : " + message);
-
+			
 			logger.info("RM3 receives message:"+message);
 
 			String[] messageSplited = message.split(":");
@@ -227,7 +228,7 @@ public class ReplicaManager {
 
 	private void sendToFE(DatagramSocket aSocket, String msgFromReplica) throws IOException{
 		System.out.println("sendToFE");
-		InetAddress address = InetAddress.getByName("localhost");
+		InetAddress address = InetAddress.getByName("172.20.10.2");
 		byte[] data = msgFromReplica.getBytes();
 		DatagramPacket aPacket = new DatagramPacket(data,data.length,address, FEPort.FE_PORT.RegistorPort);
 		aSocket.send(aPacket);

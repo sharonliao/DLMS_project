@@ -59,6 +59,7 @@ public class ReplicaManager {
 			apocket = new DatagramPacket(buf,buf.length);
 			asocket.receive(apocket);
 			String message = new String(apocket.getData()).trim();
+			asocket.send(apocket);
 			System.out.println("UDP receive : " + message);
 
 			logger.info("RM2 receives message:"+message);
