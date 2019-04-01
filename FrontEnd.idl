@@ -13,6 +13,7 @@ module FrontEndAPP
 		string addToWaitlist(in string userID, in string itemID);
 		string exchange(in string studentID, in string newItemID, in string oldItemID);
 		string addToWaitlistforExchange(in string studentID, in string newItemID, in string oldItemID);
+		string setUpFailureType(in long option);
     	oneway void shutdown();
     };
     

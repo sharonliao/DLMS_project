@@ -5,7 +5,7 @@ package FrontEndAPP;
 * FrontEndAPP/_FrontEndStub.java .
 * 由IDL-to-Java 编译器 (可移植), 版本 "3.2"生成
 * 从E:/dlms/DLMS_project/FrontEnd.idl
-* 2019年3月22日 星期五 上午11时53分28秒 EDT
+* 2019年4月1日 星期一 下午04时30分43秒 EDT
 */
 
 public class _FrontEndStub extends org.omg.CORBA.portable.ObjectImpl implements FrontEndAPP.FrontEnd
@@ -243,6 +243,26 @@ public class _FrontEndStub extends org.omg.CORBA.portable.ObjectImpl implements 
                 _releaseReply ($in);
             }
   } // addToWaitlistforExchange
+
+  public String setUpFailureType (int option)
+  {
+            org.omg.CORBA.portable.InputStream $in = null;
+            try {
+                org.omg.CORBA.portable.OutputStream $out = _request ("setUpFailureType", true);
+                $out.write_long (option);
+                $in = _invoke ($out);
+                String $result = $in.read_string ();
+                return $result;
+            } catch (org.omg.CORBA.portable.ApplicationException $ex) {
+                $in = $ex.getInputStream ();
+                String _id = $ex.getId ();
+                throw new org.omg.CORBA.MARSHAL (_id);
+            } catch (org.omg.CORBA.portable.RemarshalException $rm) {
+                return setUpFailureType (option        );
+            } finally {
+                _releaseReply ($in);
+            }
+  } // setUpFailureType
 
   public void shutdown ()
   {

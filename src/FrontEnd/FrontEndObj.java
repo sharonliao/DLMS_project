@@ -50,7 +50,7 @@ public class FrontEndObj extends FrontEndPOA {
 	static int portSeq = SequencerPort.SEQUENCER_PORT.sequencerPort;
 	String logpath;
 	String logmessage;
-	private static boolean failureCase = false ;
+	private static boolean failureCase = false;
 	private static boolean crashCase = true;
 	private static boolean voteStatus;
 	private static boolean listStatus = false;
@@ -123,12 +123,13 @@ public class FrontEndObj extends FrontEndPOA {
 			aSocket.send(request);
 			System.out.println("Request message sent from the client to server with port number " + portSeq + " is: "
 					+ new String(request.getData()));
-//			byte[] buffer = new byte[1000];
-//			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-//
-//			aSocket.receive(reply);
-//			System.out.println("Reply received from the server with port number " + portSeq + " is: "
-//					+ new String(reply.getData()));
+			// byte[] buffer = new byte[1000];
+			// DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+			//
+			// aSocket.receive(reply);
+			// System.out.println("Reply received from the server with port number " +
+			// portSeq + " is: "
+			// + new String(reply.getData()));
 
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -275,7 +276,7 @@ public class FrontEndObj extends FrontEndPOA {
 		String x = "";
 		sequenceID = "";
 		voteStatus = false;
-		listStatus =true;
+		listStatus = true;
 		int count = 0;
 		try {
 			socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
@@ -286,11 +287,11 @@ public class FrontEndObj extends FrontEndPOA {
 			thread.start();
 			while (count < 3 && !timer.timeout) {
 				count = registerListener(socket, resultSet);
-				if(failureCase){
-					if(count==3){
+				if (failureCase) {
+					if (count == 3) {
 						x = majorityList(resultSet);
 					}
-				}else{
+				} else {
 					if (count >= 2 && (!voteStatus)) {
 						x = majorityList(resultSet);
 					}
@@ -337,7 +338,7 @@ public class FrontEndObj extends FrontEndPOA {
 				}
 			}
 		} catch (Exception e) {
-			 e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			if (socket != null)
 				socket.close();
@@ -624,15 +625,14 @@ public class FrontEndObj extends FrontEndPOA {
 		multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 	}
 
-
 	private static void tellRMFailure(String failServerNum) {
 		String msg = "SoftWareFailure";
 		if (failServerNum.equals("1")) {
-			msg = msg + ":" + "1" +":"+sequenceID;
+			msg = msg + ":" + "1" + ":" + sequenceID;
 		} else if (failServerNum.equals("2")) {
-			msg = msg + ":" + "1" +":"+sequenceID;
+			msg = msg + ":" + "1" + ":" + sequenceID;
 		} else if (failServerNum.equals("3")) {
-			msg = msg + ":" + "1" +":"+sequenceID;
+			msg = msg + ":" + "1" + ":" + sequenceID;
 		}
 		multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
 	}
@@ -644,26 +644,37 @@ public class FrontEndObj extends FrontEndPOA {
 
 	private static void multicastCrashMsg(String msg, int sPort) {
 		DatagramSocket aSocket = null;
-		String returnMsg = "";
-		try {
-			System.out.println("Client Started........");
-			aSocket = new DatagramSocket();
-			byte[] message = msg.getBytes();
+		DatagramPacket reply = null;
+		int send_count = 0;
+		boolean revResponse = false;
+		while (!revResponse && send_count < MAXNUM) {
+			try {
+				System.out.println("Client Started........");
+				aSocket = new DatagramSocket();
+				aSocket.setSoTimeout(TIMEOUT);
+				byte[] message = msg.getBytes();
 
-			InetAddress aHost = InetAddress.getByName("224.0.0.1");
-			int serverPort = sPort;
-			DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
-			aSocket.send(request);
-			System.out.println("Request message sent from the client is : " + new String(request.getData()));
-			// byte [] buffer = new byte[1000];
-			// DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			//
-			// aSocket.receive(reply);
-			// returnMsg = new String(reply.getData()).trim();
-			// System.out.println("Reply received from the server is: "+ returnMsg);
-
-		} catch (Exception e) {
-			System.out.println("udpClient error: " + e);
+				InetAddress aHost = InetAddress.getByName("224.0.0.1");
+				int serverPort = sPort;
+				DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
+				aSocket.send(request);
+				System.out.println("Request message sent from the client is : " + new String(request.getData()));
+				// byte [] buffer = new byte[1000];
+				// DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+				//
+				// aSocket.receive(reply);
+				// returnMsg = new String(reply.getData()).trim();
+				// System.out.println("Reply received from the server is: "+ returnMsg);
+				byte[] buffer = new byte[1000];
+				reply = new DatagramPacket(buffer, buffer.length);
+				aSocket.receive(reply);
+				revResponse = true;
+			} catch (InterruptedIOException e) {
+				send_count += 1;
+				System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+			} catch (Exception e) {
+				System.out.println("udpClient error: " + e);
+			}
 		}
 	}
 
@@ -725,34 +736,13 @@ public class FrontEndObj extends FrontEndPOA {
 			stringbuilder.append(s + "," + candidate.get(s) + "\n");
 		}
 		String returnresult = stringbuilder.toString();
-		if (failureCase&&listStatus) {
+		if (failureCase && listStatus) {
 			findSoftwareFailforHash(candidate, vote, result);
 		}
 		if (vote >= 2) {
 			voteStatus = true;
 		}
 		return returnresult;
-	}
-
-	private static void findSoftwareFail(String candidate, Integer vote, Map<String, String> resultSet) {
-		if (vote == 3)
-			return;
-		String failServerNum = null;
-		for (Map.Entry<String, String> entry : resultSet.entrySet()) {
-			if (!entry.getValue().equals(candidate)) {
-				failServerNum = entry.getKey();
-			}
-		}
-		if (null != failServerNum) {
-			for (Map.Entry<String, Integer> entry : softwareFailCounter.entrySet()) {
-				if (!entry.getKey().equals(failServerNum)) {
-					entry.setValue(0);
-				} else if (entry.getKey().equals(failServerNum)) {
-					entry.setValue(entry.getValue() + 1);
-				}
-			}
-		}
-		sendToRM(failServerNum);
 	}
 
 	private static void findSoftwareFailforHash(HashMap<String, String> candidate, Integer vote,
@@ -768,38 +758,11 @@ public class FrontEndObj extends FrontEndPOA {
 		tellRMFailure(failServerNum);
 	}
 
-	private static void sendToRM(String crashServerNum) {
-		DatagramSocket socket = null;
-		try {
-			socket = new DatagramSocket();
-			String msg = "SoftWareFailure:" + sequenceID;
-
-			byte[] data = msg.getBytes();
-
-			if (crashServerNum.equals("1")) {
-				InetAddress address = InetAddress.getByName("localhost");
-				DatagramPacket packet = new DatagramPacket(data, 0, data.length, address,
-						ReplicaPort.REPLICA_PORT.replica1);
-				socket.send(packet);
-			} else if (crashServerNum.equals("2")) {
-				InetAddress address = InetAddress.getByName("localhost");
-				DatagramPacket packet = new DatagramPacket(data, 0, data.length, address,
-						ReplicaPort.REPLICA_PORT.replica2);
-				socket.send(packet);
-			} else {
-				InetAddress address = InetAddress.getByName("localhost");
-				DatagramPacket packet = new DatagramPacket(data, 0, data.length, address,
-						ReplicaPort.REPLICA_PORT.replica3);
-				socket.send(packet);
-			}
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		socket.close();
+	@Override
+	public String setUpFailureType(int option) {
+		String msg = "SetUpFailureType";
+		msg = msg + ":" + option;
+		multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+		return "send";
 	}
 }
