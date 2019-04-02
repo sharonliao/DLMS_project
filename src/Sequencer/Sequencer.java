@@ -44,7 +44,6 @@ public class Sequencer {
 
             System.out.println("====== 1. Sequencer starts ======");
             socket.receive(packet);
-
             String FEHostAddress = packet.getAddress().getHostAddress();
             String receiveMessage = new String(packet.getData(), 0, packet.getLength());
             log.info("Sequencer receive message: " + receiveMessage);
