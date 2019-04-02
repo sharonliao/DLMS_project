@@ -253,7 +253,7 @@ public class ReplicaManager {
             try {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
-                InetAddress address = InetAddress.getByName("localhost");
+                InetAddress address = InetAddress.getByName("172.20.10.2");
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
@@ -282,7 +282,7 @@ public class ReplicaManager {
         String crashConfirm = "";
         try {
             aSocket = new DatagramSocket();
-            InetAddress address = InetAddress.getByName("localhost");
+            InetAddress address = InetAddress.getByName("172.20.10.2");
             byte[] data = crashMsg.getBytes();
             DatagramPacket aPacket = new DatagramPacket(data, data.length, address, RMFailurePort);
 
