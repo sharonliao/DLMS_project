@@ -130,6 +130,7 @@ public class FrontEndObj extends FrontEndPOA {
         DatagramPacket packet = new DatagramPacket(data, data.length);
         try {
             socket.receive(packet);
+            socket.send(packet);
             String result = new String(packet.getData(), 0, packet.getLength());
 
             System.out.println("receive " + result);
