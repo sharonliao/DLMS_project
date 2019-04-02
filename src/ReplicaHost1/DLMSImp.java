@@ -71,7 +71,7 @@ public class DLMSImp {
             bookList.put(itemId, newItem);
             returnMsg = "Ad0";
         }
-        System.out.println("add book - book list闂備焦瀵ч崘濠氬箯閿燂拷" + bookList);
+        System.out.println("add book - book list闂傚倷鐒︾�笛囧礃婵犳艾绠柨鐕傛嫹" + bookList);
 
         return returnMsg;
     }
@@ -129,7 +129,7 @@ public class DLMSImp {
         String listOfBook = "";
         Collection<Item> allValue = bookList.values();
         for (Item item : allValue) {
-            listOfBook = listOfBook + item.toString() + "\n";
+            listOfBook = listOfBook + item.getItemId() +","+item.getItemName()+"="+item.getQuantity()+ "\n";
         }
 
         String msg = fomatString("availableInLocal," + managerID);
@@ -194,7 +194,7 @@ public class DLMSImp {
                 + returnInfo + "\n"
                 + waitingInfo + "\n";
 
-        return returnInfo;  //濠电姷顣介敓钘夊暱閿熻棄缍婇幃妯诲緞鐎ｎ兘鏋栭悗骞垮劚閹虫劕顭囬敐鍚ょ懓顭ㄩ崘顭戝妷濠电媴鎷峰ù鍏兼綑閻愬﹪鏌涘▎宥呭姎濠殿喗绋戣灋闁挎繂鎳忛ˉ鐘崇箾閸喎鐏︾紒瀣躬閺佸倿鎳栭埡鍐炬Х闂備礁鎲￠悷顖涚閻愪警鏁囬柛婵勫劜婵ジ鏌℃径搴㈢《缂佸娼￠弻锟犲礋闂堟稓浠╅梺璇″灟濞村洭濡甸幇鏉跨闁哄洨濮烽搴ㄦ⒑閹稿海鈽夐柣顓濈窔瀹曠敻鏁傞悾宀婃锤閻庣懓鎲＄粩绀絫inglist闂備胶鍘ч〃搴㈢濠婂嫭鍙忛柍鍝勫暟绾惧吋銇勯幘璺哄壋闁归鍏橀幃銏ゅ川婵烇讣绠戦…鍧楁嚋閻㈤潧鈷屽銈傛櫓閸嬪﹪骞婂☉銏╂晜闁告洦鍘鹃悾鎶芥煟閻樿京鍔嶆繝銏☆焽缁辩偛顓兼径瀣珫闁诲繒鍋熼崑鎾诲箯闁秵鐓曢柨鏃囧Г缁跺弶绻涚�涙〞鎴犵矙婵犲洦鏅滈悹鎭掑妿閹插綊姊婚崒姘カ闁归鍏橀幃鐑藉即濮樺啿鍘￠梺缁樻惈缁绘繈寮婚崱娑欐櫢闁跨噦鎷�
+        return returnInfo;  //婵犵數濮烽。浠嬫晸閽樺鏆遍柨鐔绘缂嶅﹪骞冨Ο璇茬窞閻庯綆鍏橀弸鏍倵楠炲灝鍔氶柟铏姇椤洭鏁愰崥銈囨嚀椤劑宕橀…鎴濆Ψ婵犵數濯撮幏宄懊归崗鍏肩稇闁绘劕锕弻娑樷枎瀹ュ懎濮庢繝娈垮枟缁嬫垼鐏嬮梺鎸庣箓閹冲繘藟閻樺磭绠鹃柛顐ゅ枎閻忥妇绱掔�ｎ亷韬柡浣稿�块幊鏍煛閸愮偓啸闂傚倷绀侀幉锟犳偡椤栨稓顩查柣鎰閺佸洭鏌涘┑鍕姕濠殿垰銈搁弻鈩冨緞鎼淬垻銆婄紓浣割槸濞硷繝寮婚敓鐘茬闂傚牊绋撴禒鈺呮⒑鐠団�崇仧婵炴潙娲俊鐢稿箛閺夎法顔婇梺鍝勬川婵兘顢欐惔銊︹拺闁圭娴烽埥澶愭煟椤撴繄绐旂�规洜鏁婚弫鍌炴偩瀹�濠冮敜闁诲海鎳撻幉锛勭博缁�绲玦nglist闂傚倷鑳堕崢褔銆冩惔銏㈩洸婵犲﹤瀚崣蹇涙煃閸濆嫬鏆熺痪鎯у悑閵囧嫰骞樼捄鍝勫闂佸綊顥撻崗姗�骞冮姀銈呭窛濠电儑璁ｇ粻鎴︹�﹂崸妤佸殝闁汇垽娼ч埛灞筋渻閵堝倹娅撻柛瀣躬楠炲﹤鈽夐姀鈺傛櫆闂佸憡娲﹂崢楣冩偩閹惰姤鐓熼柣妯夸含閸斿秵绻濋姀鈽嗙劷缂佽京鍋涢鍏煎緞鐎ｎ偅鐝梺璇茬箳閸嬬喖宕戦幘璇茬闂侇剙绉甸悡鏇㈡煥閺冨洤袚缂佽泛寮剁换娑氾拷娑欍�為幋鐘电煓濠电姴娲﹂弲婊堟偣閹帒濡块柟鎻掔秺濮婂宕掑顓犮偒闂佸綊顥撻崗姗�骞冮悜钘夊嵆婵ê鍟块崢锟犳⒑缂佹ɑ鎯堢紒缁樼箞瀵宕卞☉娆愭闂佽法鍣﹂幏锟�
     }
 
     public String returnInLocal(String userId, String itemId) {
@@ -264,7 +264,7 @@ public class DLMSImp {
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
                 System.out.println("Request received from client: " + requestMsg);
-                //闂備礁鎼粔鍫曞储瑜忓Σ鎰版晸閿燂拷 1闂備線娼уΛ鏃堝礂閻熷埖ction 2闂備線娼уΛ鏂款渻閹烘梻涓嶉柨婵嗩槸鐟欙箓骞栧ǎ顒�濡奸柛妯绘尦閺岋繝宕熼棃娑氫哗閻庢鍣崜鐔奉嚕椤愶附鏅搁柨鐕傛嫹
+                //闂傚倷绀侀幖顐ょ矓閸洖鍌ㄧ憸蹇撐ｉ幇鐗堟櫢闁跨噦鎷� 1闂傚倷绶氬褍螞閺冨牆绀傞柣鐔峰煐ction 2闂傚倷绶氬褍螞閺傛娓婚柟鐑樻⒒娑撳秹鏌ㄥ┑鍡╂Ц閻熸瑱绠撻獮鏍庨锟芥俊濂告煕濡粯灏﹂柡宀嬬節瀹曠喖妫冨☉姘摋闁诲孩顔栭崳顕�宕滈悢濂夊殨妞ゆ劧闄勯弲鎼佹煥閻曞倹瀚�
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
@@ -414,7 +414,7 @@ public class DLMSImp {
             returnInfo = udpCommunication(itemId, message);
         }
         System.out.print("checkIfReturnAvailable1 returnInfo --- " + returnInfo);
-        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 闂備胶鍋ㄩ崕鏌ュ蓟閿熺姵鏅搁柤鎭掑劜閻撴盯鏌ㄩ悢璇残撻柡宀嬬節閺佹捇寮妶鍡楊伓 "
+        String info = "Check if user(" + userId + ") borrowed the Book(" + itemId + ") 闂傚倷鑳堕崑銊╁磿閺屻儱钃熼柨鐔哄У閺呮悂鏌ら幁鎺戝姕闁绘挻鐩弻銊╂偄鐠囨畫鎾绘煛瀹�瀣瘈闁轰焦鎹囧顒勫Χ閸℃浼� "
                 + returnInfo + "\n";
         //writeLog(info);
         return returnInfo;
@@ -574,7 +574,7 @@ public class DLMSImp {
                     }
                 }
             } while (getNextUser);
-            System.out.println("waitingUId 闂備胶鍘ч〃搴㈢濠婂嫭鍙忛柍鍝勬噹绾惧綊鏌ｉ弮鍥ㄧ【濠殿喗鐩弻銊モ槈閾忣偄顏�" + waitingUId);
+            System.out.println("waitingUId 闂傚倷鑳堕崢褔銆冩惔銏㈩洸婵犲﹤瀚崣蹇涙煃閸濆嫭鍣圭痪鎯х秺閺岋綁寮崶銊с�愭繝娈垮枟閻╊垶寮婚妸銉㈡闁惧浚鍋勯锟�" + waitingUId);
 
             String userAndItemID = waitingUId + "-" + itemId;
 

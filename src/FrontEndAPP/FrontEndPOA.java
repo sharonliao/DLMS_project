@@ -5,7 +5,7 @@ package FrontEndAPP;
 * FrontEndAPP/FrontEndPOA.java .
 * 由IDL-to-Java 编译器 (可移植), 版本 "3.2"生成
 * 从E:/dlms/DLMS_project/FrontEnd.idl
-* 2019年4月1日 星期一 下午04时30分43秒 EDT
+* 2019年4月2日 星期二 下午01时46分07秒 EDT
 */
 
 public abstract class FrontEndPOA extends org.omg.PortableServer.Servant

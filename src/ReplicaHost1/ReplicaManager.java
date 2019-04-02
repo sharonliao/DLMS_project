@@ -23,7 +23,7 @@ public class ReplicaManager {
     Queue<Message> deliveryQueue;
     Queue<Message> historyQueue;
     private static final int MAXNUM = 5;
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 2000;
     public int crashConfirm = 0;
 
     ReplicaManager(Logger logger) {
@@ -50,7 +50,6 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM1 is listenning ");
-
         MulticastSocket asocket = new MulticastSocket(RMPort);
         asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
 
@@ -59,7 +58,7 @@ public class ReplicaManager {
             apocket = new DatagramPacket(buf, buf.length);
             asocket.receive(apocket);
             String message = new String(apocket.getData()).trim();
-            //asocket.send(apocket);//acknowledge
+            asocket.send(apocket);//acknowledge
             System.out.println("UDP receive : " + message);
 
             logger.info("RM1 receives message:" + message);
@@ -276,28 +275,28 @@ public class ReplicaManager {
         DatagramPacket reply = null;
         int send_count = 0;
         boolean revResponse = false;
-        //while (!revResponse && send_count < MAXNUM) {
+        while (!revResponse && send_count < MAXNUM) {
             try {
-                //aSocket.setSoTimeout(TIMEOUT);
+                aSocket.setSoTimeout(TIMEOUT);
                 InetAddress address = InetAddress.getByName("localhost");
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
 
-//                byte[] buffer = new byte[1000];
-//                reply = new DatagramPacket(buffer, buffer.length);
-//                aSocket.receive(reply);
-//                revResponse = true;
+                byte[] buffer = new byte[1000];
+                reply = new DatagramPacket(buffer, buffer.length);
+                aSocket.receive(reply);
+                revResponse = true;
                 logger.info("RM1 sends message to FE:" + msgFromReplica);
                 // aSocket.close();
             } catch (InterruptedIOException e) {
-                //send_count += 1;
-                //System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+                send_count += 1;
+                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
             }
         }
-    //}
+    }
 
 
     private void sendCrashToRM(int RMFailurePort, String crashMsg) {
