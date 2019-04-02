@@ -130,7 +130,7 @@ public class FrontEndObj extends FrontEndPOA {
         DatagramPacket packet = new DatagramPacket(data, data.length);
         try {
             socket.receive(packet);
-            socket.send(packet);
+            //socket.send(packet);
             String result = new String(packet.getData(), 0, packet.getLength());
 
             System.out.println("receive " + result);
@@ -631,11 +631,11 @@ public class FrontEndObj extends FrontEndPOA {
         DatagramPacket reply = null;
         int send_count = 0;
         boolean revResponse = false;
-        while (!revResponse && send_count < MAXNUM) {
+       // while (!revResponse && send_count < MAXNUM) {
             try {
                 System.out.println("Client Started........");
                 aSocket = new DatagramSocket();
-                aSocket.setSoTimeout(TIMEOUT);
+                //aSocket.setSoTimeout(TIMEOUT);
                 byte[] message = msg.getBytes();
 
                 InetAddress aHost = InetAddress.getByName("224.0.0.1");
@@ -649,18 +649,18 @@ public class FrontEndObj extends FrontEndPOA {
                 // aSocket.receive(reply);
                 // returnMsg = new String(reply.getData()).trim();
                 // System.out.println("Reply received from the server is: "+ returnMsg);
-                byte[] buffer = new byte[1000];
-                reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(reply);
-                revResponse = true;
+//                byte[] buffer = new byte[1000];
+//                reply = new DatagramPacket(buffer, buffer.length);
+//                aSocket.receive(reply);
+//                revResponse = true;
             } catch (InterruptedIOException e) {
-                send_count += 1;
-                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+                //send_count += 1;
+                //System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
             }
         }
-    }
+    //}
 
     private static String majority(Map<String, String> resultSet) {
         Map<String, Integer> map = new HashMap<>();

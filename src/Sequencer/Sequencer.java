@@ -72,11 +72,11 @@ public class Sequencer {
         DatagramPacket reply = null;
         int send_count = 0;
         boolean revResponse = false;
-        while (!revResponse && send_count < MAXNUM) {
+//        while (!revResponse && send_count < MAXNUM) {
             try {
                 System.out.println("Client Started........");
                 aSocket = new DatagramSocket();
-                aSocket.setSoTimeout(TIMEOUT);
+                //aSocket.setSoTimeout(TIMEOUT);
                 byte[] message = msg.getBytes();
 
                 InetAddress aHost = InetAddress.getByName("224.0.0.1");
@@ -86,10 +86,12 @@ public class Sequencer {
                 log.info("Sequencer multicasts message: " + msg);
                 System.out.println("Request message sent from the client is : " + new String(request.getData()));
 
-                byte[] buffer = new byte[1000];
-                reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(reply);
-                revResponse = true;
+//                byte[] buffer = new byte[1000];
+//                reply = new DatagramPacket(buffer, buffer.length);
+//                aSocket.receive(reply);
+//                revResponse = true;
+
+
 //            byte [] buffer = new byte[1000];
 //            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 //
@@ -98,12 +100,12 @@ public class Sequencer {
 //            System.out.println("Reply received from the server is: "+ returnMsg);
 
             } catch (InterruptedIOException e) {
-                send_count += 1;
-                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+                //send_count += 1;
+                //System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
             }
-        }
+        //}
 //		//the host address of replica
 //		InetAddress address = InetAddress.getByName("localhost");
 //

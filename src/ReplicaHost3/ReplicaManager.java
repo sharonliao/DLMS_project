@@ -24,6 +24,7 @@ public class ReplicaManager {
     Queue<Message> historyQueue;
     private static final int MAXNUM = 5;
     private static final int TIMEOUT = 5000;
+    public int crashConfirm = 0;
 
     ReplicaManager(Logger logger) {
 
@@ -57,7 +58,7 @@ public class ReplicaManager {
                 apocket = new DatagramPacket(buf, buf.length);
                 aSocket.receive(apocket);
                 String message = new String(apocket.getData()).trim();
-                aSocket.send(apocket);
+               // aSocket.send(apocket);
                 System.out.println("UDP receive : " + message);
 
                 logger.info("RM3 receives message:" + message);
@@ -131,18 +132,20 @@ public class ReplicaManager {
 
     public void recoverFromCrash(String msg) {
         int creshNum = Integer.parseInt(msg.split(":")[1]);
-        try {
-            if (creshNum == replicaId) {
-                // recoverFromCrash
-                this.logger.info("Crash: Replica" + replicaId);
-                restartReplica();
-            } else {
-                // check if replica is alive
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (creshNum == replicaId) {
+            // recoverFromCrash
+            this.logger.info("Crash: Replica" + replicaId);
+        } else {
+            String crashInfo = "IfCrash";
+            System.out.println("reply:" + crashInfo);
 
+            switch (creshNum){//check if replica1 is alive
+                case 2 : sendCrashToRM(RMPort.RM_PORT.rmPort2_failure,crashInfo);
+                    break;
+                case 1:  sendCrashToRM(RMPort.RM_PORT.rmPort1_failure,crashInfo);
+                    break;
+            }
+        }
     }
 
     private void restartReplica() throws IOException {
@@ -246,28 +249,105 @@ public class ReplicaManager {
         DatagramPacket reply = null;
         int send_count = 0;
         boolean revResponse = false;
-        while (!revResponse && send_count < MAXNUM) {
+        //while (!revResponse && send_count < MAXNUM) {
             try {
                 System.out.println("sendToFE");
-                aSocket.setSoTimeout(TIMEOUT);
+                //aSocket.setSoTimeout(TIMEOUT);
                 InetAddress address = InetAddress.getByName("localhost");
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
-                byte[] buffer = new byte[1000];
-                reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(reply);
-                revResponse = true;
+//                byte[] buffer = new byte[1000];
+//                reply = new DatagramPacket(buffer, buffer.length);
+//                aSocket.receive(reply);
+//                revResponse = true;
                 logger.info("RM3 sends message to FE:" + msgFromReplica);
                 // aSocket.close();//婵″倹鐏夋稉宄渙lse娴兼碍锟藉簼绠為弽锟�
             } catch (InterruptedIOException e) {
-                send_count += 1;
-                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+                //send_count += 1;
+                //System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
             }
         }
 
+    //}
+
+    private void sendCrashToRM(int RMFailurePort, String crashMsg) {
+
+        DatagramPacket reply = null;
+        int send_count = 0;
+        boolean revResponse = false;
+        DatagramSocket aSocket = null;
+        String crashConfirm = "";
+        try {
+            aSocket = new DatagramSocket();
+            InetAddress address = InetAddress.getByName("localhost");
+            byte[] data = crashMsg.getBytes();
+            DatagramPacket aPacket = new DatagramPacket(data, data.length, address, RMFailurePort);
+
+            aSocket.send(aPacket);
+            byte[] buffer = new byte[1000];
+            reply = new DatagramPacket(buffer, buffer.length);
+            logger.info("RM1 sends crush message to RM:" + crashMsg);
+
+            aSocket.receive(reply);
+            crashConfirm =  new String(reply.getData()).trim();
+            logger.info("crashConfirm: " + crashConfirm);
+
+            if(crashConfirm.equals("DidCrash")){
+                byte[] msg = "RestartReplica".getBytes();
+                DatagramPacket restartPacket = new DatagramPacket(msg, msg.length, address, RMFailurePort);
+                aSocket.send(restartPacket);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void startCrashListener(int crashPort){
+        try{
+            DatagramSocket asocket = new DatagramSocket(crashPort);
+            DatagramPacket apocket = null;
+            byte[] buf = null;
+            logger.info("RM crash is listenning ");
+            while (true){
+                buf = new byte[2000];
+                apocket = new DatagramPacket(buf, buf.length);
+                asocket.receive(apocket);
+                String message = new String(apocket.getData()).trim();
+                System.out.println("UDP RM1 crash receive : " + message);
+                String[] messageSplited = message.split(":");
+                System.out.println("messageSplited[0]--" + messageSplited[0]);
+
+                switch (messageSplited[0]) {
+                    case "IfCrash": //other rms send udp msg to ask if rm1 crash
+                        replyCrashChecking(asocket,apocket);
+                        break;
+                    case "RestartReplica"://other rms confirm rm1 did crash
+                        crashConfirm ++;
+                        if(crashConfirm>=2){
+                            restartReplica();
+                            crashConfirm = 0;
+                        }
+                        break;
+                }
+            }
+        }catch (Exception e){
+
+        }
+    }
+
+    public void replyCrashChecking(DatagramSocket asocket, DatagramPacket apocket) throws IOException {
+        String result = "Alive";
+        try{
+            boolean isAlive = replica3.monServer.aSocket.isConnected();
+        }catch (Exception e){
+            result = "DidCrash";
+        }
+        DatagramPacket replyP = new DatagramPacket(result.getBytes(),result.getBytes().length,apocket.getAddress(),apocket.getPort());
+        asocket.send(replyP);
     }
 
     public static void main(String[] args) throws IOException {
@@ -290,5 +370,14 @@ public class ReplicaManager {
         Thread Thread2 = new Thread(TaskListener);
         Thread2.start();
 
+        Runnable crashListener = () -> {
+            try {
+                rm.startCrashListener(RMPort.RM_PORT.rmPort3_failure);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+        Thread Thread3 = new Thread(crashListener);
+        Thread3.start();
     }
 }
