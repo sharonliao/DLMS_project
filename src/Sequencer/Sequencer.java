@@ -89,6 +89,8 @@ public class Sequencer {
                 byte[] buffer = new byte[1000];
                 reply = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(reply);
+                String returnMsg = new String(reply.getData()).trim();
+                System.out.println("Reply received from the server is: "+ returnMsg);
                 revResponse = true;
 
 

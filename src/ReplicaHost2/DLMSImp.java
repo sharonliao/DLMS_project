@@ -292,12 +292,18 @@ public class DLMSImp {
                 String key = entry.getKey();
                 if (UserBorrow.get(key).contains(itemID) && key.equals(userID)) {
                     List list = UserBorrow.get(key);
+                    System.out.println("userborrow before:"+UserBorrow);
+                    System.out.println("waitlist before :"+WaitList);
                     for (int i = 0; i < list.size(); i++) {
                         if (itemID.equals(list.get(i))) {
+                            System.out.println("list.get(i):"+list.get(i));
                             list.remove(i);
                             if (list.size() == 0) {
                                 it.remove();
                             }
+
+                            System.out.println("userborrow after:"+UserBorrow);
+
                             if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
                                 while (WaitList.get(itemID).size() != 0) {
                                     String userwl = WaitList.get(itemID).peek();
@@ -312,6 +318,7 @@ public class DLMSImp {
                                             UserBorrow.put(userwl, list2);
                                         }
                                         WaitList.get(itemID).poll();
+                                        System.out.println("waitlist after :"+WaitList);
                                         break;
                                     } else {
                                         if (UserBorrow.containsKey(WaitList.get(itemID).peek())) {
@@ -324,8 +331,10 @@ public class DLMSImp {
                                             List list3 = new LinkedList<String>();
                                             list3.add(itemID);
                                             UserBorrow.put(userwl, list3);
+                                            WaitList.get(itemID).poll();
                                             break;
                                         }
+
                                     }
                                 }
                                 removeNullWaitlist(WaitList);
