@@ -5,10 +5,8 @@ import java.util.Queue;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import Model.Message;
 import Model.logSetFormatter;
-import ReplicaHost1.Replica1;
 
 public class Replica2 {
 
@@ -105,9 +103,10 @@ public class Replica2 {
     }
 
     public void fixBug() {
-        conServer.bugFree = true;
-        mcgServer.bugFree = true;
-        monServer.bugFree = true;
+//        conServer.bugFree = true;
+//        mcgServer.bugFree = true;
+//        monServer.bugFree = true;
+        bugFree=true;
     }
 
     private DLMSImp getLibrary(String library) {

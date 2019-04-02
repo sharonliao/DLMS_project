@@ -29,7 +29,7 @@ public class DLMSImp {
     String library;
     public boolean bugFree = false;
 
-    public DLMSImp(String local, int localPort,Logger log) {
+    public DLMSImp(String local, int localPort, Logger log) {
         this.log = log;
         this.LocalPort = localPort;
         this.library = local;
@@ -101,7 +101,7 @@ public class DLMSImp {
                 }
                 removeNullWaitlist(WaitList);
             }
-            log.info("Add item: "+managerID+", "+itemID+", "+quantity+": "+answer);
+            log.info("Add item: " + managerID + ", " + itemID + ", " + quantity + ": " + answer);
             return answer;
         }
     }
@@ -167,7 +167,7 @@ public class DLMSImp {
             } else {
                 answer = "Re3";   ///item not exist
             }
-            log.info("Remove item: "+managerID+", "+itemID+", "+quantity+": "+answer);
+            log.info("Remove item: " + managerID + ", " + itemID + ", " + quantity + ": " + answer);
             return answer;
         }
     }
@@ -178,7 +178,7 @@ public class DLMSImp {
             for (String key : map.keySet()) {
                 answer += key + "," + map.get(key).getItemName() + "=" + map.get(key).getQuantity() + "\n";
             }
-            log.info("List item: "+managerID+": "+answer);
+            log.info("List item: " + managerID + ": " + answer);
             return answer.trim();
         }
 
@@ -193,7 +193,7 @@ public class DLMSImp {
                 answer = sendToUdpServer(itemID, "Borrow item:" + "&" + userID + "&" + itemID);
             }
         }
-        log.info("Borrow item: "+userID+", "+itemID+": "+answer);
+        log.info("Borrow item: " + userID + ", " + itemID + ": " + answer);
         return answer;
     }
 
@@ -249,7 +249,7 @@ public class DLMSImp {
             answer += sendMessage(DLMS_Port.PORT.CON_PORT, "Find:" + "&" + userID + "&" + itemName)
                     + sendMessage(DLMS_Port.PORT.MCG_PORT, "Find:" + "&" + userID + "&" + itemName);
         }
-        log.info("Find item: "+userID+": "+answer);
+        log.info("Find item: " + userID + ": " + answer);
         return answer.trim();
     }
 
@@ -258,7 +258,7 @@ public class DLMSImp {
         for (Object key : map.keySet()) {
             Item value = (Item) map.get(key);
             if (value.getItemName().equals(name)) {
-                answer += value.getItemId()+","+value.getQuantity() + "\n";
+                answer += value.getItemId() + "," + value.getQuantity() + "\n";
             }
         }
 
@@ -274,7 +274,7 @@ public class DLMSImp {
 
                 answer = sendToUdpServer(itemID, "Return item:" + "&" + userID + "&" + itemID);
             }
-            log.info("Return item: "+userID+", "+itemID+": "+answer);
+            log.info("Return item: " + userID + ", " + itemID + ": " + answer);
             return answer;
         }
     }
@@ -378,7 +378,7 @@ public class DLMSImp {
             } else {
                 answer = sendToUdpServer(itemID, "Addlist:" + "&" + userID + "&" + itemID);
             }
-            log.info("Add waitlist: "+userID+", "+itemID+": "+answer);
+            log.info("Add waitlist: " + userID + ", " + itemID + ": " + answer);
             return answer;
         }
     }
@@ -488,10 +488,10 @@ public class DLMSImp {
                                     "Return old item:" + "&" + userID + "&" + oldItemID);
                         }
                         if (replyreturn.equals("Successfully return.")) {
-                            answer ="Ex0"; // "Successfully exchange.";
+                            answer = "Ex0"; // "Successfully exchange.";
                         } else {
                             String str;
-                            System.out.println("replyreturn not equals====Successfully return."+replyborrow);
+                            System.out.println("replyreturn not equals====Successfully return." + replyborrow);
                             if (userID.substring(0, 3).equalsIgnoreCase(newItemID.substring(0, 3))) {
                                 str = returnNewItem(userID, newItemID);
                             } else {
@@ -508,7 +508,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
-            log.info("Exchange item: "+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
+            log.info("Exchange item: " + userID + ", newItem-" + newItemID + ", oldItem-" + oldItemID + ": " + answer);
             return answer;
         }
     }
@@ -549,7 +549,7 @@ public class DLMSImp {
                             answer = "Ex0"; //"Successfully exchange.";
                         } else {
                             String ss;
-                            System.out.println("reply return not equals====Successfully return."+replyborrow);
+                            System.out.println("reply return not equals====Successfully return." + replyborrow);
                             if (userID.substring(0, 3).equalsIgnoreCase(newItemID.substring(0, 3))) {
                                 ss = returnNewItem(userID, newItemID);
                             } else {
@@ -586,7 +586,7 @@ public class DLMSImp {
             } else {
                 return replyold;
             }
-            log.info("Add to waitlist for Exchange item: "+userID+", newItem-"+newItemID+", oldItem-"+oldItemID+": "+answer);
+            log.info("Add to waitlist for Exchange item: " + userID + ", newItem-" + newItemID + ", oldItem-" + oldItemID + ": " + answer);
             return answer;
         }
     }

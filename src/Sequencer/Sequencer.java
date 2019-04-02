@@ -15,81 +15,81 @@ import Model.logSetFormatter;
 
 public class Sequencer {
 
-	private Integer sequenceNumber;
-	private Logger log;
-	private static final int MAXNUM = 5;
-	private static final int TIMEOUT = 5000;
+    private Integer sequenceNumber;
+    private Logger log;
+    private static final int MAXNUM = 5;
+    private static final int TIMEOUT = 5000;
 
-	public Sequencer(Logger log) {
-		this.sequenceNumber = 0;
-		this.log = log;
-	}
+    public Sequencer(Logger log) {
+        this.sequenceNumber = 0;
+        this.log = log;
+    }
 
-	/**
-	 * Receive request from FE and packet the msg with sequencer number
-	 * 
-	 * @param udpPort
-	 * @throws IOException
-	 */
-	public void receiveMessage(int udpPort) throws IOException {
-		DatagramSocket socket = new DatagramSocket(udpPort);
-		DatagramPacket packet = null;
-		byte[] data = null;
-		// int count = 0;
+    /**
+     * Receive request from FE and packet the msg with sequencer number
+     *
+     * @param udpPort
+     * @throws IOException
+     */
+    public void receiveMessage(int udpPort) throws IOException {
+        DatagramSocket socket = new DatagramSocket(udpPort);
+        DatagramPacket packet = null;
+        byte[] data = null;
+        // int count = 0;
 
-		log.info("Sequencer starts! ");
-		while (true) {
-			data = new byte[1024];
-			packet = new DatagramPacket(data, data.length);
+        log.info("Sequencer starts! ");
+        while (true) {
+            data = new byte[1024];
+            packet = new DatagramPacket(data, data.length);
 
-			System.out.println("====== 1. Sequencer starts ======");
-			socket.receive(packet);
+            System.out.println("====== 1. Sequencer starts ======");
+            socket.receive(packet);
 
-			String FEHostAddress = packet.getAddress().getHostAddress();
-			String receiveMessage = new String(packet.getData(), 0, packet.getLength());
-			log.info("Sequencer receive message: " + receiveMessage);
+            String FEHostAddress = packet.getAddress().getHostAddress();
+            String receiveMessage = new String(packet.getData(), 0, packet.getLength());
+            log.info("Sequencer receive message: " + receiveMessage);
 
-			synchronized (this.sequenceNumber) {
-				String sendMessage = this.sequenceNumber.toString() + ":" + FEHostAddress + ":" + receiveMessage;
-				this.sequenceNumber++;
+            synchronized (this.sequenceNumber) {
+                String sendMessage = this.sequenceNumber.toString() + ":" + FEHostAddress + ":" + receiveMessage;
+                this.sequenceNumber++;
 
-				multicastMessage(sendMessage, RMPort.RM_PORT.rmPort1);
+                multicastMessage(sendMessage, RMPort.RM_PORT.rmPort1);
 
-				// log.info("Sequencer multicasts message: "+sendMessage);
-			}
-			// count++;
-			// System.out.println("Server Connected锛�" + count);
-			// InetAddress address = packet.getAddress();
-			// System.out.println("Server IP锛�" + address.getHostAddress());
-		}
-	}
+                // log.info("Sequencer multicasts message: "+sendMessage);
+            }
+            // count++;
+            // System.out.println("Server Connected锛�" + count);
+            // InetAddress address = packet.getAddress();
+            // System.out.println("Server IP锛�" + address.getHostAddress());
+        }
+    }
 
-	/**
-	 * multicast message to rms
-	 */
-	private void multicastMessage(String msg, int sPort) throws IOException {
-		DatagramSocket aSocket = null;
-		DatagramPacket reply = null;
-		int send_count = 0;
-		boolean revResponse = false;
-		while (!revResponse && send_count < MAXNUM) {
-			try {
-				System.out.println("Client Started........");
-				aSocket = new DatagramSocket();
-				aSocket.setSoTimeout(TIMEOUT);
-				byte[] message = msg.getBytes();
+    /**
+     * multicast message to rms
+     */
+    private void multicastMessage(String msg, int sPort) throws IOException {
+        DatagramSocket aSocket = null;
+        DatagramPacket reply = null;
+        int send_count = 0;
+        boolean revResponse = false;
+        while (!revResponse && send_count < MAXNUM) {
+            try {
+                System.out.println("Client Started........");
+                aSocket = new DatagramSocket();
+                aSocket.setSoTimeout(TIMEOUT);
+                byte[] message = msg.getBytes();
 
-				InetAddress aHost = InetAddress.getByName("224.0.0.1");
-				int serverPort = sPort;
-				DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
-				aSocket.send(request);
-				log.info("Sequencer multicasts message: " + msg);
-				System.out.println("Request message sent from the client is : " + new String(request.getData()));
+                InetAddress aHost = InetAddress.getByName("224.0.0.1");
+                int serverPort = sPort;
+                DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
+                aSocket.send(request);
+                log.info("Sequencer multicasts message: " + msg);
+                System.out.println("Request message sent from the client is : " + new String(request.getData()));
 
-				byte[] buffer = new byte[1000];
-				reply = new DatagramPacket(buffer, buffer.length);
-				aSocket.receive(reply);
-				revResponse = true;
+                byte[] buffer = new byte[1000];
+                reply = new DatagramPacket(buffer, buffer.length);
+                aSocket.receive(reply);
+                revResponse = true;
 //            byte [] buffer = new byte[1000];
 //            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 //
@@ -97,13 +97,13 @@ public class Sequencer {
 //            returnMsg = new String(reply.getData()).trim();
 //            System.out.println("Reply received from the server is: "+ returnMsg);
 
-			} catch (InterruptedIOException e) {
-				send_count += 1;
-				System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
-			} catch (Exception e) {
-				System.out.println("udpClient error: " + e);
-			}
-		}
+            } catch (InterruptedIOException e) {
+                send_count += 1;
+                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+            } catch (Exception e) {
+                System.out.println("udpClient error: " + e);
+            }
+        }
 //		//the host address of replica
 //		InetAddress address = InetAddress.getByName("localhost");
 //
@@ -116,16 +116,16 @@ public class Sequencer {
 //		socket.send(sendPacket1);
 //		socket.send(sendPacket2);
 //		socket.send(sendPacket3);
-	}
+    }
 
-	public static void main(String[] args) throws IOException {
-		Logger log = Logger.getLogger("Sequencer.log");
-		log.setLevel(Level.ALL);
-		FileHandler handler = new FileHandler("Sequencer.log");
-		handler.setFormatter(new logSetFormatter());
-		log.addHandler(handler);
+    public static void main(String[] args) throws IOException {
+        Logger log = Logger.getLogger("Sequencer.log");
+        log.setLevel(Level.ALL);
+        FileHandler handler = new FileHandler("Sequencer.log");
+        handler.setFormatter(new logSetFormatter());
+        log.addHandler(handler);
 
-		Sequencer sequencer = new Sequencer(log);
-		sequencer.receiveMessage(SequencerPort.SEQUENCER_PORT.sequencerPort);
-	}
+        Sequencer sequencer = new Sequencer(log);
+        sequencer.receiveMessage(SequencerPort.SEQUENCER_PORT.sequencerPort);
+    }
 }

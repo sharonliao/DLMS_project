@@ -1,24 +1,16 @@
 package ReplicaHost1;
 
-
 import Model.Item;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DLMSImp {
-    public boolean bugFree = false;
     private HashMap<String, Integer> portMap = new HashMap<>();
     DatagramSocket aSocket = null;
     Logger log;

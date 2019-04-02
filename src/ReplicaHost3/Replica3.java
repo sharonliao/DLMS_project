@@ -98,9 +98,10 @@ public class Replica3 {
 
 
 	public void fixBug(){
-		conServer.bugFree = true;
-		mcgServer.bugFree = true;
-		monServer.bugFree = true;
+//		conServer.bugFree = true;
+//		mcgServer.bugFree = true;
+//		monServer.bugFree = true;
+		bugFree=true;
 	}
 
 	private LibraryObj getLibrary(String library) {
