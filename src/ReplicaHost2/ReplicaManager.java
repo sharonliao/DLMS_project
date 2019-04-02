@@ -26,7 +26,7 @@ public class ReplicaManager {
     Queue<Message> deliveryQueue;
     Queue<Message> historyQueue;
     private static final int MAXNUM = 5;
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 2000;
     public int crashConfirm = 0;
 
     ReplicaManager(Logger logger) {
@@ -48,43 +48,52 @@ public class ReplicaManager {
      * @param RMPort
      * @throws Exception
      */
-    public void startRMListener(int RMPort) throws Exception {
+    public void startRMListener(int RMPort){
         // DatagramSocket asocket = new DatagramSocket(RMPort);
         DatagramPacket apocket = null;
         byte[] buf = null;
-        logger.info("RM1 is listenning ");
+        logger.info("RM2 is listenning ");
+        MulticastSocket asocket = null ;
+        try {
+        	asocket= new MulticastSocket(RMPort);
+            asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+            while (true) {
+                buf = new byte[2000];
+                apocket = new DatagramPacket(buf, buf.length);
+                asocket.receive(apocket);
+                String message = new String(apocket.getData()).trim();
+                asocket.send(apocket);//acknowledge
+                System.out.println("UDP receive : " + message);
 
-        MulticastSocket asocket = new MulticastSocket(RMPort);
-        asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+                logger.info("RM2 receives message:" + message);
 
-        while (true) {
-            buf = new byte[2000];
-            apocket = new DatagramPacket(buf, buf.length);
-            asocket.receive(apocket);
-            String message = new String(apocket.getData()).trim();
-            //asocket.send(apocket);//acknowledge
-            System.out.println("UDP receive : " + message);
+                String[] messageSplited = message.split(":");
+                System.out.println("messageSplited[0]--" + messageSplited[0]);
 
-            logger.info("RM1 receives message:" + message);
-
-            String[] messageSplited = message.split(":");
-            System.out.println("messageSplited[0]--" + messageSplited[0]);
-
-            switch (messageSplited[0]) {
-                case "SoftWareFailure":
-                    recoverFromFailure(message); // from FE SoftWareFailure:seqID:replicaId
-                    break;
-                case "Crash":
-                    recoverFromCrash(message); // from FE (if choose crash test, then set replica1 crashFree = fasle)
-                    break;
-                case "SetUpFailureType":
-                    setUpType(message);
-                    break;
-                default:
-                    moveToHoldBackQueue(message, asocket); // from Sequencer, normal operation message
-                    break;
+                switch (messageSplited[0]) {
+                    case "SoftWareFailure":
+                        recoverFromFailure(message); // from FE SoftWareFailure:seqID:replicaId
+                        break;
+                    case "Crash":
+                        recoverFromCrash(message); // from FE (if choose crash test, then set replica1 crashFree = fasle)
+                        break;
+                    case "SetUpFailureType":
+                        setUpType(message);
+                        break;
+                    default:
+                        moveToHoldBackQueue(message, asocket); // from Sequencer, normal operation message
+                        break;
+                }
             }
+        }catch (SocketException e) {
+            System.out.println("Socket: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("IO: " + e.getMessage());
+        } finally {
+            if (asocket != null)
+            	asocket.close();
         }
+        
     }
 
 
@@ -250,7 +259,9 @@ public class ReplicaManager {
         System.out.println("sendToReplicaAndGetReply");
         String reply = msg.seqId + ":" + this.replicaId + ":" + replica2.executeMsg(msg);
         System.out.println("reply:" + reply);
-        sendToFE(aSocket, reply);
+        DatagramSocket socket = null;
+        socket = new DatagramSocket();
+        sendToFE(socket, reply);
         logger.info("RM2 sends message to Replica2: " + msg.operationMsg + "; reply from Replica2: " + reply);
 
     }
@@ -259,28 +270,28 @@ public class ReplicaManager {
         DatagramPacket reply = null;
         int send_count = 0;
         boolean revResponse = false;
-        //while (!revResponse && send_count < MAXNUM) {
+        while (!revResponse && send_count < MAXNUM) {
             try {
                 System.out.println("sendToFE");
-                //aSocket.setSoTimeout(TIMEOUT);
+                aSocket.setSoTimeout(TIMEOUT);
                 InetAddress address = InetAddress.getByName("localhost");
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
-//                byte[] buffer = new byte[1000];
-//                reply = new DatagramPacket(buffer, buffer.length);
-//                aSocket.receive(reply);
-//                revResponse = true;
+                byte[] buffer = new byte[1000];
+                reply = new DatagramPacket(buffer, buffer.length);
+                aSocket.receive(reply);
+                revResponse = true;
                 logger.info("RM2 sends message to FE:" + msgFromReplica);
                 // aSocket.close();//如果不colse会怎么样
             } catch (InterruptedIOException e) {
-                //send_count += 1;
-                //System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+               send_count += 1;
+                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
             }
         }
-    //}
+    }
 
     private void sendCrashToRM(int RMFailurePort, String crashMsg) {
 

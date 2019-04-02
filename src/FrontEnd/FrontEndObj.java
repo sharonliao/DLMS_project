@@ -28,7 +28,7 @@ public class FrontEndObj extends FrontEndPOA {
     private ORB orb;
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final int MAXNUM = 5;
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 2000;
     String FEID;
     private static int portNum;
     static int portSeq = SequencerPort.SEQUENCER_PORT.sequencerPort;
@@ -130,7 +130,7 @@ public class FrontEndObj extends FrontEndPOA {
         DatagramPacket packet = new DatagramPacket(data, data.length);
         try {
             socket.receive(packet);
-            //socket.send(packet);
+            socket.send(packet);
             String result = new String(packet.getData(), 0, packet.getLength());
 
             System.out.println("receive " + result);
@@ -282,7 +282,7 @@ public class FrontEndObj extends FrontEndPOA {
                 }
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (socket != null)
                 socket.close();
@@ -614,9 +614,9 @@ public class FrontEndObj extends FrontEndPOA {
         if (failServerNum.equals("1")) {
             msg = msg + ":" + "1" + ":" + sequenceID;
         } else if (failServerNum.equals("2")) {
-            msg = msg + ":" + "1" + ":" + sequenceID;
+            msg = msg + ":" + "2" + ":" + sequenceID;
         } else if (failServerNum.equals("3")) {
-            msg = msg + ":" + "1" + ":" + sequenceID;
+            msg = msg + ":" + "3" + ":" + sequenceID;
         }
         multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
     }
@@ -631,11 +631,11 @@ public class FrontEndObj extends FrontEndPOA {
         DatagramPacket reply = null;
         int send_count = 0;
         boolean revResponse = false;
-       // while (!revResponse && send_count < MAXNUM) {
+        while (!revResponse && send_count < MAXNUM) {
             try {
                 System.out.println("Client Started........");
                 aSocket = new DatagramSocket();
-                //aSocket.setSoTimeout(TIMEOUT);
+                aSocket.setSoTimeout(TIMEOUT);
                 byte[] message = msg.getBytes();
 
                 InetAddress aHost = InetAddress.getByName("224.0.0.1");
@@ -649,18 +649,18 @@ public class FrontEndObj extends FrontEndPOA {
                 // aSocket.receive(reply);
                 // returnMsg = new String(reply.getData()).trim();
                 // System.out.println("Reply received from the server is: "+ returnMsg);
-//                byte[] buffer = new byte[1000];
-//                reply = new DatagramPacket(buffer, buffer.length);
-//                aSocket.receive(reply);
-//                revResponse = true;
+                byte[] buffer = new byte[1000];
+                reply = new DatagramPacket(buffer, buffer.length);
+                aSocket.receive(reply);
+                revResponse = true;
             } catch (InterruptedIOException e) {
-                //send_count += 1;
-                //System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
+                send_count += 1;
+                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
             }
         }
-    //}
+    }
 
     private static String majority(Map<String, String> resultSet) {
         Map<String, Integer> map = new HashMap<>();
