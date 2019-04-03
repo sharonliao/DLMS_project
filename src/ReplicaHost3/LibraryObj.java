@@ -962,7 +962,7 @@ public class LibraryObj {
                 for (String key : libRecords.keySet()) {
                     HashMap<String, Record> item = libRecords.get(key);
                     if (item.containsKey(userID) && item.get(userID).getStatus().equals("Borrowed")) {
-                        if (!key.substring(0, 3).equals(newItemID.substring(0, 3))) {
+                        if (!key.substring(0, 3).equals(oldItemID.substring(0, 3))) {
                             logmessage = df.format(new Date()) + " Exchange Items " + userID + " New: " + newItemID
                                     + " Old: " + oldItemID + " Failed: Already borrow another book in that library";
                             writeFile(logpath, logmessage);
@@ -976,7 +976,7 @@ public class LibraryObj {
             if (temp1.getQuantity() != 0) {
                 if (operation.equals("check")) {
                     newBookClone = (Book) bb.clone();
-                    temp1.setQuantity((temp1.getQuantity()));
+                    temp1.setQuantity((temp1.getQuantity())-1);
                     bb.setQuantity(temp1);
                 }
                 return "available";

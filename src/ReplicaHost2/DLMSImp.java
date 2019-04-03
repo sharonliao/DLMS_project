@@ -418,8 +418,7 @@ public class DLMSImp {
             } else if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID)
                     && UserBorrow.get(userID).contains(newItemID)) {
                 answer = "Ex5";     //"You have borrowed this item.";
-            } else if (!userID.substring(0, 3).equals(newItemID.substring(0, 3))
-                    && newItemID.substring(0, 3).equals(oldItemID.substring(0, 3)) && UserBorrow.containsKey(userID)
+            } else if (!userID.substring(0, 3).equals(newItemID.substring(0, 3)) && UserBorrow.containsKey(userID)
                     && !UserBorrow.get(userID).contains(oldItemID)) {
 
                 //System.out.println("U------ userborrow: " + UserBorrow.get(userID));

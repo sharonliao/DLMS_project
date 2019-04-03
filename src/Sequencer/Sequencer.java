@@ -5,6 +5,8 @@ import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,6 +72,8 @@ public class Sequencer {
     private void multicastMessage(String msg, int sPort) throws IOException {
         DatagramSocket aSocket = null;
         DatagramPacket reply = null;
+        List list=new LinkedList();
+        //int count=0;
         int send_count = 0;
         boolean revResponse = false;
         while (!revResponse && send_count < MAXNUM) {
@@ -84,25 +88,35 @@ public class Sequencer {
                 DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
                 aSocket.send(request);
                 log.info("Sequencer multicasts message: " + msg);
-                System.out.println("Request message sent from the client is : " + new String(request.getData()));
+                //System.out.println("Request message sent from the client is : " + new String(request.getData()));
 
                 byte[] buffer = new byte[1000];
                 reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(reply);
-                String returnMsg = new String(reply.getData()).trim();
-                System.out.println("Reply received from the server is: "+ returnMsg);
+
+                Timer timer=new Timer(false);
+                Thread thread=new Thread(timer);
+                thread.start();
+
+                while(list.size()<3&&!timer.timeout){
+                    aSocket.receive(reply);
+                    String returnMsg = new String(reply.getData()).trim();
+                    System.out.println("Reply received from the server is: "+ returnMsg);
+
+                    list.add(returnMsg);
+                }
+
+                System.out.println("the size received from the rms is: "+ list.size());
+
+                if(list.size()<3){
+                    System.out.println("re send: "+request.getData());
+                    aSocket.send(request);
+                }
+
                 revResponse = true;
-
-
-//            byte [] buffer = new byte[1000];
-//            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-//
-//            aSocket.receive(reply);
-//            returnMsg = new String(reply.getData()).trim();
-//            System.out.println("Reply received from the server is: "+ returnMsg);
 
             } catch (InterruptedIOException e) {
                 send_count += 1;
+
                 System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
