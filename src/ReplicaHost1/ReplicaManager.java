@@ -35,7 +35,7 @@ public class ReplicaManager {
         holdBackQueue = new HashMap<>();
         deliveryQueue = new LinkedList<>();
         historyQueue = new LinkedList<>();
-        replica1 = new Replica1(); // 蹇呴』鍚姩replica1
+        replica1 = new Replica1(); // replica1
         System.out.println(replica1.getClass());
     }
 
@@ -58,7 +58,12 @@ public class ReplicaManager {
             apocket = new DatagramPacket(buf, buf.length);
             asocket.receive(apocket);
             String message = new String(apocket.getData()).trim();
-            asocket.send(apocket);//acknowledge
+
+            DatagramPacket acknowledge = apocket;
+            acknowledge.setData(String.valueOf(replicaId).getBytes());
+            acknowledge.setLength(String.valueOf(replicaId).getBytes().length);
+            asocket.send(acknowledge);//acknowledge
+
             System.out.println("UDP receive : " + message);
 
             logger.info("RM1 receives message:" + message);

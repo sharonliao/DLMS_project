@@ -61,8 +61,14 @@ public class ReplicaManager {
                 buf = new byte[2000];
                 apocket = new DatagramPacket(buf, buf.length);
                 asocket.receive(apocket);
+
+                DatagramPacket acknowledge = apocket;
+                acknowledge.setData(String.valueOf(replicaId).getBytes());
+                acknowledge.setLength(String.valueOf(replicaId).getBytes().length);
+                asocket.send(acknowledge);//acknowledge
+
                 String message = new String(apocket.getData()).trim();
-                asocket.send(apocket);//acknowledge
+
                 System.out.println("UDP receive : " + message);
 
                 logger.info("RM2 receives message:" + message);
@@ -280,7 +286,7 @@ public class ReplicaManager {
             try {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
-                InetAddress address = InetAddress.getByName("172.20.10.1");
+                InetAddress address = InetAddress.getByName("172.20.10.2");
                 //InetAddress address = InetAddress.getByName("localhost");
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
@@ -309,7 +315,7 @@ public class ReplicaManager {
         String crashConfirm = "";
         try {
             aSocket = new DatagramSocket();
-            InetAddress address = InetAddress.getByName("172.20.10.1");
+            InetAddress address = InetAddress.getByName("172.20.10.2");
             //InetAddress address = InetAddress.getByName("localhost");
             byte[] data = crashMsg.getBytes();
             DatagramPacket aPacket = new DatagramPacket(data, data.length, address, RMFailurePort);

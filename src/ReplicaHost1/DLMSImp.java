@@ -451,7 +451,7 @@ public class DLMSImp {
                 if (ifAvailable(newItemId).equals("Available")) { //check  the item is available or not
                     borrowList.put(userAndItemID, 0);
                     bookList.get(newItemId).lendOneItem();
-                    rtn = "Ex0";
+                    rtn = "ExBr0";
                 } else if (ifAvailable(newItemId).equals("Waiting List")) {//put in waiting list or not
                     if (waitingList.get(newItemId) != null) {
                         if (waitingList.get(newItemId).contains(userId)) {
@@ -638,7 +638,7 @@ public class DLMSImp {
                 // return is availabe, then check borrow is available or not , if available then borrow directly
                 borrowResult = checkAndBorrowNewItem(oldItemID, newItemID, userId);
                 System.out.println("borrowResult : ----- " + borrowResult);
-                String successInfo = "Br0";
+                String successInfo = "ExBr0";
                 //if borrow successfully, then return the old item
                 if (borrowResult.equals(successInfo)) {
                     returnResult = returnItem(userId, oldItemID);
