@@ -38,13 +38,13 @@ public class Sequencer {
         DatagramPacket packet = null;
         byte[] data = null;
         // int count = 0;
-
+        System.out.println("====== 1. Sequencer starts ======");
         log.info("Sequencer starts! ");
         while (true) {
             data = new byte[1024];
             packet = new DatagramPacket(data, data.length);
 
-            System.out.println("====== 1. Sequencer starts ======");
+
             socket.receive(packet);
 
             String FEHostAddress = packet.getAddress().getHostAddress();
@@ -72,99 +72,72 @@ public class Sequencer {
     private void multicastMessage(String packageMessage, DatagramSocket socket) throws IOException {
         DatagramSocket aSocket = null;
         DatagramPacket reply = null;
-<<<<<<< Updated upstream
-        List list=new LinkedList();
-        //int count=0;
-        int send_count = 0;
-        boolean revResponse = false;
-        while (!revResponse && send_count < MAXNUM) {
-            try {
-                System.out.println("Client Started........");
-                aSocket = new DatagramSocket();
-                //aSocket.setSoTimeout(TIMEOUT);
-                byte[] message = msg.getBytes();
-
-                InetAddress aHost = InetAddress.getByName("224.0.0.1");
-                int serverPort = sPort;
-                DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
-                aSocket.send(request);
-                log.info("Sequencer multicasts message: " + msg);
-                //System.out.println("Request message sent from the client is : " + new String(request.getData()));
-
-                byte[] buffer = new byte[1000];
-                reply = new DatagramPacket(buffer, buffer.length);
-
-                Timer timer=new Timer(false);
-                Thread thread=new Thread(timer);
-                thread.start();
-
-                while(list.size()<3&&!timer.timeout){
-                    aSocket.receive(reply);
-                    String returnMsg = new String(reply.getData()).trim();
-                    System.out.println("Reply received from the server is: "+ returnMsg);
-
-                    list.add(returnMsg);
-                }
-
-                System.out.println("the size received from the rms is: "+ list.size());
-
-                if(list.size()<3){
-                    System.out.println("re send: "+request.getData());
-                    aSocket.send(request);
-                }
-
-                revResponse = true;
-
-            } catch (InterruptedIOException e) {
-                send_count += 1;
-
-                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
-            } catch (Exception e) {
-                System.out.println("udpClient error: " + e);
-=======
         List list = new LinkedList();
         try {
             System.out.println("Client Started........");
-            aSocket = new DatagramSocket();
+
 
             InetAddress address = InetAddress.getByName("localhost");
 
             byte[] data = packageMessage.getBytes();
-            DatagramPacket sendPacket1 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
-            DatagramPacket sendPacket2 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
-            DatagramPacket sendPacket3 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
+            DatagramPacket[] packets = new DatagramPacket[3];
+            packets[0] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
+            packets[1] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
+            packets[2] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
 
             System.out.println("====== 2. Sequencer multicasts message to RMS.======");
-            socket.send(sendPacket1);
-            socket.send(sendPacket2);
-            socket.send(sendPacket3);
-            log.info("Sequencer multicasts message: " + sendPacket1.getData().toString());
+            for (int i = 0; i < 3; i++) {
+                int send_count = 0;
+                boolean tmp = false;
+                while (!tmp && send_count < MAXNUM) {
+                    try {
+                        aSocket = new DatagramSocket();
+                        aSocket.send(packets[i]);
+                        byte[] buffer = new byte[1000];
+                        reply = new DatagramPacket(buffer, buffer.length);
+                        aSocket.receive(reply);
+                        tmp = true;
+                    } catch (InterruptedIOException e) {
+                        send_count = 1;
+                        System.out.println("Time out," + (MAXNUM - send_count) + "more times...");
+                    } finally {
+                        if(aSocket!=null){
+                            aSocket.close();
+                        }
+                    }
+                }
 
-            Timer timer=new Timer(false);
-            Thread thread =new Thread(timer);
 
-            while(list.size()<3&&!timer.timeout){
-                socket.receive(reply);
-                list.add(reply.getPort());
->>>>>>> Stashed changes
             }
 
-            System.out.println("====== 3. Sequencer receives message from RMS.======"+list);
-            if(list.size()<3){
-                if(list.contains(RMPort.RM_PORT.rmPort1)){
-                    socket.send(sendPacket1);
-                    System.out.println("====== 4. Sequencer re send message to RM1.======");
-                }
-                if(list.contains(RMPort.RM_PORT.rmPort2)){
-                    socket.send(sendPacket2);
-                    System.out.println("====== 5. Sequencer re send message to RM2.======");
-                }
-                if(list.contains(RMPort.RM_PORT.rmPort3)){
-                    socket.send(sendPacket3);
-                    System.out.println("====== 6. Sequencer re send message to RM3.======");
-                }
-            }
-
+//            socket.send(sendPacket1);
+//            socket.send(sendPacket2);
+//            socket.send(sendPacket3);
+//            log.info("Sequencer multicasts message: " + packageMessage);
+//
+//            Timer timer = new Timer(false);
+//            Thread thread = new Thread(timer);
+//            thread.start();
+//            while (list.size() < 3 && !timer.timeout) {
+//                socket.receive(reply);
+//                list.add(reply.getPort());
+//            }
+//
+//            System.out.println("====== 3. Sequencer receives message from RMS.======" + list);
+//            if (list.size() < 3) {
+//                if (list.contains(RMPort.RM_PORT.rmPort1)) {
+//                    socket.send(sendPacket1);
+//                    System.out.println("====== 4. Sequencer re send message to RM1.======");
+//                }
+//                if (list.contains(RMPort.RM_PORT.rmPort2)) {
+//                    socket.send(sendPacket2);
+//                    System.out.println("====== 5. Sequencer re send message to RM2.======");
+//                }
+//                if (list.contains(RMPort.RM_PORT.rmPort3)) {
+//                    socket.send(sendPacket3);
+//                    System.out.println("====== 6. Sequencer re send message to RM3.======");
+//                }
+//            }
 
 
         } catch (Exception e) {

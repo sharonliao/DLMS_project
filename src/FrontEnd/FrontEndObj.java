@@ -136,10 +136,11 @@ public class FrontEndObj extends FrontEndPOA {
             String result = new String(packet.getData(), 0, packet.getLength());
 
             System.out.println("receive " + result);
-
-            String[] res = result.split(":");
-            resultSet.put(res[1], res[2]);
-            sequenceID = res[0];
+            if(!result.isEmpty()) {
+                String[] res = result.split(":");
+                resultSet.put(res[1], res[2]);
+                sequenceID = res[0];
+            }
         } catch (SocketException e) {
 
         } catch (IOException e) {
@@ -189,7 +190,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "addItem" + "," + managerID + "," + itemID + "," + itemName + "," + q;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -226,7 +227,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "removeItem" + "," + managerID + "," + itemID + "," + quantity;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -268,7 +269,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "listItem" + "," + managerID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -314,7 +315,7 @@ public class FrontEndObj extends FrontEndPOA {
             String message = "borrowItem" + "," + userID + "," + itemID;
             System.out.println("2 borrowItem");
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -359,7 +360,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "findItem" + "," + userID + "," + itemName;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -396,7 +397,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "returnItem" + "," + userID + "," + itemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -456,7 +457,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "addToWaitlist" + "," + userID + "," + itemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -493,7 +494,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "exchangeItem" + "," + studentID + "," + newItemID + "," + oldItemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -552,7 +553,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "addToWaitlistforExchagne" + "," + studentID + "," + newItemID + "," + oldItemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false,10000);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -609,13 +610,13 @@ public class FrontEndObj extends FrontEndPOA {
             msg = "Crash" + ":" + "3";
         }
         DatagramSocket socket = null;
-        try{
+        try {
             socket = new DatagramSocket();
             multicastCrashMsg(msg, socket);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(socket!=null){
+        } finally {
+            if (socket != null) {
                 socket.close();
             }
         }
@@ -631,13 +632,13 @@ public class FrontEndObj extends FrontEndPOA {
             msg = msg + ":" + "3" + ":" + sequenceID;
         }
         DatagramSocket socket = null;
-        try{
+        try {
             socket = new DatagramSocket();
             multicastCrashMsg(msg, socket);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(socket!=null){
+        } finally {
+            if (socket != null) {
                 socket.close();
             }
         }
@@ -655,44 +656,40 @@ public class FrontEndObj extends FrontEndPOA {
         List list = new LinkedList();
         try {
             System.out.println("Client Started........");
-            aSocket = new DatagramSocket();
+
 
             InetAddress address = InetAddress.getByName("localhost");
 
             byte[] data = msg.getBytes();
-            DatagramPacket sendPacket1 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
-            DatagramPacket sendPacket2 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
-            DatagramPacket sendPacket3 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
+            DatagramPacket[] packets = new DatagramPacket[3];
+            packets[0] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
+            packets[1] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
+            packets[2] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
 
             System.out.println("====== 2. Sequencer multicasts message to RMS.======");
-            socket.send(sendPacket1);
-            socket.send(sendPacket2);
-            socket.send(sendPacket3);
+            for (int i = 0; i < 3; i++) {
+                int send_count = 0;
+                boolean tmp = false;
+                while (!tmp && send_count < MAXNUM) {
+                    try {
+                        aSocket = new DatagramSocket();
+                        aSocket.send(packets[i]);
+                        byte[] buffer = new byte[1000];
+                        reply = new DatagramPacket(buffer, buffer.length);
+                        aSocket.receive(reply);
+                        tmp = true;
+                    } catch (InterruptedIOException e) {
+                        send_count = 1;
+                        System.out.println("Time out," + (MAXNUM - send_count) + "more times...");
+                    } finally {
+                        if(aSocket!=null){
+                            aSocket.close();
+                        }
+                    }
+                }
 
-            Timer timer=new Timer(aSocket,false,2000);
-            Thread thread =new Thread(timer);
 
-            while(list.size()<3&&!timer.timeout){
-                socket.receive(reply);
-                list.add(reply.getPort());
             }
-
-            System.out.println("====== 3. Sequencer receives message from RMS.======"+list);
-            if(list.size()<3){
-                if(list.contains(RMPort.RM_PORT.rmPort1)){
-                    socket.send(sendPacket1);
-                    System.out.println("====== 4. Sequencer re send message to RM1.======");
-                }
-                if(list.contains(RMPort.RM_PORT.rmPort2)){
-                    socket.send(sendPacket2);
-                    System.out.println("====== 5. Sequencer re send message to RM2.======");
-                }
-                if(list.contains(RMPort.RM_PORT.rmPort3)){
-                    socket.send(sendPacket3);
-                    System.out.println("====== 6. Sequencer re send message to RM3.======");
-                }
-            }
-
 
 
         } catch (Exception e) {
@@ -791,13 +788,13 @@ public class FrontEndObj extends FrontEndPOA {
         }
 
         DatagramSocket socket = null;
-        try{
+        try {
             socket = new DatagramSocket();
             multicastCrashMsg(msg, socket);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(socket!=null){
+        } finally {
+            if (socket != null) {
                 socket.close();
             }
         }
