@@ -49,20 +49,16 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM3 is listenning ");
-        MulticastSocket aSocket = null;
+        DatagramSocket aSocket = null;
         try {
-            aSocket = new MulticastSocket(RMPort);
-            aSocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+            aSocket = new DatagramSocket(RMPort);
             while (true) {
                 buf = new byte[2000];
                 apocket = new DatagramPacket(buf, buf.length);
                 aSocket.receive(apocket);
                 String message = new String(apocket.getData()).trim();
 
-                DatagramPacket acknowledge = apocket;
-                acknowledge.setData(String.valueOf(replicaId).getBytes());
-                acknowledge.setLength(String.valueOf(replicaId).getBytes().length);
-                aSocket.send(acknowledge);//acknowledge
+                aSocket.send(apocket);//acknowledge
 
                 System.out.println("UDP receive : " + message);
 
@@ -109,8 +105,8 @@ public class ReplicaManager {
 
     public void recoverFromFailure(String failureMsg) throws IOException {
         // SoftWareFailure:seqId:replicaID
-        int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
-        int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+        int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
+        int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {
             logger.info("Replica " + failureReplica + " has failure");
             if (checkIfFailThreeTimes(msgSeqId)) {
@@ -383,7 +379,7 @@ public class ReplicaManager {
 
         Runnable TaskListener = () -> {
             try {
-                rm.startRMListener(RMPort.RM_PORT.rmPort1);
+                rm.startRMListener(RMPort.RM_PORT.rmPort3);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -84,7 +84,7 @@ public class Test_udp_client {
         };
 
         Thread Thread2 = new Thread(TaskListener);
-        Thread2.start();
+        //Thread2.start();
 
         for(String message : messages){
             testClient.udpClient(message, SequencerPort.SEQUENCER_PORT.sequencerPort);

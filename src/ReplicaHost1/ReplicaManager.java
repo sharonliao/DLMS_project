@@ -50,8 +50,9 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM1 is listenning ");
-        MulticastSocket asocket = new MulticastSocket(RMPort);
-        asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+        DatagramSocket asocket = new DatagramSocket(RMPort);
+        //MulticastSocket asocket = new MulticastSocket(RMPort);
+        //asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
 
         while (true) {
             buf = new byte[2000];
@@ -59,10 +60,7 @@ public class ReplicaManager {
             asocket.receive(apocket);
             String message = new String(apocket.getData()).trim();
 
-            DatagramPacket acknowledge = apocket;
-            acknowledge.setData(String.valueOf(replicaId).getBytes());
-            acknowledge.setLength(String.valueOf(replicaId).getBytes().length);
-            asocket.send(acknowledge);//acknowledge
+            asocket.send(apocket);//acknowledge
 
             System.out.println("UDP receive : " + message);
 
@@ -99,7 +97,7 @@ public class ReplicaManager {
     }
 
     public void recoverFromFailure(String failureMsg) throws IOException {
-        // SoftWareFailure:seqId:replicaID
+        // SoftWareFailure:replicaID:seqId
         int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
         int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {

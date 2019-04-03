@@ -36,14 +36,16 @@ public class Replica1 {
 
     public Replica1() {
         try {
-            //Logger replica1_log = Logger.getLogger("Repilca1.log");
-            //createLogger("Repilca1.log", replica1_log);
+
             Logger conserver1_log = Logger.getLogger("conserver1.log");
             createLogger("conserver1.log", conserver1_log);
-            Logger mcgserver1_log = Logger.getLogger("mcgserver1.log");
+
+            Logger mcgserver1_log = Logger.getLogger("mcgserver1_log");
             createLogger("mcgserver1.log", mcgserver1_log);
+
             Logger monserver1_log = Logger.getLogger("monserver1.log");
             createLogger("monserver1.log", monserver1_log);
+
 
             conServer = new DLMSImp("CON", DLMS_Port.PORT.CON_PORT, conserver1_log);
             mcgServer = new DLMSImp("MCG", DLMS_Port.PORT.MCG_PORT, mcgserver1_log);
@@ -120,6 +122,7 @@ public class Replica1 {
         handler.setFormatter(new logSetFormatter());
         logger.addHandler(handler);
     }
+
 
     public void recoverRplicaData() {
         while (historyQueue.size() > 0) {

@@ -53,19 +53,15 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM2 is listenning ");
-        MulticastSocket asocket = null ;
+        DatagramSocket asocket = null ;
         try {
-        	asocket= new MulticastSocket(RMPort);
-            asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+        	asocket= new DatagramSocket(RMPort);
             while (true) {
                 buf = new byte[2000];
                 apocket = new DatagramPacket(buf, buf.length);
                 asocket.receive(apocket);
 
-                DatagramPacket acknowledge = apocket;
-                acknowledge.setData(String.valueOf(replicaId).getBytes());
-                acknowledge.setLength(String.valueOf(replicaId).getBytes().length);
-                asocket.send(acknowledge);//acknowledge
+                asocket.send(apocket);//acknowledge
 
                 String message = new String(apocket.getData()).trim();
 
@@ -115,9 +111,9 @@ public class ReplicaManager {
     }
 
     public void recoverFromFailure(String failureMsg) throws IOException {
-        // SoftWareFailure:seqId:replicaID
-        int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
-        int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+        // SoftWareFailure:replicaID:seqId
+        int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
+        int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {
             logger.info("Replica " + failureReplica + " has failure");
             try {
@@ -406,7 +402,7 @@ public class ReplicaManager {
 
         Runnable TaskListener = () -> {
             try {
-                rm.startRMListener(RMPort.RM_PORT.rmPort1);
+                rm.startRMListener(RMPort.RM_PORT.rmPort2);
             } catch (Exception e) {
                 e.printStackTrace();
             }

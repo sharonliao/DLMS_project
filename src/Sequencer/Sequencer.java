@@ -55,7 +55,7 @@ public class Sequencer {
                 String sendMessage = this.sequenceNumber.toString() + ":" + FEHostAddress + ":" + receiveMessage;
                 this.sequenceNumber++;
 
-                multicastMessage(sendMessage, RMPort.RM_PORT.rmPort1);
+                multicastMessage(sendMessage, socket);
 
                 // log.info("Sequencer multicasts message: "+sendMessage);
             }
@@ -69,9 +69,10 @@ public class Sequencer {
     /**
      * multicast message to rms
      */
-    private void multicastMessage(String msg, int sPort) throws IOException {
+    private void multicastMessage(String packageMessage, DatagramSocket socket) throws IOException {
         DatagramSocket aSocket = null;
         DatagramPacket reply = null;
+<<<<<<< Updated upstream
         List list=new LinkedList();
         //int count=0;
         int send_count = 0;
@@ -120,21 +121,58 @@ public class Sequencer {
                 System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
             } catch (Exception e) {
                 System.out.println("udpClient error: " + e);
+=======
+        List list = new LinkedList();
+        try {
+            System.out.println("Client Started........");
+            aSocket = new DatagramSocket();
+
+            InetAddress address = InetAddress.getByName("localhost");
+
+            byte[] data = packageMessage.getBytes();
+            DatagramPacket sendPacket1 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
+            DatagramPacket sendPacket2 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
+            DatagramPacket sendPacket3 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
+
+            System.out.println("====== 2. Sequencer multicasts message to RMS.======");
+            socket.send(sendPacket1);
+            socket.send(sendPacket2);
+            socket.send(sendPacket3);
+            log.info("Sequencer multicasts message: " + sendPacket1.getData().toString());
+
+            Timer timer=new Timer(false);
+            Thread thread =new Thread(timer);
+
+            while(list.size()<3&&!timer.timeout){
+                socket.receive(reply);
+                list.add(reply.getPort());
+>>>>>>> Stashed changes
             }
+
+            System.out.println("====== 3. Sequencer receives message from RMS.======"+list);
+            if(list.size()<3){
+                if(list.contains(RMPort.RM_PORT.rmPort1)){
+                    socket.send(sendPacket1);
+                    System.out.println("====== 4. Sequencer re send message to RM1.======");
+                }
+                if(list.contains(RMPort.RM_PORT.rmPort2)){
+                    socket.send(sendPacket2);
+                    System.out.println("====== 5. Sequencer re send message to RM2.======");
+                }
+                if(list.contains(RMPort.RM_PORT.rmPort3)){
+                    socket.send(sendPacket3);
+                    System.out.println("====== 6. Sequencer re send message to RM3.======");
+                }
+            }
+
+
+
+        } catch (Exception e) {
+            System.out.println("udpClient error: " + e);
         }
-//		//the host address of replica
-//		InetAddress address = InetAddress.getByName("localhost");
-//
-//		byte[] data = packageMessage.getBytes();
-//		DatagramPacket sendPacket1 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
-//		DatagramPacket sendPacket2 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
-//		DatagramPacket sendPacket3 = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
-//
-//		System.out.println("====== 2. Sequencer multicasts message to RMS.======" );
-//		socket.send(sendPacket1);
-//		socket.send(sendPacket2);
-//		socket.send(sendPacket3);
+
     }
+
 
     public static void main(String[] args) throws IOException {
         Logger log = Logger.getLogger("Sequencer.log");
