@@ -221,8 +221,8 @@ public class ReplicaManager {
         Message message = this.deliveryQueue.peek();
         if (message != null) {
             message = this.deliveryQueue.poll();
-            sendToReplicaAndGetReply(message, aSocket);
             historyQueue.offer(message);
+            sendToReplicaAndGetReply(message, aSocket);
             checkAndExecuteMessage(aSocket);
         }
     }
@@ -236,7 +236,11 @@ public class ReplicaManager {
     private void sendToReplicaAndGetReply(Message msg, DatagramSocket aSocket) throws IOException {
         System.out.println("sendToReplicaAndGetReply");
         String reply = "";
-        reply = msg.seqId + ":" + this.replicaId + ":" + replica3.executeMsg(msg);
+        try{
+            reply = msg.seqId + ":" + this.replicaId + ":" + replica3.executeMsg(msg);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         System.out.println("reply:" + reply);
         DatagramSocket socket = null;
         socket = new DatagramSocket();
@@ -328,7 +332,7 @@ public class ReplicaManager {
                     case "RestartReplica"://other rms confirm rm1 did crash
                         crashConfirm ++;
                         if(crashConfirm>=2){
-                            restartReplica();
+                            //restartReplica();
                             crashConfirm = 0;
                         }
                         break;

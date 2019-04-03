@@ -225,8 +225,8 @@ public class ReplicaManager {
         Message message = this.deliveryQueue.peek();
         if (message != null) {
             message = this.deliveryQueue.poll();
-            sendToReplicaAndGetReply(message, aSocket);
             historyQueue.offer(message);
+            sendToReplicaAndGetReply(message, aSocket);
             checkAndExecuteMessage(aSocket);
         }
     }
