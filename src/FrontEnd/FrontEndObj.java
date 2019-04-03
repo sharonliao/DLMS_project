@@ -1,5 +1,6 @@
 package FrontEnd;
 
+import Model.RMAddressInfo;
 import org.omg.CORBA.*;
 import FrontEndAPP.*;
 import Model.FEPort;
@@ -658,13 +659,15 @@ public class FrontEndObj extends FrontEndPOA {
             System.out.println("Client Started........");
 
 
-            InetAddress address = InetAddress.getByName("localhost");
+            InetAddress address1 = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM1address);
+            InetAddress address2 = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM2address);
+            InetAddress address3 = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM3address);
 
             byte[] data = msg.getBytes();
             DatagramPacket[] packets = new DatagramPacket[3];
-            packets[0] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort1); // 6001
-            packets[1] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort2); // 6002
-            packets[2] = new DatagramPacket(data, data.length, address, RMPort.RM_PORT.rmPort3); // 6003
+            packets[0] = new DatagramPacket(data, data.length, address1, RMPort.RM_PORT.rmPort1); // 6001
+            packets[1] = new DatagramPacket(data, data.length, address2, RMPort.RM_PORT.rmPort2); // 6002
+            packets[2] = new DatagramPacket(data, data.length, address3, RMPort.RM_PORT.rmPort3); // 6003
 
             System.out.println("====== 2. Sequencer multicasts message to RMS.======");
             for (int i = 0; i < 3; i++) {
