@@ -112,6 +112,7 @@ public class LibraryObj {
         super();
         this.libraryID = libID;
         this.portNum = portNumber;
+        logpath = "server/" + libraryID + "Server.log";
         initContent();
     }
 
