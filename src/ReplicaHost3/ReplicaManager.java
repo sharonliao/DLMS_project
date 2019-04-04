@@ -49,16 +49,17 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM3 is listenning ");
-        MulticastSocket aSocket = null;
+        DatagramSocket aSocket = null;
         try {
-            aSocket = new MulticastSocket(RMPort);
-            aSocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+            aSocket = new DatagramSocket(RMPort);
             while (true) {
                 buf = new byte[2000];
                 apocket = new DatagramPacket(buf, buf.length);
                 aSocket.receive(apocket);
                 String message = new String(apocket.getData()).trim();
-                aSocket.send(apocket);
+
+                aSocket.send(apocket);//acknowledge
+
                 System.out.println("UDP receive : " + message);
 
                 logger.info("RM3 receives message:" + message);
@@ -104,8 +105,8 @@ public class ReplicaManager {
 
     public void recoverFromFailure(String failureMsg) throws IOException {
         // SoftWareFailure:seqId:replicaID
-        int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
-        int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+        int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
+        int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {
             logger.info("Replica " + failureReplica + " has failure");
             if (checkIfFailThreeTimes(msgSeqId)) {
@@ -221,8 +222,8 @@ public class ReplicaManager {
         Message message = this.deliveryQueue.peek();
         if (message != null) {
             message = this.deliveryQueue.poll();
-            sendToReplicaAndGetReply(message, aSocket);
             historyQueue.offer(message);
+            sendToReplicaAndGetReply(message, aSocket);
             checkAndExecuteMessage(aSocket);
         }
     }
@@ -236,7 +237,11 @@ public class ReplicaManager {
     private void sendToReplicaAndGetReply(Message msg, DatagramSocket aSocket) throws IOException {
         System.out.println("sendToReplicaAndGetReply");
         String reply = "";
-        reply = msg.seqId + ":" + this.replicaId + ":" + replica3.executeMsg(msg);
+        try{
+            reply = msg.seqId + ":" + this.replicaId + ":" + replica3.executeMsg(msg);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         System.out.println("reply:" + reply);
         DatagramSocket socket = null;
         socket = new DatagramSocket();
@@ -253,7 +258,10 @@ public class ReplicaManager {
             try {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
-                InetAddress address = InetAddress.getByName("172.20.10.2");
+
+                //InetAddress address = InetAddress.getByName("172.20.10.2");
+                InetAddress address = InetAddress.getByName("localhost");
+
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
@@ -282,7 +290,11 @@ public class ReplicaManager {
         String crashConfirm = "";
         try {
             aSocket = new DatagramSocket();
-            InetAddress address = InetAddress.getByName("172.20.10.2");
+
+            //InetAddress address = InetAddress.getByName("172.20.10.2");
+            InetAddress address = InetAddress.getByName("localhost");
+
+
             byte[] data = crashMsg.getBytes();
             DatagramPacket aPacket = new DatagramPacket(data, data.length, address, RMFailurePort);
 
@@ -328,7 +340,7 @@ public class ReplicaManager {
                     case "RestartReplica"://other rms confirm rm1 did crash
                         crashConfirm ++;
                         if(crashConfirm>=2){
-                            restartReplica();
+                            //restartReplica();
                             crashConfirm = 0;
                         }
                         break;
@@ -361,7 +373,7 @@ public class ReplicaManager {
 
         Runnable TaskListener = () -> {
             try {
-                rm.startRMListener(RMPort.RM_PORT.rmPort1);
+                rm.startRMListener(RMPort.RM_PORT.rmPort3);
             } catch (Exception e) {
                 e.printStackTrace();
             }

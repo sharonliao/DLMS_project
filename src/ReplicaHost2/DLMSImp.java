@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,13 +16,11 @@ import java.util.logging.Logger;
 
 import Model.Item;
 
-import javax.swing.*;
-
 public class DLMSImp {
-    public HashMap<String, Item> map;
-    public HashMap<String, List<String>> UserBorrow;
-    public Map<String, Queue<String>> WaitList;
-    public HashMap<String, Item> temp;
+    public ConcurrentHashMap<String, Item> map;
+    public ConcurrentHashMap<String, List<String>> UserBorrow;
+    public ConcurrentHashMap<String, Queue<String>> WaitList;
+    public ConcurrentHashMap<String, Item> temp;
     public Logger log;
 
     DatagramSocket aSocket = null;
@@ -33,10 +32,10 @@ public class DLMSImp {
         this.log = log;
         this.LocalPort = localPort;
         this.library = local;
-        map = new HashMap<>();
-        temp = new HashMap<>();
-        UserBorrow = new HashMap<>();
-        WaitList = new HashMap<>();
+        map = new ConcurrentHashMap<>();
+        temp = new ConcurrentHashMap<>();
+        UserBorrow = new ConcurrentHashMap<>();
+        WaitList = new ConcurrentHashMap<>();
 
         /*
          * Runnable r1 = () -> { receive(1112); }; Runnable r2 = () -> { receive(2223);
@@ -286,63 +285,75 @@ public class DLMSImp {
         if (!map.isEmpty() && map.containsKey(itemID)) {
             qty = map.get(itemID).getQuantity();
             name = map.get(itemID).getItemName();
-            Iterator<HashMap.Entry<String, List<String>>> it = UserBorrow.entrySet().iterator();
-            while (it.hasNext()) {
-                HashMap.Entry<String, List<String>> entry = it.next();
-                String key = entry.getKey();
-                if (UserBorrow.get(key).contains(itemID) && key.equals(userID)) {
-                    List list = UserBorrow.get(key);
-                    for (int i = 0; i < list.size(); i++) {
-                        if (itemID.equals(list.get(i))) {
-                            list.remove(i);
-                            if (list.size() == 0) {
-                                it.remove();
-                            }
-                            if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
-                                while (WaitList.get(itemID).size() != 0) {
-                                    String userwl = WaitList.get(itemID).peek();
-                                    if (userwl.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
-                                        if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userwl)) {
-                                            List list1 = UserBorrow.get(userwl);
-                                            list1.add(itemID);
-                                            UserBorrow.put(userwl, list1);
-                                        } else {
-                                            List list2 = new LinkedList<String>();
-                                            list2.add(itemID);
-                                            UserBorrow.put(userwl, list2);
-                                        }
-                                        WaitList.get(itemID).poll();
-                                        break;
-                                    } else {
-                                        if (UserBorrow.containsKey(WaitList.get(itemID).peek())) {
+            if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID)) {
+                Iterator<HashMap.Entry<String, List<String>>> it = UserBorrow.entrySet().iterator();
+                while (it.hasNext()) {
+                    HashMap.Entry<String, List<String>> entry = it.next();
+                    String key = entry.getKey();
+                    if (UserBorrow.get(key).contains(itemID) && key.equals(userID)) {
+                        List list = UserBorrow.get(key);
+                        System.out.println("userborrow before:" + UserBorrow);
+                        for (int i = 0; i < list.size(); i++) {
+                            if (itemID.equals(list.get(i))) {
+                                System.out.println("list.get(i):" + list.get(i));
+                                list.remove(i);
+                                if (list.size() == 0) {
+                                    it.remove();
+                                }
+
+                                System.out.println("userborrow after:" + UserBorrow);
+                                System.out.println("waitlist :" + WaitList);
+                                //  System.out.println("WaitList.get(itemID).peek() :"+WaitList.get(itemID).peek());
+                                if (!WaitList.isEmpty() && WaitList.containsKey(itemID)) {
+                                    while (WaitList.get(itemID).size() != 0) {
+                                        String userwl = WaitList.get(itemID).peek();
+                                        System.out.println("userBorrow list after:" + UserBorrow);
+                                        if (userwl.substring(0, 3).equalsIgnoreCase(itemID.substring(0, 3))) {
+                                            if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userwl)) {
+                                                List list1 = UserBorrow.get(userwl);
+                                                list1.add(itemID);
+                                                UserBorrow.put(userwl, list1);
+                                            } else {
+                                                List list2 = new LinkedList<String>();
+                                                list2.add(itemID);
+                                                UserBorrow.put(userwl, list2);
+                                            }
                                             WaitList.get(itemID).poll();
-                                            if (WaitList.get(itemID).size() == 0) {
-                                                map.put(itemID, new Item(itemID, name, qty + 1));
+                                            System.out.println("waitlist after :" + WaitList);
+                                            break;
+                                        } else {
+                                            if (UserBorrow.containsKey(WaitList.get(itemID).peek())) {
+                                                WaitList.get(itemID).poll();
+                                                if (WaitList.get(itemID).size() == 0) {
+                                                    map.put(itemID, new Item(itemID, name, qty + 1));
+                                                    break;
+                                                }
+                                            } else {
+                                                List list3 = new LinkedList<String>();
+                                                list3.add(itemID);
+                                                UserBorrow.put(userwl, list3);
+                                                WaitList.get(itemID).poll();
+                                                System.out.println("userBorrow  after put:" + UserBorrow);
+                                                System.out.println("waitlist after poll:" + WaitList);
                                                 break;
                                             }
-                                        } else {
-                                            List list3 = new LinkedList<String>();
-                                            list3.add(itemID);
-                                            UserBorrow.put(userwl, list3);
-                                            break;
+
                                         }
                                     }
+                                    removeNullWaitlist(WaitList);
+                                    break;
+                                } else {
+                                    map.put(itemID, new Item(itemID, name, qty + 1));
+                                    break;
                                 }
-                                removeNullWaitlist(WaitList);
-                                break;
-                            } else {
-                                map.put(itemID, new Item(itemID, name, qty + 1));
-                                break;
+
                             }
-
                         }
+                        answer = "Rtn0";    //successfully return
                     }
-
-                    answer = "Rtn0";    //successfully return
-
-                } else {
-                    answer = "Rtn2";    //you didn't borrow it
                 }
+            } else {
+                answer = "Rtn2";    //you didn't borrow it
             }
         } else {
             answer = "Rtn1";    //item not exist
@@ -407,8 +418,7 @@ public class DLMSImp {
             } else if (!UserBorrow.isEmpty() && UserBorrow.containsKey(userID)
                     && UserBorrow.get(userID).contains(newItemID)) {
                 answer = "Ex5";     //"You have borrowed this item.";
-            } else if (!userID.substring(0, 3).equals(newItemID.substring(0, 3))
-                    && newItemID.substring(0, 3).equals(oldItemID.substring(0, 3)) && UserBorrow.containsKey(userID)
+            } else if (!userID.substring(0, 3).equals(newItemID.substring(0, 3)) && UserBorrow.containsKey(userID)
                     && !UserBorrow.get(userID).contains(oldItemID)) {
 
                 //System.out.println("U------ userborrow: " + UserBorrow.get(userID));

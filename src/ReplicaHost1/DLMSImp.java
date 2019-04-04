@@ -451,7 +451,7 @@ public class DLMSImp {
                 if (ifAvailable(newItemId).equals("Available")) { //check  the item is available or not
                     borrowList.put(userAndItemID, 0);
                     bookList.get(newItemId).lendOneItem();
-                    rtn = "Ex0";
+                    rtn = "ExBr0";
                 } else if (ifAvailable(newItemId).equals("Waiting List")) {//put in waiting list or not
                     if (waitingList.get(newItemId) != null) {
                         if (waitingList.get(newItemId).contains(userId)) {
@@ -473,6 +473,10 @@ public class DLMSImp {
         System.out.print("1");
         String rtn = "";
         String userAndItemID = userId + "-" + newItemId;
+        if (!bookList.containsKey(newItemId)) { // check the user if has already borrowed this book
+            return "Ex3";
+        }
+
         if (borrowList.containsKey(userAndItemID)) { // check the user if has already borrowed this book
             return "Ex5";
         }
@@ -494,7 +498,7 @@ public class DLMSImp {
             System.out.print("borrowList -- " + borrowList);
             borrowList.put(userAndItemID, 100);
             bookList.get(newItemId).lendOneItem();
-            rtn = "Br0"; //User borrow book successfully
+            rtn = "ExBr0"; //User borrow book successfully
             //put in waiting list or not
         } else if (ifAvailable(newItemId).equals("Waiting List")) {
             if (waitingList.get(newItemId) != null) {
@@ -503,8 +507,6 @@ public class DLMSImp {
                 }
             }
             rtn = "Ex4";//The book is not available now, if put you in the waiting list, YES or NOT
-        } else {
-            rtn = "Ex3";//no this item
         }
         System.out.print("checkAndBorrowInlocal rtn :" + rtn + "\n");
         return rtn;
@@ -638,7 +640,7 @@ public class DLMSImp {
                 // return is availabe, then check borrow is available or not , if available then borrow directly
                 borrowResult = checkAndBorrowNewItem(oldItemID, newItemID, userId);
                 System.out.println("borrowResult : ----- " + borrowResult);
-                String successInfo = "Br0";
+                String successInfo = "ExBr0";
                 //if borrow successfully, then return the old item
                 if (borrowResult.equals(successInfo)) {
                     returnResult = returnItem(userId, oldItemID);

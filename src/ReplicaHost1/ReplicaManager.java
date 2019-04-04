@@ -35,7 +35,7 @@ public class ReplicaManager {
         holdBackQueue = new HashMap<>();
         deliveryQueue = new LinkedList<>();
         historyQueue = new LinkedList<>();
-        replica1 = new Replica1(); // 蹇呴』鍚姩replica1
+        replica1 = new Replica1(); // replica1
         System.out.println(replica1.getClass());
     }
 
@@ -50,15 +50,18 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM1 is listenning ");
-        MulticastSocket asocket = new MulticastSocket(RMPort);
-        asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+        DatagramSocket asocket = new DatagramSocket(RMPort);
+        //MulticastSocket asocket = new MulticastSocket(RMPort);
+        //asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
 
         while (true) {
             buf = new byte[2000];
             apocket = new DatagramPacket(buf, buf.length);
             asocket.receive(apocket);
             String message = new String(apocket.getData()).trim();
+
             asocket.send(apocket);//acknowledge
+
             System.out.println("UDP receive : " + message);
 
             logger.info("RM1 receives message:" + message);
@@ -94,7 +97,7 @@ public class ReplicaManager {
     }
 
     public void recoverFromFailure(String failureMsg) throws IOException {
-        // SoftWareFailure:seqId:replicaID
+        // SoftWareFailure:replicaID:seqId
         int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
         int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {
@@ -225,8 +228,8 @@ public class ReplicaManager {
         Message message = this.deliveryQueue.peek();
         if (message != null) {
             message = this.deliveryQueue.poll();
-            sendToReplicaAndGetReply(message, aSocket);
             historyQueue.offer(message);
+            sendToReplicaAndGetReply(message, aSocket);
             checkAndExecuteMessage(aSocket);
         }
     }

@@ -53,16 +53,18 @@ public class ReplicaManager {
         DatagramPacket apocket = null;
         byte[] buf = null;
         logger.info("RM2 is listenning ");
-        MulticastSocket asocket = null ;
+        DatagramSocket asocket = null ;
         try {
-        	asocket= new MulticastSocket(RMPort);
-            asocket.joinGroup(InetAddress.getByName("224.0.0.1"));
+        	asocket= new DatagramSocket(RMPort);
             while (true) {
                 buf = new byte[2000];
                 apocket = new DatagramPacket(buf, buf.length);
                 asocket.receive(apocket);
-                String message = new String(apocket.getData()).trim();
+
                 asocket.send(apocket);//acknowledge
+
+                String message = new String(apocket.getData()).trim();
+
                 System.out.println("UDP receive : " + message);
 
                 logger.info("RM2 receives message:" + message);
@@ -109,9 +111,9 @@ public class ReplicaManager {
     }
 
     public void recoverFromFailure(String failureMsg) throws IOException {
-        // SoftWareFailure:seqId:replicaID
-        int failureReplica = Integer.parseInt(failureMsg.split(":")[2]);
-        int msgSeqId = Integer.parseInt(failureMsg.split(":")[1]);
+        // SoftWareFailure:replicaID:seqId
+        int failureReplica = Integer.parseInt(failureMsg.split(":")[1]);
+        int msgSeqId = Integer.parseInt(failureMsg.split(":")[2]);
         if (failureReplica == replicaId) {
             logger.info("Replica " + failureReplica + " has failure");
             try {
@@ -217,6 +219,7 @@ public class ReplicaManager {
                     this.seqNum++;
                     checkAndExecuteMessage(aSocket);
                     moveToDeliveryQueue(aSocket);
+
                 }
             }
         }
@@ -243,8 +246,8 @@ public class ReplicaManager {
         Message message = this.deliveryQueue.peek();
         if (message != null) {
             message = this.deliveryQueue.poll();
-            sendToReplicaAndGetReply(message, aSocket);
             historyQueue.offer(message);
+            sendToReplicaAndGetReply(message, aSocket);
             checkAndExecuteMessage(aSocket);
         }
     }
@@ -256,14 +259,19 @@ public class ReplicaManager {
      * @throws IOException
      */
     private void sendToReplicaAndGetReply(Message msg, DatagramSocket aSocket) throws IOException {
-        System.out.println("sendToReplicaAndGetReply");
-        String reply = msg.seqId + ":" + this.replicaId + ":" + replica2.executeMsg(msg);
+        String reply = "";
+        try{
+            System.out.println("sendToReplicaAndGetReply");
+            reply = msg.seqId + ":" + this.replicaId + ":" + replica2.executeMsg(msg);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         System.out.println("reply:" + reply);
         DatagramSocket socket = null;
         socket = new DatagramSocket();
         sendToFE(socket, reply);
         logger.info("RM2 sends message to Replica2: " + msg.operationMsg + "; reply from Replica2: " + reply);
-
     }
 
     private void sendToFE(DatagramSocket aSocket, String msgFromReplica) {
@@ -274,7 +282,10 @@ public class ReplicaManager {
             try {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
-                InetAddress address = InetAddress.getByName("localhost");
+
+                InetAddress address = InetAddress.getByName("127.0.0.1");
+                //InetAddress address = InetAddress.getByName("localhost");
+
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
@@ -302,7 +313,10 @@ public class ReplicaManager {
         String crashConfirm = "";
         try {
             aSocket = new DatagramSocket();
-            InetAddress address = InetAddress.getByName("localhost");
+
+            InetAddress address = InetAddress.getByName("127.0.0.1");
+            //InetAddress address = InetAddress.getByName("localhost");
+
             byte[] data = crashMsg.getBytes();
             DatagramPacket aPacket = new DatagramPacket(data, data.length, address, RMFailurePort);
 
@@ -348,7 +362,7 @@ public class ReplicaManager {
                     case "RestartReplica"://other rms confirm rm1 did crash
                         crashConfirm ++;
                         if(crashConfirm>=2){
-                            restartReplica();
+                            //restartReplica();
                             crashConfirm = 0;
                         }
                         break;
@@ -382,7 +396,7 @@ public class ReplicaManager {
 
         Runnable TaskListener = () -> {
             try {
-                rm.startRMListener(RMPort.RM_PORT.rmPort1);
+                rm.startRMListener(RMPort.RM_PORT.rmPort2);
             } catch (Exception e) {
                 e.printStackTrace();
             }

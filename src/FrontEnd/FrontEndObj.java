@@ -1,5 +1,6 @@
 package FrontEnd;
 
+import Model.RMAddressInfo;
 import org.omg.CORBA.*;
 import FrontEndAPP.*;
 import Model.FEPort;
@@ -19,6 +20,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -134,10 +137,11 @@ public class FrontEndObj extends FrontEndPOA {
             String result = new String(packet.getData(), 0, packet.getLength());
 
             System.out.println("receive " + result);
-
-            String[] res = result.split(":");
-            resultSet.put(res[1], res[2]);
-            sequenceID = res[0];
+            if(!result.isEmpty()) {
+                String[] res = result.split(":");
+                resultSet.put(res[1], res[2]);
+                sequenceID = res[0];
+            }
         } catch (SocketException e) {
 
         } catch (IOException e) {
@@ -187,7 +191,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "addItem" + "," + managerID + "," + itemID + "," + itemName + "," + q;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -224,7 +228,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "removeItem" + "," + managerID + "," + itemID + "," + quantity;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -266,7 +270,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "listItem" + "," + managerID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -312,7 +316,7 @@ public class FrontEndObj extends FrontEndPOA {
             String message = "borrowItem" + "," + userID + "," + itemID;
             System.out.println("2 borrowItem");
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -357,7 +361,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "findItem" + "," + userID + "," + itemName;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -394,7 +398,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "returnItem" + "," + userID + "," + itemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -454,7 +458,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "addToWaitlist" + "," + userID + "," + itemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -491,7 +495,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "exchangeItem" + "," + studentID + "," + newItemID + "," + oldItemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -550,7 +554,7 @@ public class FrontEndObj extends FrontEndPOA {
             socket = new DatagramSocket(FEPort.FE_PORT.RegistorPort);
             String message = "addToWaitlistforExchagne" + "," + studentID + "," + newItemID + "," + oldItemID;
             sendMessage(message);
-            Timer timer = new Timer(socket, false);
+            Timer timer = new Timer(socket, false, 10000);
             Thread thread = new Thread(timer);
             thread.start();
             while (count < 3 && !timer.timeout) {
@@ -606,7 +610,17 @@ public class FrontEndObj extends FrontEndPOA {
         } else if (!resultSet.containsKey("3")) {
             msg = "Crash" + ":" + "3";
         }
-        multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket();
+            multicastCrashMsg(msg, socket);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
     }
 
     private static void tellRMFailure(String failServerNum) {
@@ -618,7 +632,18 @@ public class FrontEndObj extends FrontEndPOA {
         } else if (failServerNum.equals("3")) {
             msg = msg + ":" + "3" + ":" + sequenceID;
         }
-        multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket();
+            multicastCrashMsg(msg, socket);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+
     }
 
     private static DatagramPacket packet(String rmAddress, byte[] data, int replica) throws UnknownHostException {
@@ -626,39 +651,52 @@ public class FrontEndObj extends FrontEndPOA {
         return new DatagramPacket(data, 0, data.length, address, replica);
     }
 
-    private static void multicastCrashMsg(String msg, int sPort) {
+    private static void multicastCrashMsg(String msg, DatagramSocket socket) {
         DatagramSocket aSocket = null;
         DatagramPacket reply = null;
-        int send_count = 0;
-        boolean revResponse = false;
-        while (!revResponse && send_count < MAXNUM) {
-            try {
-                System.out.println("Client Started........");
-                aSocket = new DatagramSocket();
-                aSocket.setSoTimeout(TIMEOUT);
-                byte[] message = msg.getBytes();
+        List list = new LinkedList();
+        try {
+            System.out.println("Client Started........");
 
-                InetAddress aHost = InetAddress.getByName("224.0.0.1");
-                int serverPort = sPort;
-                DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
-                aSocket.send(request);
-                System.out.println("Request message sent from the client is : " + new String(request.getData()));
-                // byte [] buffer = new byte[1000];
-                // DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-                //
-                // aSocket.receive(reply);
-                // returnMsg = new String(reply.getData()).trim();
-                // System.out.println("Reply received from the server is: "+ returnMsg);
-                byte[] buffer = new byte[1000];
-                reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(reply);
-                revResponse = true;
-            } catch (InterruptedIOException e) {
-                send_count += 1;
-                System.out.println("Time out," + (MAXNUM - send_count) + " more tries...");
-            } catch (Exception e) {
-                System.out.println("udpClient error: " + e);
+
+            InetAddress address1 = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM1address);
+            InetAddress address2 = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM2address);
+            InetAddress address3 = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM3address);
+
+            byte[] data = msg.getBytes();
+            DatagramPacket[] packets = new DatagramPacket[3];
+            packets[0] = new DatagramPacket(data, data.length, address1, RMPort.RM_PORT.rmPort1); // 6001
+            packets[1] = new DatagramPacket(data, data.length, address2, RMPort.RM_PORT.rmPort2); // 6002
+            packets[2] = new DatagramPacket(data, data.length, address3, RMPort.RM_PORT.rmPort3); // 6003
+
+            System.out.println("====== 2. Sequencer multicasts message to RMS.======");
+            for (int i = 0; i < 3; i++) {
+                int send_count = 0;
+                boolean tmp = false;
+                while (!tmp && send_count < MAXNUM) {
+                    try {
+                        aSocket = new DatagramSocket();
+                        aSocket.send(packets[i]);
+                        byte[] buffer = new byte[1000];
+                        reply = new DatagramPacket(buffer, buffer.length);
+                        aSocket.receive(reply);
+                        tmp = true;
+                    } catch (InterruptedIOException e) {
+                        send_count = 1;
+                        System.out.println("Time out," + (MAXNUM - send_count) + "more times...");
+                    } finally {
+                        if(aSocket!=null){
+                            aSocket.close();
+                        }
+                    }
+                }
+
+
             }
+
+
+        } catch (Exception e) {
+            System.out.println("udpClient error: " + e);
         }
     }
 
@@ -752,7 +790,17 @@ public class FrontEndObj extends FrontEndPOA {
             this.crashCase = true;
         }
 
-        multicastCrashMsg(msg, RMPort.RM_PORT.rmPort1);
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket();
+            multicastCrashMsg(msg, socket);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
         return "send";
     }
 }
