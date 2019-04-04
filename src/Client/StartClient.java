@@ -57,7 +57,7 @@ public class StartClient {
 		}
 		String i1 = id.substring(0, 3);
 		String i2 = id.substring(3, 4);
-		boolean userType = (i2.equals("M") || i2.equals("U"));
+		boolean userType = (i2.equals("U"));
 		if (libid.contains(i1) && userType && isInteger(id.substring(4, 7))) {
 			return true;
 		} else {
