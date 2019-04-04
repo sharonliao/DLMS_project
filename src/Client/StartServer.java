@@ -130,6 +130,7 @@ public class StartServer {
                 	while (true) {
                         System.out.println("Please input your User:");
                         id = c.nextLine();
+                        id.trim();
                         id = id.toUpperCase();
                         if (isIDCorret(id)) {
                             break;
@@ -141,6 +142,7 @@ public class StartServer {
                     System.out.println("Please input the ID of the book:");
                     while (true) {
                         book = in2.nextLine();
+                        book.trim();
                         book = book.toUpperCase();
                         if (isItemCorrect(id, book)) {
                             break;
@@ -152,6 +154,7 @@ public class StartServer {
                     System.out.println("Please input the name of the book:");
                     while (true) {
                         name = in2.nextLine();
+                        name.trim();
                         if (name.trim().isEmpty()) {
                             System.out.println("Your input is empty. Please input again!:");
                         } else {
@@ -161,6 +164,7 @@ public class StartServer {
                     System.out.println("Please input the number of the book:");
                     while (true) {
                         quantity = in2.nextLine();
+                        quantity.trim();
                         if (quantity.trim().isEmpty()) {
                             System.out.println("Your input is empty. Please input again!:");
                         } else {
@@ -183,6 +187,7 @@ public class StartServer {
                 	while (true) {
                         System.out.println("Please input your User:");
                         id = c.nextLine();
+                        id.trim();
                         id = id.toUpperCase();
                         if (isIDCorret(id)) {
                             break;
@@ -194,6 +199,7 @@ public class StartServer {
                     System.out.println("Please input the ID of the book you want to remove");
                     while (true) {
                         book = in2.nextLine();
+                        book.trim();
                         book = book.toUpperCase();
                         if (isItemCorrect(id, book)) {
                             break;
@@ -205,6 +211,7 @@ public class StartServer {
                     System.out.println("Please input the number of the book you want to remove:");
                     while (true) {
                         quantity = in2.nextLine();
+                        quantity.trim();
                         if (quantity.trim().isEmpty()) {
                             System.out.println("Your input is empty. Please input again!:");
                         } else {
@@ -225,6 +232,7 @@ public class StartServer {
                 	while (true) {
                         System.out.println("Please input your User:");
                         id = c.nextLine();
+                        id.trim();
                         id = id.toUpperCase();
                         if (isIDCorret(id)) {
                             break;

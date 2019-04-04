@@ -94,6 +94,7 @@ public class Sequencer {
                 while (!tmp && send_count < MAXNUM) {
                     try {
                         aSocket = new DatagramSocket();
+                        aSocket.setSoTimeout(TIMEOUT);
                         aSocket.send(packets[i]);
                         byte[] buffer = new byte[1000];
                         reply = new DatagramPacket(buffer, buffer.length);

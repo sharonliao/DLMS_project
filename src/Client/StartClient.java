@@ -132,6 +132,7 @@ public class StartClient {
 					while (true) {
 						System.out.println("Please input your User:");
 						id = c.nextLine();
+						id.trim();
 						id = id.toUpperCase();
 						if (isIDCorret(id)) {
 							break;
@@ -144,6 +145,7 @@ public class StartClient {
 					String book;
 					while (true) {
 						book = in1.nextLine();
+						book.trim();
 						book = book.toUpperCase();
 						if (isItemCorrect(id, book)) {
 							break;
@@ -158,6 +160,7 @@ public class StartClient {
 						while (true) {
 							Scanner r = new Scanner(System.in);
 							String demand = r.nextLine();
+							demand.trim();
 							if (demand.equals("Y") || demand.equals("y")) {
 								result1 = libobj.addToWaitlist(id, book);
 								System.out.println(result1);
@@ -177,6 +180,7 @@ public class StartClient {
 					while (true) {
 						System.out.println("Please input your User:");
 						id = c.nextLine();
+						id.trim();
 						id = id.toUpperCase();
 						if (isIDCorret(id)) {
 							break;
@@ -189,6 +193,7 @@ public class StartClient {
 					String bookid;
 					while (true) {
 						bookid = in1.nextLine();
+						bookid.trim();
 						bookid = bookid.toUpperCase();
 						if (isItemCorrect(id, bookid)) {
 							break;
@@ -205,6 +210,7 @@ public class StartClient {
 					while (true) {
 						System.out.println("Please input your User:");
 						id = c.nextLine();
+						id.trim();
 						id = id.toUpperCase();
 						if (isIDCorret(id)) {
 							break;
@@ -217,6 +223,7 @@ public class StartClient {
 					String bookname;
 					while (true) {
 						bookname = in1.nextLine();
+						bookname.trim();
 						if (bookname.trim().isEmpty()) {
 							System.out.println("Your input is empty. Please input again!:");
 						} else {
@@ -237,6 +244,7 @@ public class StartClient {
 					while (true) {
 						System.out.println("Please input your User:");
 						id = c.nextLine();
+						id.trim();
 						id = id.toUpperCase();
 						if (isIDCorret(id)) {
 							break;
@@ -249,6 +257,7 @@ public class StartClient {
 					String oldItem;
 					while (true) {
 						oldItem = in1.nextLine();
+						oldItem.trim();
 						oldItem = oldItem.toUpperCase();
 						if (isItemCorrect(id, oldItem)) {
 							break;
@@ -260,6 +269,7 @@ public class StartClient {
 					String newItem;
 					while (true) {
 						newItem = in1.nextLine();
+						newItem.trim();
 						newItem = newItem.toUpperCase();
 						if (isItemCorrect(id, newItem)) {
 							break;
@@ -277,6 +287,7 @@ public class StartClient {
 							while (true) {
 								Scanner r = new Scanner(System.in);
 								String demand = r.nextLine();
+								demand.trim();
 								if (demand.equals("Y") || demand.equals("y")) {
 									result1 = libobj.addToWaitlistforExchange(id, newItem, oldItem);
 									System.out.println(result1);
