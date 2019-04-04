@@ -90,7 +90,7 @@ public class ReplicaManager {
         int setUpType = Integer.parseInt(message.split(":")[1]);
         System.out.println("setUpType~~~" + setUpType);
         if (setUpType == 1) {
-            replica1.bugFree = false;
+            replica1.setBug();
         } else {
             replica1.crashFree = false;
         }
@@ -169,7 +169,7 @@ public class ReplicaManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        logger.info("restart and recover replica2.");
+        logger.info("restart and recover replica1.");
 
     }
 
@@ -255,17 +255,17 @@ public class ReplicaManager {
                 return;
             }
 
-            if (msg.operationMsg.indexOf("listItem") != -1 && replica1.bugFree == false) {
-                // if bugFree is false, then replica1 return wrong info on findItem operation
-                // logger.info("Replica1 failure");
-                reply = msg.seqId + ":" + this.replicaId + ":AAAAAAAA,AA=0";
-            } else {
+//            if (msg.operationMsg.indexOf("listItem") != -1 && replica1.bugFree == false) {
+//                // if bugFree is false, then replica1 return wrong info on findItem operation
+//                // logger.info("Replica1 failure");
+//                reply = msg.seqId + ":" + this.replicaId + ":AAAAAAAA,AA=0";
+//            } else {
                 try {
                     reply = msg.seqId + ":" + this.replicaId + ":" + replica1.executeMsg(msg);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+            //}
             System.out.println("reply:" + reply);
             DatagramSocket socket = null;
             socket = new DatagramSocket();

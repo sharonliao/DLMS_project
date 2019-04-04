@@ -23,8 +23,6 @@ public class StartServer {
             add("MON");
         }
 
-        ;
-
     };
 
     public static void writeFile(String path, String content) {
@@ -139,7 +137,7 @@ public class StartServer {
                             System.out.println("Your UseID is invalid!");
                         }
                     }
-                	String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+                	String logpath = "./" + id + ".log";
                     System.out.println("Please input the ID of the book:");
                     while (true) {
                         book = in2.nextLine();
@@ -192,7 +190,7 @@ public class StartServer {
                             System.out.println("Your UseID is invalid!");
                         }
                     }
-                	String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+                	String logpath = "./" + id + ".log";
                     System.out.println("Please input the ID of the book you want to remove");
                     while (true) {
                         book = in2.nextLine();
@@ -234,7 +232,7 @@ public class StartServer {
                             System.out.println("Your UseID is invalid!");
                         }
                     }
-                	String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+                	String logpath = "./" + id + ".log";
                     result2 = libobj.listItemAvailability(id);
                     System.out.println(result2);
                     if (result2.contains("no book")) {

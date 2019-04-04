@@ -1,9 +1,6 @@
 package ReplicaHost2;
 
-import Model.FEPort;
-import Model.Message;
-import Model.RMPort;
-import Model.logSetFormatter;
+import Model.*;
 import ReplicaHost1.Replica1;
 
 import java.io.IOException;
@@ -283,7 +280,7 @@ public class ReplicaManager {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
 
-                InetAddress address = InetAddress.getByName("127.0.0.1");
+                InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM2address);
                 //InetAddress address = InetAddress.getByName("localhost");
 
                 byte[] data = msgFromReplica.getBytes();
@@ -314,7 +311,7 @@ public class ReplicaManager {
         try {
             aSocket = new DatagramSocket();
 
-            InetAddress address = InetAddress.getByName("127.0.0.1");
+            InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM2address);
             //InetAddress address = InetAddress.getByName("localhost");
 
             byte[] data = crashMsg.getBytes();

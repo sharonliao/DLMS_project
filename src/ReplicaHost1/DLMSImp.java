@@ -18,6 +18,7 @@ public class DLMSImp {
     //when start the server, initial data
     int LocalPort;
     String localFlag;
+    boolean bugFree = true;
 
     private ConcurrentHashMap<String, Item> bookList= new ConcurrentHashMap<String, Item>();//itemId ItemName quantity
     private ConcurrentHashMap<String, Integer> borrowList = new ConcurrentHashMap<String, Integer>();//userId itemId
@@ -71,8 +72,8 @@ public class DLMSImp {
             bookList.put(itemId, newItem);
             returnMsg = "Ad0";
         }
-        System.out.println("add book - book list闂傚倷鐒︾�笛囧礃婵犳艾绠柨鐕傛嫹" + bookList);
 
+        log.info(returnMsg);
         return returnMsg;
     }
 
@@ -120,11 +121,13 @@ public class DLMSImp {
                 + "managerId-" + managerId + ", itemId-" + itemId + " quantity-" + quantity + "\n"
                 + logInfo + "\n";
 
+        log.info(rtn);
         return rtn;
     }
 
 
     public String listItemAvailability(String managerID) {
+
         //list books of  local library first
         String listOfBook = "";
         Collection<Item> allValue = bookList.values();
@@ -140,7 +143,12 @@ public class DLMSImp {
 //                listOfBook = listOfBook + info +"\n";
 //            }
 //        }
-        System.out.println("3--" + listOfBook);
+        //System.out.println("3--" + listOfBook);
+        if(bugFree==false){
+            listOfBook = "AAAAAAAA,AA=0";
+        }
+
+        log.info(listOfBook);
         return listOfBook.trim();
     }
 
@@ -148,7 +156,7 @@ public class DLMSImp {
         String listOfBook = "";
         Collection<Item> allValue = bookList.values();
         for (Item item : allValue) {
-            listOfBook = listOfBook + item.toString() + "\n";
+            listOfBook = listOfBook + item.getItemId() +","+item.getItemName()+"="+item.getQuantity() + "\n";
         }
         return listOfBook;
     }
@@ -172,6 +180,8 @@ public class DLMSImp {
         String info = "Borrow an item \n"
                 + "userId-" + userId + ", itemId-" + itemId + "\n"
                 + rtn + "\n";
+
+        log.info(rtn);
         return rtn;
     }
 
@@ -194,7 +204,8 @@ public class DLMSImp {
                 + returnInfo + "\n"
                 + waitingInfo + "\n";
 
-        return returnInfo;  //婵犵數濮烽。浠嬫晸閽樺鏆遍柨鐔绘缂嶅﹪骞冨Ο璇茬窞閻庯綆鍏橀弸鏍倵楠炲灝鍔氶柟铏姇椤洭鏁愰崥銈囨嚀椤劑宕橀…鎴濆Ψ婵犵數濯撮幏宄懊归崗鍏肩稇闁绘劕锕弻娑樷枎瀹ュ懎濮庢繝娈垮枟缁嬫垼鐏嬮梺鎸庣箓閹冲繘藟閻樺磭绠鹃柛顐ゅ枎閻忥妇绱掔�ｎ亷韬柡浣稿�块幊鏍煛閸愮偓啸闂傚倷绀侀幉锟犳偡椤栨稓顩查柣鎰閺佸洭鏌涘┑鍕姕濠殿垰銈搁弻鈩冨緞鎼淬垻銆婄紓浣割槸濞硷繝寮婚敓鐘茬闂傚牊绋撴禒鈺呮⒑鐠団�崇仧婵炴潙娲俊鐢稿箛閺夎法顔婇梺鍝勬川婵兘顢欐惔銊︹拺闁圭娴烽埥澶愭煟椤撴繄绐旂�规洜鏁婚弫鍌炴偩瀹�濠冮敜闁诲海鎳撻幉锛勭博缁�绲玦nglist闂傚倷鑳堕崢褔銆冩惔銏㈩洸婵犲﹤瀚崣蹇涙煃閸濆嫬鏆熺痪鎯у悑閵囧嫰骞樼捄鍝勫闂佸綊顥撻崗姗�骞冮姀銈呭窛濠电儑璁ｇ粻鎴︹�﹂崸妤佸殝闁汇垽娼ч埛灞筋渻閵堝倹娅撻柛瀣躬楠炲﹤鈽夐姀鈺傛櫆闂佸憡娲﹂崢楣冩偩閹惰姤鐓熼柣妯夸含閸斿秵绻濋姀鈽嗙劷缂佽京鍋涢鍏煎緞鐎ｎ偅鐝梺璇茬箳閸嬬喖宕戦幘璇茬闂侇剙绉甸悡鏇㈡煥閺冨洤袚缂佽泛寮剁换娑氾拷娑欍�為幋鐘电煓濠电姴娲﹂弲婊堟偣閹帒濡块柟鎻掔秺濮婂宕掑顓犮偒闂佸綊顥撻崗姗�骞冮悜钘夊嵆婵ê鍟块崢锟犳⒑缂佹ɑ鎯堢紒缁樼箞瀵宕卞☉娆愭闂佽法鍣﹂幏锟�
+        log.info(returnInfo);
+        return returnInfo;
     }
 
     public String returnInLocal(String userId, String itemId) {
@@ -237,6 +248,7 @@ public class DLMSImp {
                 + "userId-" + userId + ", itemName-" + itemName + "\n"
                 + listOfBook + "\n";
 
+        log.info(listOfBook);
         return listOfBook.trim();
     }
 
@@ -263,8 +275,8 @@ public class DLMSImp {
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(request);// request received
                 String requestMsg = new String(request.getData()).trim();
-                System.out.println("Request received from client: " + requestMsg);
-                //闂傚倷绀侀幖顐ょ矓閸洖鍌ㄧ憸蹇撐ｉ幇鐗堟櫢闁跨噦鎷� 1闂傚倷绶氬褍螞閺冨牆绀傞柣鐔峰煐ction 2闂傚倷绶氬褍螞閺傛娓婚柟鐑樻⒒娑撳秹鏌ㄥ┑鍡╂Ц閻熸瑱绠撻獮鏍庨锟芥俊濂告煕濡粯灏﹂柡宀嬬節瀹曠喖妫冨☉姘摋闁诲孩顔栭崳顕�宕滈悢濂夊殨妞ゆ劧闄勯弲鎼佹煥閻曞倹瀚�
+                log.info("UDP sever receive :" + requestMsg);
+
                 String[] params = requestMsg.split(",");
                 switch (params[0].trim()) {
                     case "borrow":
@@ -294,7 +306,8 @@ public class DLMSImp {
                     default:
                         rtnMsg = "";
                 }
-                System.out.print("UDP sever send : " + fomatString(rtnMsg));
+                //System.out.print("UDP sever send : " + fomatString(rtnMsg));
+                log.info("UDP sever send : " + rtnMsg);
                 DatagramPacket reply = new DatagramPacket(fomatString(rtnMsg).getBytes(), fomatString(rtnMsg).length(), request.getAddress(),
                         request.getPort());// reply packet ready
                 aSocket.send(reply);// reply sent
@@ -349,6 +362,7 @@ public class DLMSImp {
             int serverPort = sPort;
             DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
             aSocket.send(request);
+
             System.out.println("Request message sent from the client is : " + new String(request.getData()));
             byte[] buffer = new byte[1000];
             DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
@@ -653,6 +667,7 @@ public class DLMSImp {
             }
         } catch (Exception e) {
         }
+        log.info(info);
         return info;
     }
 

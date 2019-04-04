@@ -101,10 +101,17 @@ public class Replica1 {
 
 
     public void fixBug() {
-//		conServer.bugFree = true;
-//		mcgServer.bugFree = true;
-//		monServer.bugFree = true;
+		conServer.bugFree = true;
+		mcgServer.bugFree = true;
+		monServer.bugFree = true;
         bugFree = true;
+    }
+
+    public void setBug() {
+        conServer.bugFree = false;
+        mcgServer.bugFree = false;
+        monServer.bugFree = false;
+        bugFree = false;
     }
 
     private DLMSImp getLibrary(String library) {

@@ -652,6 +652,7 @@ public class FrontEndObj extends FrontEndPOA {
     }
 
     private static void multicastCrashMsg(String msg, DatagramSocket socket) {
+        System.out.println("Multicast to RMs:" + msg);
         DatagramSocket aSocket = null;
         DatagramPacket reply = null;
         List list = new LinkedList();
@@ -669,7 +670,7 @@ public class FrontEndObj extends FrontEndPOA {
             packets[1] = new DatagramPacket(data, data.length, address2, RMPort.RM_PORT.rmPort2); // 6002
             packets[2] = new DatagramPacket(data, data.length, address3, RMPort.RM_PORT.rmPort3); // 6003
 
-            System.out.println("====== 2. Sequencer multicasts message to RMS.======");
+
             for (int i = 0; i < 3; i++) {
                 int send_count = 0;
                 boolean tmp = false;

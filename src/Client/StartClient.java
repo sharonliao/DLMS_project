@@ -139,7 +139,7 @@ public class StartClient {
 							System.out.println("Your UseID is invalid!");
 						}
 					}
-					String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+					String logpath = "./" + id + ".log";
 					System.out.println("Please input the ID of book you want to borrow");
 					String book;
 					while (true) {
@@ -184,7 +184,7 @@ public class StartClient {
 							System.out.println("Your UseID is invalid!");
 						}
 					}
-					String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+					String logpath = "./" + id + ".log";
 					System.out.println("Please input the ID of book you want to return");
 					String bookid;
 					while (true) {
@@ -212,7 +212,7 @@ public class StartClient {
 							System.out.println("Your UseID is invalid!");
 						}
 					}
-					String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+					String logpath = "./" + id + ".log";
 					System.out.println("Please input the name of book you want to find");
 					String bookname;
 					while (true) {
@@ -244,7 +244,7 @@ public class StartClient {
 							System.out.println("Your UseID is invalid!");
 						}
 					}
-					String logpath = "E:/project/CORBA 40093667/library_corba/user/" + id + ".log";
+					String logpath = "./" + id + ".log";
 					System.out.println("Please input the ID of book you want to return");
 					String oldItem;
 					while (true) {

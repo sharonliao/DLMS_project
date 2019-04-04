@@ -250,7 +250,6 @@ public class ReplicaManager {
         logger.info("RM3 sends message to Replica3: " + msg.operationMsg + "; reply from Replica2: " + reply);
         sendToFE(socket, reply);
 
-
     }
 
     private void sendToFE(DatagramSocket aSocket, String msgFromReplica) {
@@ -261,7 +260,9 @@ public class ReplicaManager {
             try {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
+
                 InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM1address);
+
                 byte[] data = msgFromReplica.getBytes();
                 DatagramPacket aPacket = new DatagramPacket(data, data.length, address, FEPort.FE_PORT.RegistorPort);
                 aSocket.send(aPacket);
@@ -290,7 +291,9 @@ public class ReplicaManager {
         String crashConfirm = "";
         try {
             aSocket = new DatagramSocket();
+
             InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM1address);
+
             byte[] data = crashMsg.getBytes();
             DatagramPacket aPacket = new DatagramPacket(data, data.length, address, RMFailurePort);
             aSocket.send(aPacket);
