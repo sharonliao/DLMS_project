@@ -280,7 +280,7 @@ public class ReplicaManager {
                 System.out.println("sendToFE");
                 aSocket.setSoTimeout(TIMEOUT);
 
-                InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM2address);
+                InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM1address);
                 //InetAddress address = InetAddress.getByName("localhost");
 
                 byte[] data = msgFromReplica.getBytes();
@@ -311,7 +311,7 @@ public class ReplicaManager {
         try {
             aSocket = new DatagramSocket();
 
-            InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM2address);
+            InetAddress address = InetAddress.getByName(RMAddressInfo.RM_ADDRESS_INFO.RM1address);
             //InetAddress address = InetAddress.getByName("localhost");
 
             byte[] data = crashMsg.getBytes();
